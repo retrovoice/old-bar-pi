@@ -8,7 +8,7 @@ countDict = {}
 salesDict = {}
 locale.setlocale(locale.LC_ALL, '')
 
-with open('data/TouchBistroReport.csv', 'rb') as f:
+with open('data/Report.csv', 'rb') as f:
     startData = False
     reader = csv.reader(f)
 
