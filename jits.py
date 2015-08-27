@@ -1,14 +1,13 @@
 __author__ = 'mcconnelldj'
 
 import csv
-import fpformat
 import locale
 
 countDict = {}
 salesDict = {}
 locale.setlocale(locale.LC_ALL, '')
 
-with open('data/Report.csv', 'rb') as f:
+with open('data/Report.csv') as f:
     startData = False
     reader = csv.reader(f)
 
@@ -26,7 +25,7 @@ with open('data/Report.csv', 'rb') as f:
                 # print 'SOLD:', int( row[1] ), row[0], 'at average', fpformat.fix( avgSale, 2 ), 'total', row[2]
 
             else:
-                
+
                 if len(row) == 6:  # This item is a Sale
 
                     currentCount = countDict[row[0]]
@@ -57,7 +56,7 @@ with open('data/Report.csv', 'rb') as f:
     for item in countDict:
 
         if countDict[item] > 0:
-            avgSale = fpformat.fix(salesDict[item] / countDict[item], 2)
-            total = fpformat.fix(salesDict[item], 2)
+            avgSale = '${:.2f}'.format(salesDict[item] / countDict[item])
+            total = '${:.2f}'.format(salesDict[item])
 
-            print 'SOLD', countDict[item], item, 'at', avgSale, 'each, total =', total
+            print('SOLD', countDict[item], item, 'at', avgSale, 'each, total =', total)
