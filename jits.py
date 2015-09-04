@@ -2,6 +2,7 @@ __author__ = 'mcconnelldj'
 
 import csv
 import locale
+import datetime
 import sqlite3
 
 countDict = {}
@@ -12,12 +13,67 @@ locale.setlocale(locale.LC_ALL, '')
 #dbcursor.execute('''CREATE TABLE alcohol
 #                    (date text, name text, qty int)''')
 
+monthmap = {
+    'Jan': 1,
+    'Feb': 2,
+    'Mar': 3,
+    'Apr': 4,
+    'May': 5,
+    'Jun': 6,
+    'Jul': 7,
+    'Aug': 8,
+    'Sep': 9,
+    'Oct': 10,
+    'Nov': 11,
+    'Dec': 12}
+
+def str2datetime(dtstr):
+
+    month = 1
+    # Takes a string from the POS report and creates
+    # a datetime object
+    # Typical string is: May 5, 2015, 2:52:49 PM
+
+    # Break string into pieces based on whitespace
+    dsegs = dtstr.split()
+
+    # Lookup int value of month string
+    mstr = dsegs[0]
+    if mstr in monthmap:
+        month = monthmap[mstr]
+    day = int(dsegs[1][:-1])
+    year = int(dsegs[2][:-1])
+
+    # Break time into hour, minute and seconds
+    hms = dsegs[3].split(':')
+    hour = int(hms[0])
+    minute = int(hms[1])
+    second = int(hms[2])
+
+    #adjust for AM/PM
+    if dsegs[4] == 'PM' and hour != 12:
+        hour += 12
+    if dsegs[4] == 'AM' and hour == 12:
+        hour = 0
+
+    return datetime.datetime(year,month,day,hour,minute,second)
+
 with open('data/Report.csv') as f:
     startData = False
     reader = csv.reader(f)
 
     # Read first row, which contains date range information
     dateString = next(reader)
+    tmp1 = dateString[0][6:]
+    piece1 = tmp1.partition(' To: ')
+    piece2 = piece1[2].partition('\nGenerated On: ')
+    reportBegin = piece1[0]
+    reportEnd = piece2[0]
+    reportCreated = piece2[2]
+
+    dtBegin  = str2datetime(reportBegin)
+    dtEnd    = str2datetime(reportEnd)
+    dtCreate = str2datetime(reportCreated)
 
     # Read second row, which is the time stamp of the report
     timeStamp = next(reader)
