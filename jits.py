@@ -5,8 +5,19 @@ import locale
 import dutil
 import sqlite3
 
+# Declare these dictionaries so they have global scope
+# Item count indexed by item name
 countDict = {}
+# Item total sales indexed by item name
 salesDict = {}
+# The next four dictionaries are for breaking down sales
+# by category.  The item name is prefixed with the top-level
+# category and separated with a colon.
+alcoholDict = {}
+foodDict = {}
+wineDict = {}
+beerDict = {}
+
 locale.setlocale(locale.LC_ALL, '')
 #dataConnector = sqlite3.connect('jits.db')
 #dbcursor = dataConnector.cursor()
@@ -30,9 +41,6 @@ with open('data/Report.csv') as f:
     dtEnd    = dutil.str2datetime(reportEnd)
     dtCreate = dutil.str2datetime(reportCreated)
 
-    # Read second row, which is the time stamp of the report
-    timeStamp = next(reader)
-
     # Continue reading rows until the header row for the data is found
     headerRow = False
     while not headerRow:
@@ -47,18 +55,26 @@ with open('data/Report.csv') as f:
         if len(row):
 
             if row[0] not in countDict and len(row) > 2:
-
+                # Row index 0 is the ItemCategory:ItemName
+                # Row index 1 is the number of items sold or voided
+                # Sold or voided depends on the number of data items if
+                # the row.  If there are 6 items, it's a sale.
+                # If there are 4 items, it's a voide
                 countDict[row[0]] = int(row[1])
+                # Row index 2 is the sales total in dollars.
                 saleString = row[2]
+                # Convert the string, which can include '$' sign and commas
+                # to a float value
                 sales = locale.atof(saleString[1:])
+                # Use the same key, i.e. row index 0 to add the sale
+                # float value to the sales dictionary.
                 salesDict[row[0]] = sales
-                avgSale = sales / int(row[1])
-                # print 'SOLD:', int( row[1] ), row[0], 'at average', fpformat.fix( avgSale, 2 ), 'total', row[2]
-
-            #else:
 
             elif len(row) == 6:  # This item is a Sale
 
+                # This item is already in the count dictionary, so it's
+                # a duplicate.  Increment the count of items sold and
+                # increase the total sales by the additional amount
                 currentCount = countDict[row[0]]
                 newCount = currentCount + int(row[1])
                 countDict[row[0]] = newCount
@@ -70,21 +86,44 @@ with open('data/Report.csv') as f:
                 avgSale = totalSales / newCount
                 salesDict[row[0]] = totalSales
 
-                # print 'UPDATE COUNT:', row[0], 'to', newCount, 'at', fpformat.fix( avgSale, 2 )
-                #print 'UPDATE SALES:', row[0], 'to', currentSales + newSales, 'total'
-
             elif len(row) == 4:  # This item is a Void
 
+                # This item is a void in the report.  The item count
+                # needs to be decremented by the number of voids
                 currentCount = countDict[row[0]]
                 newCount = currentCount - int(row[1])
                 countDict[row[0]] = newCount
-                # print 'VOID: ',int( row[1] ), row[0], 'to', newCount
 
 
+    # Sort items into their top-level category dictionaries
     for item in countDict:
+        category = item.partition(': ')
+        if ( category[0] == 'Alcohol'):
+            alcoholDict[category[2]] = (countDict[item],salesDict[item])
+        elif (category[0] == 'Food'):
+            foodDict[category[2]] = (countDict[item],salesDict[item])
+        elif (category[0] == 'Wine'):
+            wineDict[category[2]] = (countDict[item],salesDict[item])
+        elif (category[0] == 'Beer'):
+            beerDict[category[2]] = (countDict[item],salesDict[item])
 
-        if countDict[item] > 0:
-            avgSale = '${:.2f}'.format(salesDict[item] / countDict[item])
-            total = '${:.2f}'.format(salesDict[item])
+    print ('SALES FOR ALCOHOLIC BEVERAGES')
+    for bev in alcoholDict:
+        avgp = '${:.2f}'.format(alcoholDict[bev][1]/alcoholDict[bev][0])
+        print ( bev, ': sold', alcoholDict[bev][0], ', at average price of', avgp)
 
-            print('SOLD', countDict[item], item, 'at', avgSale, 'each, total =', total)
+    print ('SALES FOR WINE')
+    for glass in wineDict:
+        avgp = '${:.2f}'.format(wineDict[glass][1]/wineDict[glass][0])
+        print ( glass, ': sold', wineDict[glass][0], ', at average price of', avgp)
+
+    print ('SALES FOR BEER')
+    for bottle in beerDict:
+        avgp = '${:.2f}'.format(beerDict[bottle][1]/beerDict[bottle][0])
+        print ( bottle, ': sold', beerDict[bottle][0], ', at average price of', avgp)
+
+    print ('SALES FOR FOOD')
+    for plate in foodDict:
+        avgp = '${:.2f}'.format(foodDict[plate][1]/foodDict[plate][0])
+        print ( plate, ': sold', foodDict[plate][0], ', at average price of', avgp)
+
