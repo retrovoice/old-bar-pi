@@ -24,7 +24,7 @@ locale.setlocale(locale.LC_ALL, '')
 #dbcursor.execute('''CREATE TABLE alcohol
 #                    (date text, name text, qty int)''')
 
-with open('data/Report.csv') as f:
+with open('data/2015_06.csv') as f:
     startData = False
     reader = csv.reader(f)
 
@@ -94,6 +94,14 @@ with open('data/Report.csv') as f:
                 newCount = currentCount - int(row[1])
                 countDict[row[0]] = newCount
 
+                # The sales amount also needs to be deducted from the
+                # sales total
+                currentSales = salesDict[row[0]]
+                voidString = row[2]
+                voidAmt = locale.atof(voidString[1:])
+                newSales = currentSales - voidAmt
+                salesDict[row[0]] = newSales
+
 
     # Sort items into their top-level category dictionaries
     for item in countDict:
@@ -109,21 +117,33 @@ with open('data/Report.csv') as f:
 
     print ('SALES FOR ALCOHOLIC BEVERAGES')
     for bev in alcoholDict:
-        avgp = '${:.2f}'.format(alcoholDict[bev][1]/alcoholDict[bev][0])
+        if alcoholDict[bev][0] == 0:
+            avgp = 0
+        else:
+            avgp = '${:.2f}'.format(alcoholDict[bev][1]/alcoholDict[bev][0])
         print ( bev, ': sold', alcoholDict[bev][0], ', at average price of', avgp)
 
     print ('SALES FOR WINE')
     for glass in wineDict:
-        avgp = '${:.2f}'.format(wineDict[glass][1]/wineDict[glass][0])
+        if wineDict[glass][0] == 0:
+            avgp = 0
+        else:
+            avgp = '${:.2f}'.format(wineDict[glass][1]/wineDict[glass][0])
         print ( glass, ': sold', wineDict[glass][0], ', at average price of', avgp)
 
     print ('SALES FOR BEER')
     for bottle in beerDict:
-        avgp = '${:.2f}'.format(beerDict[bottle][1]/beerDict[bottle][0])
+        if beerDict[bottle][0] == 0:
+            avgp = 0
+        else:
+            avgp = '${:.2f}'.format(beerDict[bottle][1]/beerDict[bottle][0])
         print ( bottle, ': sold', beerDict[bottle][0], ', at average price of', avgp)
 
     print ('SALES FOR FOOD')
     for plate in foodDict:
-        avgp = '${:.2f}'.format(foodDict[plate][1]/foodDict[plate][0])
+        if foodDict[plate][0] == 0:
+            avgp = 0
+        else:
+            avgp = '${:.2f}'.format(foodDict[plate][1]/foodDict[plate][0])
         print ( plate, ': sold', foodDict[plate][0], ', at average price of', avgp)
 
