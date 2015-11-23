@@ -2,16 +2,18 @@
 #define INVDATABASE_H
 
 #include <QObject>
+#include <QtSql/QtSql>
 #include "appStructs.h"
 
 class QString;
-class QSqlDatabase;
+//class QSqlDatabase;
 
 class Catalogue : public QObject
 {
     Q_OBJECT
 
 public:
+
     explicit Catalogue(QObject *parent = 0);
 
     // Initialize an empty database.  The database
@@ -57,11 +59,11 @@ public:
 
 private:
 
-    QSqlDatabase* myDb;
+    QSqlDatabase myDb;
 
-signals:
+    signals:
 
-public slots:
+    public slots:
 
 };
 

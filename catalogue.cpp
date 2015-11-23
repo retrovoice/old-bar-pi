@@ -7,17 +7,16 @@
 Catalogue::Catalogue(QObject *parent) :
     QObject(parent)
 {
-    myDb = new QSqlDatabase;
-    myDb->addDatabase("QPSQL", "conBarpi");
-    myDb->setHostName("localhost");
-    myDb->setDatabaseName("barpi");
-    myDb->setUserName("juno");
-    myDb->setPassword("f4s6n5");
-    bool ok = myDb->open();
+    myDb = QSqlDatabase::addDatabase("QPSQL", "conBarpi");
+    myDb.setHostName("localhost");
+    myDb.setDatabaseName("barpi");
+    myDb.setUserName("juno");
+    myDb.setPassword("f4s6n5");
+    bool ok = myDb.open();
     if (ok)
     {
-        std::cout << "Database successfully opened.\n";
-        myDb->close();
+        std::cout << "Database successfully opened from catalogue.\n";
+        myDb.close();
     }
     else
     {
