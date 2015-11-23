@@ -1,10 +1,22 @@
-create type category as enum ( 'bourbon', 'brandy', 'cognac', 'gin', 'liqueur', 'rum', 'scotch', 'tequila', 'vodka', 'whiskey' );
+create type category as enum (
+'bourbon',
+'brandy',
+'cognac',
+'gin',
+'liqueur',
+'rum',
+'scotch',
+'tequila',
+'vodka',
+'whiskey' );
+
 create table products (
 upccode varchar(15) primary key,
 label varchar(30),
 abccode varchar(8) unique,
 volume real,
-type category,density real);
+type category,
+density real );
 
 create table inventory (
 id serial primary key,

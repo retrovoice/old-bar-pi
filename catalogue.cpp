@@ -9,7 +9,7 @@ Catalogue::Catalogue(QObject *parent) :
 {
     myDb = new QSqlDatabase;
     myDb->addDatabase("QPSQL", "conBarpi");
-    myDb->setHostName("192.168.1.108");
+    myDb->setHostName("localhost");
     myDb->setDatabaseName("barpi");
     myDb->setUserName("juno");
     myDb->setPassword("f4s6n5");
@@ -17,6 +17,7 @@ Catalogue::Catalogue(QObject *parent) :
     if (ok)
     {
         std::cout << "Database successfully opened.\n";
+        myDb->close();
     }
     else
     {
