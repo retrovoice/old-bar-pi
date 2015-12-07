@@ -110,10 +110,10 @@ include(${QT_USE_FILE})
 
 set ( OUTPUT_NAME barpi )
 
-set ( SOURCES main.cpp catalogue.cpp )
+set ( SOURCES main.cpp catalogue.cpp mainwindow.cpp commandlineparser.cpp )
 
-#set (Q_OBJECT_HEADERS mainwindow.h catalogue.h )
-set (Q_OBJECT_HEADERS catalogue.h )
+set (Q_OBJECT_HEADERS mainwindow.h catalogue.h )
+#set (Q_OBJECT_HEADERS catalogue.h )
 
 qt4_wrap_cpp( MOCD_FILES ${Q_OBJECT_HEADERS} )
 
