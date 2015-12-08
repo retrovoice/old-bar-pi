@@ -1,46 +1,32 @@
 #include <QtGui>
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags):
-	QMainWindow(parent, flags),
-	m_currentConfigFile("")
+MainWindow::MainWindow()
 {
 	// do stuff to setup GUI
+	createLayout();
 }
 
-MainWindow::MainWindow(QString configFile,
-					   QWidget* parent,
-					   Qt::WindowFlags flags):
-QMainWindow(parent, flags),
+MainWindow::MainWindow(QString configFile):
 	m_currentConfigFile(configFile)
 {
 	// do stuff to setup GUI
-}
-
-MainWindow::~MainWindow()
-{
-
+	createLayout();
 }
 
 void MainWindow::createLayout()
 {
-	QPushButton *button01 = new QPushButton("Catalogue");
-	QPushButton *button02 = new QPushButton("Iventory");
-	QPushButton *button03 = new QPushButton("Measure");
-	QPushButton *button04 = new QPushButton("Setup");
+	button01 = new QPushButton("Catalogue");
+	button02 = new QPushButton("Iventory");
+	button03 = new QPushButton("Measure");
+	button04 = new QPushButton("Setup");
 
-	QStackedWidget *stackedWidget = new QStackedWidget;
-	setCentralWidget(stackedWidget);
-	stackedWidget->addWidget(button01);
-	stackedWidget->addWidget(button02);
-	stackedWidget->addWidget(button03);
-	stackedWidget->addWidget(button04);
-
-	//this->openConfigFile();
-
-	//QVBoxLayout *layout = new QVBoxLayout;
-	//layout->addWidget(stackedWidget);
-	//setLayout(layout);
+	QGridLayout *gLayout = new QGridLayout;
+	gLayout->addWidget(button01,0,0);
+	gLayout->addWidget(button02,1,0);
+	gLayout->addWidget(button03,2,0);
+	gLayout->addWidget(button04,3,0);
+	setLayout(gLayout);
 
 }
 
