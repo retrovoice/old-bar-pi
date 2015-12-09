@@ -1,3 +1,4 @@
+#include <iostream>
 #include <QtGui>
 #include "mainwindow.h"
 
@@ -46,11 +47,19 @@ void MainWindow::createLayout()
 	// Add items to a button group which will enforce
 	// mutual exclusion, allowing only one of them
 	// to be active at a time.
-	QButtonGroup *col01Group = new QButtonGroup;
-	col01Group->addButton(mp_button10,1);
-	col01Group->addButton(mp_button20,2);
-	col01Group->addButton(mp_button30,3);
-	col01Group->addButton(mp_button40,4);
+	mp_col01Group = new QButtonGroup;
+	mp_col01Group->addButton(mp_button10);
+	mp_col01Group->addButton(mp_button20);
+	mp_col01Group->addButton(mp_button30);
+	mp_col01Group->addButton(mp_button40);
+
+	QVBoxLayout *col01Layout = new QVBoxLayout;
+	col01Layout->addWidget(mp_button10);
+	col01Layout->addWidget(mp_button20);
+	col01Layout->addWidget(mp_button30);
+	col01Layout->addWidget(mp_button40);
+
+	gLayout->addLayout(col01Layout,1,0);
 
 	mp_button11 = new QPushButton("Option 11");
 	mp_button11->setCheckable(true);
@@ -104,29 +113,29 @@ void MainWindow::createLayout()
 	mp_button44->setCheckable(true);
 	mp_button44->setChecked(false);
 
-	QButtonGroup *page1Group = new QButtonGroup;
-	page1Group->addButton(mp_button11,11);
-	page1Group->addButton(mp_button12,12);
-	page1Group->addButton(mp_button13,13);
-	page1Group->addButton(mp_button14,14);
+	mp_page1Group = new QButtonGroup;
+	mp_page1Group->addButton(mp_button11,11);
+	mp_page1Group->addButton(mp_button12,12);
+	mp_page1Group->addButton(mp_button13,13);
+	mp_page1Group->addButton(mp_button14,14);
 
-	QButtonGroup *page2Group = new QButtonGroup;
-	page2Group->addButton(mp_button21,21);
-	page2Group->addButton(mp_button22,22);
-	page2Group->addButton(mp_button23,23);
-	page2Group->addButton(mp_button24,24);
+	mp_page2Group = new QButtonGroup;
+	mp_page2Group->addButton(mp_button21,21);
+	mp_page2Group->addButton(mp_button22,22);
+	mp_page2Group->addButton(mp_button23,23);
+	mp_page2Group->addButton(mp_button24,24);
 
-	QButtonGroup *page3Group = new QButtonGroup;
-	page3Group->addButton(mp_button31,31);
-	page3Group->addButton(mp_button32,32);
-	page3Group->addButton(mp_button33,33);
-	page3Group->addButton(mp_button34,34);
+	mp_page3Group = new QButtonGroup;
+	mp_page3Group->addButton(mp_button31,31);
+	mp_page3Group->addButton(mp_button32,32);
+	mp_page3Group->addButton(mp_button33,33);
+	mp_page3Group->addButton(mp_button34,34);
 
-	QButtonGroup *page4Group = new QButtonGroup;
-	page4Group->addButton(mp_button41,41);
-	page4Group->addButton(mp_button42,42);
-	page4Group->addButton(mp_button43,43);
-	page4Group->addButton(mp_button44,44);
+	mp_page4Group = new QButtonGroup;
+	mp_page4Group->addButton(mp_button41,41);
+	mp_page4Group->addButton(mp_button42,42);
+	mp_page4Group->addButton(mp_button43,43);
+	mp_page4Group->addButton(mp_button44,44);
 
 	QVBoxLayout *page1Layout = new QVBoxLayout;
 	page1Layout->addWidget(mp_button11);
@@ -152,25 +161,30 @@ void MainWindow::createLayout()
 	page4Layout->addWidget(mp_button43);
 	page4Layout->addWidget(mp_button44);
 
-	QWidget *page1 = new QWidget;
-	page1->setLayout(page1Layout);
-	QWidget *page2 = new QWidget;
-	page1->setLayout(page2Layout);
-	QWidget *page3 = new QWidget;
-	page1->setLayout(page3Layout);
-	QWidget *page4 = new QWidget;
-	page1->setLayout(page4Layout);
+	mp_page1 = new QWidget;
+	mp_page1->setLayout(page1Layout);
+	mp_page2 = new QWidget;
+	mp_page2->setLayout(page2Layout);
+	mp_page3 = new QWidget;
+	mp_page3->setLayout(page3Layout);
+	mp_page4 = new QWidget;
+	mp_page4->setLayout(page4Layout);
 	
-	QStackedLayout *pagesLayout = new QStackedLayout;
-	pagesLayout->addWidget(page1);
-	pagesLayout->addWidget(page2);
-	pagesLayout->addWidget(page3);
-	pagesLayout->addWidget(page4);
+	mp_pagesLayout = new QStackedLayout;
+	mp_pagesLayout->addWidget(mp_page1);
+	mp_pagesLayout->addWidget(mp_page2);
+	mp_pagesLayout->addWidget(mp_page3);
+	mp_pagesLayout->addWidget(mp_page4);
+	mp_pagesLayout->setCurrentIndex(1);
 
-	gLayout->addLayout(pagesLayout,1,1,4,1);
+	gLayout->addLayout(mp_pagesLayout,1,1);
 
 	setLayout(gLayout);
 
+	connect(mp_col01Group, SIGNAL(buttonClicked(mp_button10)), this, SLOT(setSubMenu()));
+	connect(mp_col01Group, SIGNAL(buttonClicked(mp_button20)), this, SLOT(setSubMenu()));
+	connect(mp_col01Group, SIGNAL(buttonClicked(mp_button30)), this, SLOT(setSubMenu()));
+	connect(mp_col01Group, SIGNAL(buttonClicked(mp_button40)), this, SLOT(setSubMenu()));
 }
 
 void MainWindow::openConfigFile()
@@ -181,4 +195,11 @@ void MainWindow::openConfigFile()
 	{
 		m_currentConfigFile = fileName;
 	}
+}
+
+void MainWindow::setSubMenu()
+{
+	int buttonID = mp_col01Group->checkedId();
+	std::cout << "Button " << buttonID << " clicked.\n";
+	mp_pagesLayout->setCurrentIndex(buttonID);
 }
