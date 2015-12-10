@@ -48,10 +48,10 @@ void MainWindow::createLayout()
 	// mutual exclusion, allowing only one of them
 	// to be active at a time.
 	mp_col01Group = new QButtonGroup;
-	mp_col01Group->addButton(mp_button10);
-	mp_col01Group->addButton(mp_button20);
-	mp_col01Group->addButton(mp_button30);
-	mp_col01Group->addButton(mp_button40);
+	mp_col01Group->addButton(mp_button10,0);
+	mp_col01Group->addButton(mp_button20,1);
+	mp_col01Group->addButton(mp_button30,2);
+	mp_col01Group->addButton(mp_button40,3);
 
 	QVBoxLayout *col01Layout = new QVBoxLayout;
 	col01Layout->addWidget(mp_button10);
@@ -61,55 +61,55 @@ void MainWindow::createLayout()
 
 	gLayout->addLayout(col01Layout,1,0);
 
-	mp_button11 = new QPushButton("Option 11");
+	mp_button11 = new QPushButton("Add to Catalogue");
 	mp_button11->setCheckable(true);
 	mp_button11->setChecked(true);
-	mp_button12 = new QPushButton("Option 12");
+	mp_button12 = new QPushButton("List Catalogue");
 	mp_button12->setCheckable(true);
 	mp_button12->setChecked(false);
-	mp_button13 = new QPushButton("Option 13");
+	mp_button13 = new QPushButton("Find Item");
 	mp_button13->setCheckable(true);
 	mp_button13->setChecked(false);
-	mp_button14 = new QPushButton("Option 14");
+	mp_button14 = new QPushButton("Delete Item");
 	mp_button14->setCheckable(true);
 	mp_button14->setChecked(false);
 
-	mp_button21 = new QPushButton("Option 21");
+	mp_button21 = new QPushButton("Add to Stock");
 	mp_button21->setCheckable(true);
 	mp_button21->setChecked(true);
-	mp_button22 = new QPushButton("Option 22");
+	mp_button22 = new QPushButton("List Stock");
 	mp_button22->setCheckable(true);
 	mp_button22->setChecked(false);
-	mp_button23 = new QPushButton("Option 23");
+	mp_button23 = new QPushButton("Find Item");
 	mp_button23->setCheckable(true);
 	mp_button23->setChecked(false);
-	mp_button24 = new QPushButton("Option 24");
+	mp_button24 = new QPushButton("Delete Item");
 	mp_button24->setCheckable(true);
 	mp_button24->setChecked(false);
 
-	mp_button31 = new QPushButton("Option 31");
+	mp_button31 = new QPushButton("Start Inventory");
 	mp_button31->setCheckable(true);
 	mp_button31->setChecked(true);
-	mp_button32 = new QPushButton("Option 32");
+	mp_button32 = new QPushButton("End Inventory");
 	mp_button32->setCheckable(true);
 	mp_button32->setChecked(false);
-	mp_button33 = new QPushButton("Option 33");
+	mp_button33 = new QPushButton("Inventory Report");
 	mp_button33->setCheckable(true);
 	mp_button33->setChecked(false);
-	mp_button34 = new QPushButton("Option 34");
+	mp_button34 = new QPushButton("");
 	mp_button34->setCheckable(true);
 	mp_button34->setChecked(false);
 
-	mp_button41 = new QPushButton("Option 41");
+	mp_button41 = new QPushButton("Database");
 	mp_button41->setCheckable(true);
 	mp_button41->setChecked(true);
-	mp_button42 = new QPushButton("Option 42");
+	mp_button42 = new QPushButton("Load");
 	mp_button42->setCheckable(true);
 	mp_button42->setChecked(false);
-	mp_button43 = new QPushButton("Option 43");
+	mp_button43 = new QPushButton("Save");
 	mp_button43->setCheckable(true);
 	mp_button43->setChecked(false);
-	mp_button44 = new QPushButton("Option 44");
+	mp_button44 = new QPushButton("Save As");
 	mp_button44->setCheckable(true);
 	mp_button44->setChecked(false);
 
@@ -175,16 +175,16 @@ void MainWindow::createLayout()
 	mp_pagesLayout->addWidget(mp_page2);
 	mp_pagesLayout->addWidget(mp_page3);
 	mp_pagesLayout->addWidget(mp_page4);
-	mp_pagesLayout->setCurrentIndex(1);
+	mp_pagesLayout->setCurrentIndex(0);
 
 	gLayout->addLayout(mp_pagesLayout,1,1);
 
 	setLayout(gLayout);
 
-	connect(mp_col01Group, SIGNAL(buttonClicked(mp_button10)), this, SLOT(setSubMenu()));
-	connect(mp_col01Group, SIGNAL(buttonClicked(mp_button20)), this, SLOT(setSubMenu()));
-	connect(mp_col01Group, SIGNAL(buttonClicked(mp_button30)), this, SLOT(setSubMenu()));
-	connect(mp_col01Group, SIGNAL(buttonClicked(mp_button40)), this, SLOT(setSubMenu()));
+	connect(mp_button10, SIGNAL(clicked()), this, SLOT(setSubMenu()));
+	connect(mp_button20, SIGNAL(clicked()), this, SLOT(setSubMenu()));
+	connect(mp_button30, SIGNAL(clicked()), this, SLOT(setSubMenu()));
+	connect(mp_button40, SIGNAL(clicked()), this, SLOT(setSubMenu()));
 }
 
 void MainWindow::openConfigFile()
@@ -200,6 +200,7 @@ void MainWindow::openConfigFile()
 void MainWindow::setSubMenu()
 {
 	int buttonID = mp_col01Group->checkedId();
-	std::cout << "Button " << buttonID << " clicked.\n";
-	mp_pagesLayout->setCurrentIndex(buttonID);
+	//std::cout << "Button " << buttonID << " clicked.\n";
+	if (buttonID > -1)
+		mp_pagesLayout->setCurrentIndex(buttonID);
 }
