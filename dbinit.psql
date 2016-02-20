@@ -1,0 +1,35 @@
+create type category as enum (
+'bourbon',
+'brandy',
+'cognac',
+'gin',
+'liqueur',
+'rum',
+'scotch',
+'tequila',
+'vodka',
+'whiskey' );
+
+create table products (
+upccode varchar(15) primary key,
+label varchar(30),
+abccode varchar(8) unique,
+volume real,
+type category,
+density real );
+
+create table inventory (
+id serial primary key,
+upc varchar(15) references products(upccode),
+barcode varchar(30) unique,
+retired boolean,
+gross real,
+tare  real,
+arrival timestamp,
+departure timestamp );
+
+create table readings (
+id serial primary key,
+item integer references inventory(id),
+stamp timestamp,
+weight real );
