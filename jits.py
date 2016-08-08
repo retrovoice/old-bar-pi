@@ -23,18 +23,18 @@ modDict = {}
 locale.setlocale(locale.LC_ALL, '')
 
 # Setup a SQLite database for storing parsed menu data
-dataConnector = sqlite3.connect('jits.db')
-dbcursor = dataConnector.cursor()
-dbcursor.execute('''CREATE TABLE alcohol
-                    (date text, name text, qty int)''')
-dbcursor.execute('''CREATE TABLE wine
-                    (date text, name text, qty int)''')
-dbcursor.execute('''CREATE TABLE beer
-                    (date text, name text, qty int)''')
-dbcursor.execute('''CREATE TABLE food
-                    (date text, name text, qty int)''')
-dbcursor.execute('''CREATE TABLE modifiers
-                    (date text, name text, qty int)''')
+#dataConnector = sqlite3.connect('jits.db')
+#dbcursor = dataConnector.cursor()
+#dbcursor.execute('''CREATE TABLE alcohol
+#                    (date text, name text, qty int)''')
+#dbcursor.execute('''CREATE TABLE wine
+#                    (date text, name text, qty int)''')
+#dbcursor.execute('''CREATE TABLE beer
+#                    (date text, name text, qty int)''')
+#dbcursor.execute('''CREATE TABLE food
+#                    (date text, name text, qty int)''')
+#dbcursor.execute('''CREATE TABLE modifiers
+#                    (date text, name text, qty int)''')
 
 def processModifiers(modFile):
     with open(modFile) as f:
@@ -84,6 +84,7 @@ def processModifiers(modFile):
                     # This item is already in the dictionary, so it's
                     # a duplicate.  Increment the count of items sold and
                     # increase the total sales by the additional amount
+                    print('<------>Duplicate modifier: ',row[0])
                     currentCount = modDict[row[0]][0]
                     newCount = currentCount + int(row[1])
                     currentSales = modDict[row[0]][1]
