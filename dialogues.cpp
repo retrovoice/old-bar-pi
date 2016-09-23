@@ -1,4 +1,5 @@
 #include "dialogues.h"
+#include "appStructs.h"
 #include <QStringList>
 
 Dialogues::Dialogues()

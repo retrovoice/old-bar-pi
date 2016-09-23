@@ -25,6 +25,7 @@ void MainWindow::createLayout()
 	//banner->setTextFormat(Qt::RichText);
 	banner->setText("Barpi");
 
+    // Specify row 0, col 0, to span 1 row and 3 columns
 	gLayout->addWidget(banner,0,0,1,3);
 
 	// These 4 buttons make up the main menu of the app.
