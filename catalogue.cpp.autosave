@@ -67,6 +67,13 @@ void Catalogue::initModel()
     dbModel->select();
 }
 
+QTableView *Catalogue::createView(const QString &title, QSqlTableModel *model)
+{
+    QTableView *view = new QTableView;
+    view->
+}
+
+
 // Used to add a new product to the database.
 // If the product already exists, this function
 // should return a non-zero value.

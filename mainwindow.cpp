@@ -1,6 +1,7 @@
 #include <iostream>
 #include <QtGui>
 #include "mainwindow.h"
+#include "connection.h"
 
 MainWindow::MainWindow()
 {

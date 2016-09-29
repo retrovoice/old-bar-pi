@@ -15,9 +15,10 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     catalogue.cpp \
-    commandlineparser.cpp
+    commandlineparser.cpp \
 
 HEADERS  += mainwindow.h \
     catalogue.h \
     appStructs.h \
-    commandlineparser.h
+    commandlineparser.h \
+    connection.h

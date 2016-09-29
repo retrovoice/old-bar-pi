@@ -16,13 +16,15 @@ public:
 
     explicit Catalogue(QObject *parent = 0);
 
-    // Initialize an empty database.  The database
-    // should not already exist, and if it does, this
-    // function should return a non-zero value.
+    // The database exists and this call attaches
+    // the database to the QSqlRelationalTableModel
 
-    int initDatabase(QString url,
-                     QString username,
-                     QString password);
+    void initModel();
+
+
+    // Map a view to the relational database
+
+    QTableView *createView(const QString &title, QSqlTableModel *model);
 
     // Used to add a new product to the database.
     // If the product already exists, this function
@@ -59,7 +61,7 @@ public:
 
 private:
 
-    QSqlDatabase myDb;
+    QSqlRelationalTableModel *dbModel;
 
     signals:
 
