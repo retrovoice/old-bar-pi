@@ -6,7 +6,7 @@
 #include "appStructs.h"
 
 class QString;
-//class QSqlDatabase;
+class QTableView;
 
 class Catalogue : public QObject
 {

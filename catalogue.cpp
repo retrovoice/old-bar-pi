@@ -3,6 +3,7 @@
 #include <iostream>
 #include <QtSql/QtSql>
 #include <QString>
+#include <QTableView>
 #include "connection.h"
 
 Catalogue::Catalogue(QObject *parent) :
@@ -70,7 +71,7 @@ void Catalogue::initModel()
 QTableView *Catalogue::createView(const QString &title, QSqlTableModel *model)
 {
     QTableView *view = new QTableView;
-    view->
+    //view->
 }
 
 
