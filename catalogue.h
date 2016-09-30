@@ -1,12 +1,18 @@
 #ifndef INVDATABASE_H
 #define INVDATABASE_H
 
-#include <QObject>
-#include <QtSql/QtSql>
+#include <QWidget>
+#include <QtSql>
 #include "appStructs.h"
 
+QT_BEGIN_NAMESPACE
 class QString;
 class QTableView;
+class QLabel;
+class QLineEdit;
+class QComboBox;
+class QPushButton;
+QT_END_NAMESPACE
 
 class Catalogue : public QObject
 {
@@ -19,12 +25,15 @@ public:
     // The database exists and this call attaches
     // the database to the QSqlRelationalTableModel
 
-    void initModel();
+    void initModels();
 
 
     // Map a view to the relational database
 
     QTableView *createView(const QString &title, QSqlTableModel *model);
+
+    // Creates the UI window for the Products table
+    void makeProductUI();
 
     // Used to add a new product to the database.
     // If the product already exists, this function
@@ -61,8 +70,29 @@ public:
 
 private:
 
-    QSqlRelationalTableModel *dbModel;
+    // These are the models that map to the Products, Inventory,
+    // and Readings tables in the relational database
+    QSqlRelationalTableModel *prodModel;
+    QSqlRelationalTableModel *invModel;
+    QSqlRelationalTableModel *readModel;
+    QSqlRelationalTableModel *categoryModel;
 
+    // Widgets for Products table UI
+    QLabel *p_upcLabel;
+    QLabel *p_nameLael;
+    QLabel *p_abcCodeLabel;
+    QLabel *p_volumeLabel;
+    QLabel *p_categoryLabel;
+    QLabel *p_densityLabel;
+    QLineEdit *p_upcEdit;
+    QLineEdit *p_nameEdit;
+    QLineEdit *p_abcCodeEdit;
+    QLineEdit *p_volumeEdit;
+    QLineEdit *p_densityEdit;
+    QComboBox *p_categoryCombo;
+    QPushButton *p_newButton;
+    QPushButton *p_saveButton;
+    QPushButton *p_cancelButton;
     signals:
 
     public slots:

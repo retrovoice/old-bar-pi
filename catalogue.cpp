@@ -1,9 +1,8 @@
 #include "catalogue.h"
 
 #include <iostream>
-#include <QtSql/QtSql>
-#include <QString>
 #include <QTableView>
+#include <QtGui>
 #include "connection.h"
 
 Catalogue::Catalogue(QObject *parent) :
@@ -26,54 +25,114 @@ Catalogue::Catalogue(QObject *parent) :
     } */
 
     createConnection();
-    dbModel = new QSqlRelationalTableModel;
-    this->initModel();
+
+    categoryModel = new QSqlRelationalTableModel;
+    prodModel = new QSqlRelationalTableModel;
+    invModel = new QSqlRelationalTableModel;
+    readModel = new QSqlRelationalTableModel;
+
+    this->initModels();
+
+    QTableView *categoryView = createView(QObject::tr("Barpi Categories"), categoryModel);
+    categoryView->show();
+    QTableView *prodView = this->createView(QObject::tr("Barpi Products"), prodModel);
+    prodView->show();
+    QTableView *invView = this->createView(QObject::tr("Barpi Inventory"), invModel);
+    invView->show();
+    QTableView *readView = this->createView(QObject::tr("Barpi Readings"), readModel);
+    readView->show();
+
+
+    makeProductUI();
 }
 
-// Initialize an empty database.  The database
-// should not already exist, and if it does, this
-// function should return a non-zero value.
+// The database exists and this call attaches
+// the database to the QSqlRelationalTableModel
 
-void Catalogue::initModel()
+void Catalogue::initModels()
 {
-    dbModel->setTable("products");
-    dbModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    dbModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
-    dbModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
-    dbModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
-    dbModel->setHeaderData(3, Qt::Horizontal, QObject::tr("volume"));
-    dbModel->setHeaderData(4, Qt::Horizontal, QObject::tr("type"));
-    dbModel->setHeaderData(5, Qt::Horizontal, QObject::tr("density"));
+    categoryModel->setTable("category");
+    categoryModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    categoryModel->setHeaderData(0, Qt::Horizontal, QObject::tr("id"));
+    categoryModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
+    categoryModel->select();
 
-    dbModel->setTable("inventory");
-    dbModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    dbModel->setRelation(1, QSqlRelation("products", "upccode", "upc"));
-    dbModel->setHeaderData(0, Qt::Horizontal, QObject::tr("id"));
-    dbModel->setHeaderData(1, Qt::Horizontal, QObject::tr("upc"));
-    dbModel->setHeaderData(2, Qt::Horizontal, QObject::tr("barcode"));
-    dbModel->setHeaderData(3, Qt::Horizontal, QObject::tr("retired"));
-    dbModel->setHeaderData(4, Qt::Horizontal, QObject::tr("gross"));
-    dbModel->setHeaderData(5, Qt::Horizontal, QObject::tr("tare"));
-    dbModel->setHeaderData(6, Qt::Horizontal, QObject::tr("arrival"));
-    dbModel->setHeaderData(7, Qt::Horizontal, QObject::tr("departure"));
+    prodModel->setTable("products");
+    prodModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    //prodModel->setRelation(4, QSqlRelation("category", "id", "label"));
+    prodModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
+    prodModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
+    prodModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
+    prodModel->setHeaderData(3, Qt::Horizontal, QObject::tr("volume"));
+    prodModel->setHeaderData(4, Qt::Horizontal, QObject::tr("type"));
+    prodModel->setHeaderData(5, Qt::Horizontal, QObject::tr("density"));
+    prodModel->select();
 
-    dbModel->setTable("readings");
-    dbModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    dbModel->setRelation(1, QSqlRelation("inventory", "id", "item"));
-    dbModel->setHeaderData(0, Qt::Horizontal, QObject::tr("id"));
-    dbModel->setHeaderData(1, Qt::Horizontal, QObject::tr("item"));
-    dbModel->setHeaderData(2, Qt::Horizontal, QObject::tr("stamp"));
-    dbModel->setHeaderData(3, Qt::Horizontal, QObject::tr("weight"));
+    invModel->setTable("inventory");
+    invModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    invModel->setRelation(1, QSqlRelation("products", "upccode", "label"));
+    invModel->setHeaderData(0, Qt::Horizontal, QObject::tr("id"));
+    invModel->setHeaderData(1, Qt::Horizontal, QObject::tr("upc"));
+    invModel->setHeaderData(2, Qt::Horizontal, QObject::tr("barcode"));
+    invModel->setHeaderData(3, Qt::Horizontal, QObject::tr("retired"));
+    invModel->setHeaderData(4, Qt::Horizontal, QObject::tr("gross"));
+    invModel->setHeaderData(5, Qt::Horizontal, QObject::tr("tare"));
+    invModel->setHeaderData(6, Qt::Horizontal, QObject::tr("arrival"));
+    invModel->setHeaderData(7, Qt::Horizontal, QObject::tr("departure"));
+    invModel->select();
 
-    dbModel->select();
+    readModel->setTable("readings");
+    readModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    readModel->setRelation(1, QSqlRelation("inventory", "id", "barcode"));
+    readModel->setHeaderData(0, Qt::Horizontal, QObject::tr("id"));
+    readModel->setHeaderData(1, Qt::Horizontal, QObject::tr("item"));
+    readModel->setHeaderData(2, Qt::Horizontal, QObject::tr("stamp"));
+    readModel->setHeaderData(3, Qt::Horizontal, QObject::tr("weight"));
+    readModel->select();
 }
 
 QTableView *Catalogue::createView(const QString &title, QSqlTableModel *model)
 {
     QTableView *view = new QTableView;
-    //view->
+    view->setModel(model);
+    view->setItemDelegate(new QSqlRelationalDelegate(view));
+    view->setWindowTitle(title);
+    return view;
 }
 
+// This creates the UI window for the Product table
+
+void Catalogue::makeProductUI()
+{
+    p_upcLabel = new QLabel(tr("&UPC Code:"));
+    p_upcEdit = new QLineEdit();
+    p_upcLabel->setBuddy(p_upcEdit);
+
+    p_nameLael = new QLabel(tr("Na&me:"));
+    p_nameEdit = new QLineEdit();
+    p_nameLael->setBuddy(p_nameEdit);
+
+    p_abcCodeLabel = new QLabel(tr("&ABC Code:"));
+    p_abcCodeEdit = new QLineEdit();
+    p_abcCodeLabel->setBuddy(p_abcCodeEdit);
+
+    p_volumeLabel = new QLabel(tr("&Volume"));
+    p_volumeEdit = new QLineEdit();
+    p_volumeLabel->setBuddy(p_volumeEdit);
+
+    p_densityLabel = new QLabel(tr("&Density:"));
+    p_densityEdit = new QLineEdit();
+    p_densityLabel->setBuddy(p_densityEdit);
+
+    p_categoryLabel = new QLabel(tr("Cate&gory:"));
+    p_categoryCombo = new QComboBox();
+
+    p_newButton = new QPushButton(tr("$New"));
+    p_saveButton = new QPushButton(tr("$Save"));
+    p_cancelButton = new QPushButton(tr("$Cancel"));
+
+
+}
 
 // Used to add a new product to the database.
 // If the product already exists, this function
