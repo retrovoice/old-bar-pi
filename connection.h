@@ -31,7 +31,7 @@ static bool createConnection()
     }
 
     QSqlQuery query;
-    query.exec("create table category (id integer primary key, label varchar(15)");
+    query.exec("create table category (id integer primary key, label varchar(15))");
     query.exec("create table products ("
                "upccode varchar(15) primary key,"
                "label varchar(30),"
@@ -39,19 +39,8 @@ static bool createConnection()
                "volume real,"
                "type integer references category(id),"
                "density real)");
-    //query.exec("create type category as enum ("
-    //           "'bourbon','brandy','cognac','gin','liqueur',"
-    //           "'rum','scotch','tequila','vodka','whiskey')");
-    //query.exec("create table products ("
-    //           "upccode varchar(15) primary key,"
-    //           "label varchar(30),"
-    //           "abccode varchar(8) unique,"
-    //           "volume real,"
-    //"type int references category(id),"
-    //           "type category,"
-    //           "density real)");
     query.exec("create table inventory ("
-               "id integer primary key,"
+               "id integer primary key autoincrement,"
                "upc varchar(15) references products(upccode),"
                "barcode varchar(30) unique,"
                "retired boolean,"
@@ -60,8 +49,8 @@ static bool createConnection()
                "arrival timestamp,"
                "departure timestamp )");
     query.exec("create table readings ("
-               "id integer primary key,"
-               "item integer references inventory(id),"
+               "id integer primary key autoincrement,"
+               "item varchar(30),"
                "stamp timestamp,"
                "weight real )");
 
@@ -75,17 +64,6 @@ static bool createConnection()
     query.exec("insert into category values (8,'tequila')");
     query.exec("insert into category values (9,'vodka')");
     query.exec("insert into category values (10,'whiskey')");
-
-    /*query.exec("insert into category (label) values ('bourbon')");
-    query.exec("insert into category (label) values ('brandy')");
-    query.exec("insert into category (label) values ('cognac')");
-    query.exec("insert into category (label) values ('gin')");
-    query.exec("insert into category (label) values ('liqueur')");
-    query.exec("insert into category (label) values ('rum')");
-    query.exec("insert into category (label) values ('scotch')");
-    query.exec("insert into category (label) values ('tequila')");
-    query.exec("insert into category (label) values ('vodka')");
-    query.exec("insert into category (label) values ('whiskey')");*/
 
     query.exec("insert into products values ("
                "'0082184090008', 'Jack Daniels No. 7',"

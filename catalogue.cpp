@@ -5,8 +5,8 @@
 #include <QtGui>
 #include "connection.h"
 
-Catalogue::Catalogue(QObject *parent) :
-    QObject(parent)
+Catalogue::Catalogue(QWidget *parent) :
+    QWidget(parent)
 {
     /* myDb = QSqlDatabase::addDatabase("QSQLITE", "conBarpi");
     //myDb.setHostName("localhost");
@@ -42,8 +42,8 @@ Catalogue::Catalogue(QObject *parent) :
     QTableView *readView = this->createView(QObject::tr("Barpi Readings"), readModel);
     readView->show();
 
-
-    makeProductUI();
+    prodDialog = new ProductWindow(1,prodModel,this);
+    prodDialog->show();
 }
 
 // The database exists and this call attaches
@@ -59,7 +59,7 @@ void Catalogue::initModels()
 
     prodModel->setTable("products");
     prodModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    //prodModel->setRelation(4, QSqlRelation("category", "id", "label"));
+    prodModel->setRelation(4, QSqlRelation("category", "id", "label"));
     prodModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
     prodModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
     prodModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
@@ -83,7 +83,6 @@ void Catalogue::initModels()
 
     readModel->setTable("readings");
     readModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    readModel->setRelation(1, QSqlRelation("inventory", "id", "barcode"));
     readModel->setHeaderData(0, Qt::Horizontal, QObject::tr("id"));
     readModel->setHeaderData(1, Qt::Horizontal, QObject::tr("item"));
     readModel->setHeaderData(2, Qt::Horizontal, QObject::tr("stamp"));
@@ -98,40 +97,6 @@ QTableView *Catalogue::createView(const QString &title, QSqlTableModel *model)
     view->setItemDelegate(new QSqlRelationalDelegate(view));
     view->setWindowTitle(title);
     return view;
-}
-
-// This creates the UI window for the Product table
-
-void Catalogue::makeProductUI()
-{
-    p_upcLabel = new QLabel(tr("&UPC Code:"));
-    p_upcEdit = new QLineEdit();
-    p_upcLabel->setBuddy(p_upcEdit);
-
-    p_nameLael = new QLabel(tr("Na&me:"));
-    p_nameEdit = new QLineEdit();
-    p_nameLael->setBuddy(p_nameEdit);
-
-    p_abcCodeLabel = new QLabel(tr("&ABC Code:"));
-    p_abcCodeEdit = new QLineEdit();
-    p_abcCodeLabel->setBuddy(p_abcCodeEdit);
-
-    p_volumeLabel = new QLabel(tr("&Volume"));
-    p_volumeEdit = new QLineEdit();
-    p_volumeLabel->setBuddy(p_volumeEdit);
-
-    p_densityLabel = new QLabel(tr("&Density:"));
-    p_densityEdit = new QLineEdit();
-    p_densityLabel->setBuddy(p_densityEdit);
-
-    p_categoryLabel = new QLabel(tr("Cate&gory:"));
-    p_categoryCombo = new QComboBox();
-
-    p_newButton = new QPushButton(tr("$New"));
-    p_saveButton = new QPushButton(tr("$Save"));
-    p_cancelButton = new QPushButton(tr("$Cancel"));
-
-
 }
 
 // Used to add a new product to the database.
