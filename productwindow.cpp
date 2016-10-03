@@ -42,18 +42,21 @@ ProductWindow::ProductWindow(int id, QSqlRelationalTableModel *products, QWidget
     mapper->addMapping(categoryCombo, 4);
     mapper->toFirst();
 
-/*
-    connect(upcEdit, SIGNAL(infoChanged(QVariant)),
+    //QString changedText;
+
+    connect(upcEdit, SIGNAL(textEdited(QString)),
             this, SLOT(enableButtons()));
-    connect(nameEdit, SIGNAL(infoChanged(QVariant)),
+    connect(nameEdit, SIGNAL(textEdited(QString)),
             this, SLOT(enableButtons()));
-    connect(abcCodeEdit, SIGNAL(infoChanged(QVariant)),
+    connect(abcCodeEdit, SIGNAL(textEdited(QString)),
             this, SLOT(enableButtons()));
-    connect(volumeEdit, SIGNAL(infoChanged(QVariant)),
+    connect(volumeEdit, SIGNAL(textEdited(QString)),
             this, SLOT(enableButtons()));
-    connect(densityEdit, SIGNAL(infoChanged(QVariant)),
+    connect(densityEdit, SIGNAL(textEdited(QString)),
             this, SLOT(enableButtons()));
-*/
+    connect(categoryCombo, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(enableButtons()));
+
     QFormLayout *productLayout = new QFormLayout;
     productLayout->addRow(upcLabel, upcEdit);
     productLayout->addRow(nameLabel, nameEdit);
@@ -90,6 +93,8 @@ void ProductWindow::newitem()
 
 void ProductWindow::submit()
 {
+    mapper->submit();
+    mapper->setCurrentIndex(m_id);
     enableButtons(false);
 }
 
