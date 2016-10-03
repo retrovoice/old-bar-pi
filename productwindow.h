@@ -8,17 +8,9 @@ class ProductWindow : public QDialog
 {
     Q_OBJECT
 public:
-    explicit ProductWindow(int id, QSqlRelationalTableModel *products, QWidget *parent = 0);
+    explicit ProductWindow(QSqlRelationalTableModel *products, QWidget *parent = 0);
 
-    int id();
-    
 signals:
-    //void labelChanged(QString upc, const QString &label);
-    //void abccodeChanged(QString upc, const QString &abccode);
-    //void volumeChanged(QString upc, const QVariant &volume);
-    //void densityChanged(QString upc, const QVariant &density);
-    //void categoryChanged(QString upc, const QString &category);
-    void infoChanged(int id, const QVariant &info);
 
 private slots:
     void newitem();
@@ -29,8 +21,6 @@ private slots:
 private:
 
     void createButtons();
-
-    int m_id;
 
     // Widgets for Products table UI
     QVariant *info;

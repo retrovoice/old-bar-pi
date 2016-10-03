@@ -1,6 +1,6 @@
 #include "productwindow.h"
 
-ProductWindow::ProductWindow(int id, QSqlRelationalTableModel *products, QWidget *parent) :
+ProductWindow::ProductWindow(QSqlRelationalTableModel *products, QWidget *parent) :
     QDialog(parent)
 {
     upcLabel = new QLabel(tr("&UPC Code:"));
@@ -70,14 +70,8 @@ ProductWindow::ProductWindow(int id, QSqlRelationalTableModel *products, QWidget
     layout->addWidget(buttonBox);
     setLayout(layout);
 
-    m_id = id;
     enableButtons(false);
     setWindowTitle(tr("Barpi Product"));
-}
-
-int ProductWindow::id()
-{
-    return m_id;
 }
 
 void ProductWindow::newitem()
@@ -89,12 +83,19 @@ void ProductWindow::newitem()
     densityEdit->clear();
     categoryCombo->setCurrentIndex(0);
     enableButtons(false);
+    newButton->setEnabled(false);
+
+    // Need to launch a new dialog to capture at a minimum,
+    // the actual UPC code of the product.  Once a record
+    // is saved to the database, the primary key, in the case
+    // the UPC code, cannot be changed
+
+    enableButtons(true);
 }
 
 void ProductWindow::submit()
 {
     mapper->submit();
-    mapper->setCurrentIndex(m_id);
     enableButtons(false);
 }
 

@@ -42,7 +42,7 @@ Catalogue::Catalogue(QWidget *parent) :
     QTableView *readView = this->createView(QObject::tr("Barpi Readings"), readModel);
     readView->show();
 
-    prodDialog = new ProductWindow(1,prodModel,this);
+    prodDialog = new ProductWindow(prodModel,this);
     prodDialog->show();
 }
 
