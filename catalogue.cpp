@@ -59,13 +59,14 @@ void Catalogue::initModels()
 
     prodModel->setTable("products");
     prodModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    prodModel->setRelation(3, QSqlRelation("categories", "id", "label"));
+    prodModel->setRelation(4, QSqlRelation("categories", "id", "label"));
     prodModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
     prodModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
     prodModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
-    prodModel->setHeaderData(3, Qt::Horizontal, QObject::tr("category"));
-    prodModel->setHeaderData(4, Qt::Horizontal, QObject::tr("volume"));
-    prodModel->setHeaderData(5, Qt::Horizontal, QObject::tr("density"));
+    prodModel->setHeaderData(3, Qt::Horizontal, QObject::tr("abccode"));
+    prodModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
+    prodModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
+    prodModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
     prodModel->select();
 
     invModel->setTable("inventory");

@@ -8,6 +8,7 @@ typedef struct productStruct {
     QString   upccode;         // String read from manufacturer's barcode
     QString   label;           // Name of product
     QString   abccode;         // Alabama Beverage Control product code
+    float     price;           // Last know price of item
     qint32    category;        // category of product (references category table)
     float     volume;          // in milliliters (ml)
     float     density;         // grams/ml

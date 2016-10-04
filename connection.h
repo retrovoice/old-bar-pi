@@ -36,6 +36,7 @@ static bool createConnection()
                "upccode varchar(15) primary key,"
                "label varchar(30),"
                "abccode varchar(8) unique,"
+               "price real,"
                "category integer references categories(id),"
                "volume real,"
                "density real)");
@@ -67,13 +68,13 @@ static bool createConnection()
 
     query.exec("insert into products values ("
                "'0082184090008', 'Jack Daniels No. 7',"
-               "'A305', 10, 0.75, 0.916)");
+               "'E305', 31.49, 10, 1.0, 0.916)");
     query.exec("insert into products values ("
                "'0830895501098', 'Grey Goose',"
-               "'E1400', 9, 1.0, 0.916)");
+               "'E1400', 39.99, 9, 1.0, 0.916)");
     query.exec("insert into products values ("
                "'0083664868780', 'Hendricks',"
-               "'A723', 4, 0.75, 0.9076)");
+               "'A723',35.99, 4, 0.75, 0.9076)");
 
     return true;
 }
