@@ -51,7 +51,7 @@ Catalogue::Catalogue(QWidget *parent) :
 
 void Catalogue::initModels()
 {
-    categoryModel->setTable("category");
+    categoryModel->setTable("categories");
     categoryModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
     categoryModel->setHeaderData(0, Qt::Horizontal, QObject::tr("id"));
     categoryModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
@@ -59,12 +59,12 @@ void Catalogue::initModels()
 
     prodModel->setTable("products");
     prodModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    prodModel->setRelation(4, QSqlRelation("category", "id", "label"));
+    prodModel->setRelation(3, QSqlRelation("categories", "id", "label"));
     prodModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
     prodModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
     prodModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
-    prodModel->setHeaderData(3, Qt::Horizontal, QObject::tr("volume"));
-    prodModel->setHeaderData(4, Qt::Horizontal, QObject::tr("type"));
+    prodModel->setHeaderData(3, Qt::Horizontal, QObject::tr("category"));
+    prodModel->setHeaderData(4, Qt::Horizontal, QObject::tr("volume"));
     prodModel->setHeaderData(5, Qt::Horizontal, QObject::tr("density"));
     prodModel->select();
 

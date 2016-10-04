@@ -4,45 +4,30 @@
 #include <QString>
 #include <QDateTime>
 
-enum prodCategory {
-    bourbon,
-    brandy,
-    cognac,
-    gin,
-    liqueur,
-    rum,
-    scotch,
-    tequila,
-    vodka,
-    whiskey
-};
-
 typedef struct productStruct {
-    qint32   productID;       // Unique integer key used in database
-    QString   labelName;       // Name of product
-    QString   prodBarcode;     // String read from manufacturer's barcode
-    QString   abcCode;         // Alabama Beverage Control product code
+    QString   upccode;         // String read from manufacturer's barcode
+    QString   label;           // Name of product
+    QString   abccode;         // Alabama Beverage Control product code
+    qint32    category;        // category of product (references category table)
     float     volume;          // in milliliters (ml)
-    prodCategory cat;          // category of product
     float     density;         // grams/ml
 } *productPtr;
 
 typedef struct inventoryStruct {
-    qint32   inventoryID;     // Unique integer key used in database
-    qint32   productFK;       // Foreign key reference to product
-    QString   invBarcode;      // Barcode created when added to inventory
-    bool      inService;
-    bool      retired;
-    float     fullWeight;      // weight of product and flask in grams
-    float     tareWeight;      // weight of empty flask in grams
-    QDateTime welcomeDate;     // date product enters into inventory
-    QDateTime goodbyeDate;     // date product leaves inventory
+    qint32    id;              // Unique integer key used in database
+    qint32    upc;             // Foreign key reference to product upccode
+    QString   barcode;         // Barcode created when added to inventory
+    bool      retired;         // No longer in inventory
+    float     gross;           // weight of product and flask in kilograms
+    float     tare;            // weight of empty flask in kilograms
+    QDateTime arrival;         // date product enters into inventory
+    QDateTime departure;       // date product leaves inventory
 } *inventoryPtr;
 
-typedef struct readingStruct {
-    qint32    readingID;       // Unique integer key used in database
-    qint32    inventoryFK;     // Foreign key reference to inventory
-    QDateTime readDate;        // Date of reading
+typedef struct readingsStruct {
+    qint32    id;              // Unique integer key used in database
+    QString   item;            // Inventory bar code of item weighed
+    QDateTime stamp;           // Date of reading
     float     weight;          // reading in grams
 } *readingPtr;
 

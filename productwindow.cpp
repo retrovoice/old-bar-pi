@@ -23,10 +23,10 @@ ProductWindow::ProductWindow(QSqlRelationalTableModel *products, QWidget *parent
     densityEdit = new QLineEdit();
     densityLabel->setBuddy(densityEdit);
 
-    categoryLabel = new QLabel(tr("Cate&gory:"));
+    categoryLabel = new QLabel(tr("Category:"));
     categoryCombo = new QComboBox();
-    categoryCombo->setModel(products->relationModel(4));
-    categoryCombo->setModelColumn(products->relationModel(4)->fieldIndex("label"));
+    categoryCombo->setModel(products->relationModel(3));
+    categoryCombo->setModelColumn(products->relationModel(3)->fieldIndex("label"));
 
     createButtons();
 
@@ -37,9 +37,9 @@ ProductWindow::ProductWindow(QSqlRelationalTableModel *products, QWidget *parent
     mapper->addMapping(upcEdit, 0);
     mapper->addMapping(nameEdit, 1);
     mapper->addMapping(abcCodeEdit, 2);
-    mapper->addMapping(volumeEdit, 3);
+    mapper->addMapping(categoryCombo, 3);
+    mapper->addMapping(volumeEdit, 4);
     mapper->addMapping(densityEdit, 5);
-    mapper->addMapping(categoryCombo, 4);
     mapper->toFirst();
 
     //QString changedText;
@@ -60,8 +60,8 @@ ProductWindow::ProductWindow(QSqlRelationalTableModel *products, QWidget *parent
     QFormLayout *productLayout = new QFormLayout;
     productLayout->addRow(upcLabel, upcEdit);
     productLayout->addRow(nameLabel, nameEdit);
-    productLayout->addRow(categoryLabel, categoryCombo);
     productLayout->addRow(abcCodeLabel, abcCodeEdit);
+    productLayout->addRow(categoryLabel, categoryCombo);
     productLayout->addRow(volumeLabel, volumeEdit);
     productLayout->addRow(densityLabel, densityEdit);
 

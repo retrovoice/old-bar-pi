@@ -31,13 +31,13 @@ static bool createConnection()
     }
 
     QSqlQuery query;
-    query.exec("create table category (id integer primary key, label varchar(15))");
+    query.exec("create table categories (id integer primary key, label varchar(15))");
     query.exec("create table products ("
                "upccode varchar(15) primary key,"
                "label varchar(30),"
                "abccode varchar(8) unique,"
+               "category integer references categories(id),"
                "volume real,"
-               "type integer references category(id),"
                "density real)");
     query.exec("create table inventory ("
                "id integer primary key autoincrement,"
@@ -54,26 +54,26 @@ static bool createConnection()
                "stamp timestamp,"
                "weight real )");
 
-    query.exec("insert into category values (1,'bourbon')");
-    query.exec("insert into category values (2,'brandy')");
-    query.exec("insert into category values (3,'cognac')");
-    query.exec("insert into category values (4,'gin')");
-    query.exec("insert into category values (5,'liqueur')");
-    query.exec("insert into category values (6,'rum')");
-    query.exec("insert into category values (7,'scotch')");
-    query.exec("insert into category values (8,'tequila')");
-    query.exec("insert into category values (9,'vodka')");
-    query.exec("insert into category values (10,'whiskey')");
+    query.exec("insert into categories values (1,'bourbon')");
+    query.exec("insert into categories values (2,'brandy')");
+    query.exec("insert into categories values (3,'cognac')");
+    query.exec("insert into categories values (4,'gin')");
+    query.exec("insert into categories values (5,'liqueur')");
+    query.exec("insert into categories values (6,'rum')");
+    query.exec("insert into categories values (7,'scotch')");
+    query.exec("insert into categories values (8,'tequila')");
+    query.exec("insert into categories values (9,'vodka')");
+    query.exec("insert into categories values (10,'whiskey')");
 
     query.exec("insert into products values ("
                "'0082184090008', 'Jack Daniels No. 7',"
-               "'A305', 0.75, 10, 0.916)");
+               "'A305', 10, 0.75, 0.916)");
     query.exec("insert into products values ("
                "'0830895501098', 'Grey Goose',"
-               "'E1400', 1.0, 9, 0.916)");
+               "'E1400', 9, 1.0, 0.916)");
     query.exec("insert into products values ("
                "'0083664868780', 'Hendricks',"
-               "'A723', 0.75, 4, 0.9076)");
+               "'A723', 4, 0.75, 0.9076)");
 
     return true;
 }
