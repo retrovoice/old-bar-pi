@@ -63,7 +63,7 @@ void Catalogue::initModels()
     prodModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
     prodModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
     prodModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
-    prodModel->setHeaderData(3, Qt::Horizontal, QObject::tr("abccode"));
+    prodModel->setHeaderData(3, Qt::Horizontal, QObject::tr("price"));
     prodModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
     prodModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
     prodModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
