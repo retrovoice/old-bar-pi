@@ -1,8 +1,17 @@
-#include "productwindow.h"
+#include <QtSql>
+#include <QtGui>
+#include "productdialog.h"
 
-ProductWindow::ProductWindow(QSqlRelationalTableModel *products, QWidget *parent) :
+ProductDialog::ProductDialog(const QString &database, QWidget *parent) :
     QDialog(parent)
 {
+
+    dbName = new QString(database);
+
+    pmodel = new QSqlRelationalTableModel;
+
+    this->initModels();
+
     upcLabel = new QLabel(tr("&UPC Code:"));
     upcEdit = new QLineEdit();
     upcLabel->setBuddy(upcEdit);
@@ -29,8 +38,8 @@ ProductWindow::ProductWindow(QSqlRelationalTableModel *products, QWidget *parent
 
     categoryLabel = new QLabel(tr("Category:"));
     categoryCombo = new QComboBox();
-    categoryCombo->setModel(products->relationModel(4));
-    categoryCombo->setModelColumn(products->relationModel(4)->fieldIndex("label"));
+    categoryCombo->setModel(pmodel->relationModel(4));
+    categoryCombo->setModelColumn(pmodel->relationModel(4)->fieldIndex("label"));
 
     productCategories = new QStringList;
     for (int i = 0; i < categoryCombo->count(); i++)
@@ -41,7 +50,7 @@ ProductWindow::ProductWindow(QSqlRelationalTableModel *products, QWidget *parent
     createButtons();
 
     mapper = new QDataWidgetMapper(this);
-    mapper->setModel(products);
+    mapper->setModel(pmodel);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     mapper->setItemDelegate(new QSqlRelationalDelegate(mapper));
     mapper->addMapping(upcEdit, 0);
@@ -51,7 +60,7 @@ ProductWindow::ProductWindow(QSqlRelationalTableModel *products, QWidget *parent
     mapper->addMapping(categoryCombo, 4);
     mapper->addMapping(volumeEdit, 5);
     mapper->addMapping(densityEdit, 6);
-    mapper->toFirst();
+    mapper->toLast();
 
     //QString changedText;
 
@@ -88,7 +97,22 @@ ProductWindow::ProductWindow(QSqlRelationalTableModel *products, QWidget *parent
     enableButtons(true);
 }
 
-void ProductWindow::newitem()
+void ProductDialog::initModels()
+{
+    pmodel->setTable("products");
+    pmodel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    pmodel->setRelation(4, QSqlRelation("categories", "id", "label"));
+    pmodel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
+    pmodel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
+    pmodel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
+    pmodel->setHeaderData(3, Qt::Horizontal, QObject::tr("price"));
+    pmodel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
+    pmodel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
+    pmodel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
+    pmodel->select();
+}
+
+void ProductDialog::newitem()
 {
     // Need to launch a new dialog to capture at a minimum,
     // the actual UPC code of the product.  Once a record
@@ -165,7 +189,7 @@ void ProductWindow::newitem()
     enableButtons(true);
 }
 
-void ProductWindow::writenewrecord()
+void ProductDialog::writenewrecord()
 {
     QString upccode = newUpcEdit->text();
     QString label = newNameEdit->text();
@@ -177,6 +201,18 @@ void ProductWindow::writenewrecord()
 
     QString index(cindex.toString());
 
+    QSqlRecord newRecord;
+    newRecord.insert(0,QSqlField(upccode));
+    newRecord.insert(1,QSqlField(label));
+    newRecord.insert(2,QSqlField(abccode));
+    newRecord.insert(3,QSqlField(price));
+    newRecord.insert(4,QSqlField(index));
+    newRecord.insert(5,QSqlField(volume));
+    newRecord.insert(6,QSqlField(density));
+
+    pmodel->insertRecord(-1,newRecord);
+    //pmodel->select();
+    /*
     QString queryText01("\"insert into products values (\'");
     queryText01.append(upccode);
     queryText01.append("\',\'");
@@ -198,27 +234,27 @@ void ProductWindow::writenewrecord()
 
     QSqlQuery insertquery;
     insertquery.exec(queryText01);
-
+    */
 }
 
-void ProductWindow::enablesavenew(bool enable)
+void ProductDialog::enablesavenew(bool enable)
 {
     newSaveButton->setEnabled(enable);
 }
 
-void ProductWindow::submit()
+void ProductDialog::submit()
 {
     mapper->submit();
     enableButtons(false);
 }
 
-void ProductWindow::revert()
+void ProductDialog::revert()
 {
     mapper->revert();
     enableButtons(false);
 }
 
-void ProductWindow::createButtons()
+void ProductDialog::createButtons()
 {
     newButton = new QPushButton(tr("&New"));
     saveButton = new QPushButton(tr("&Save"));
@@ -240,7 +276,7 @@ void ProductWindow::createButtons()
     buttonBox->addButton(closeButton, QDialogButtonBox::RejectRole);
 }
 
-void ProductWindow::enableButtons(bool enable)
+void ProductDialog::enableButtons(bool enable)
 {
     cancelButton->setEnabled(enable);
     saveButton->setEnabled(enable);

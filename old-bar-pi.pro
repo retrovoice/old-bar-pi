@@ -16,11 +16,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     catalogue.cpp \
     commandlineparser.cpp \
-    productwindow.cpp
+    databasedialog.cpp \
+    productdialog.cpp
 
 HEADERS  += mainwindow.h \
     catalogue.h \
     appStructs.h \
     commandlineparser.h \
     connection.h \
-    productwindow.h
+    databasedialog.h \
+    productdialog.h

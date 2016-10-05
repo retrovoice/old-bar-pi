@@ -1,18 +1,31 @@
-#include <iostream>
+//#include <iostream>
 #include <QtGui>
 #include "mainwindow.h"
-#include "connection.h"
+//#include "connection.h"
+#include "catalogue.h"
+#include "productdialog.h"
+#include "databasedialog.h"
 
 MainWindow::MainWindow()
 {
-	// do stuff to setup GUI
-	createLayout();
+    // Initialize dialog pointers to NULL
+    mp_catalog = 0;
+    mp_dbDialog = 0;
+    mp_prodDialog = 0;
+
+    // do stuff to setup GUI
+    createLayout();
 }
 
 MainWindow::MainWindow(QString configFile):
 	m_currentConfigFile(configFile)
 {
-	// do stuff to setup GUI
+    // Initialize dialog pointers to NULL
+    mp_catalog = 0;
+    mp_dbDialog = 0;
+    mp_prodDialog = 0;
+
+    // do stuff to setup GUI
 	createLayout();
 }
 
@@ -66,9 +79,13 @@ void MainWindow::createLayout()
 	mp_button11 = new QPushButton("Add to Catalogue");
 	mp_button11->setCheckable(true);
 	mp_button11->setChecked(true);
+    connect(mp_button11, SIGNAL(clicked()), this, SLOT(showProdDialog()));
+
 	mp_button12 = new QPushButton("List Catalogue");
 	mp_button12->setCheckable(true);
 	mp_button12->setChecked(false);
+    connect(mp_button12, SIGNAL(clicked()), this, SLOT(showCatalogue()));
+
 	mp_button13 = new QPushButton("Find Item");
 	mp_button13->setCheckable(true);
 	mp_button13->setChecked(false);
@@ -105,13 +122,18 @@ void MainWindow::createLayout()
 	mp_button41 = new QPushButton("Database");
 	mp_button41->setCheckable(true);
 	mp_button41->setChecked(true);
-	mp_button42 = new QPushButton("Load");
+    // Specify Database connection parameters,
+    // test connection and attach
+    connect(mp_button41, SIGNAL(clicked()), this, SLOT(showDbDialog()));
+
+    mp_button42 = new QPushButton("Not Used");
+
 	mp_button42->setCheckable(true);
 	mp_button42->setChecked(false);
-	mp_button43 = new QPushButton("Save");
+    mp_button43 = new QPushButton("Not Used");
 	mp_button43->setCheckable(true);
 	mp_button43->setChecked(false);
-	mp_button44 = new QPushButton("Save As");
+    mp_button44 = new QPushButton("Not Used");
 	mp_button44->setCheckable(true);
 	mp_button44->setChecked(false);
 
@@ -205,4 +227,28 @@ void MainWindow::setSubMenu()
 	//std::cout << "Button " << buttonID << " clicked.\n";
 	if (buttonID > -1)
 		mp_pagesLayout->setCurrentIndex(buttonID);
+}
+
+void  MainWindow::showDbDialog()
+{
+    if (!mp_dbDialog) mp_dbDialog = new DatabaseDialog(this);
+    mp_dbDialog->show();
+}
+
+void  MainWindow::showCatalogue()
+{
+    if (!mp_dbDialog) mp_dbDialog = new DatabaseDialog(this);
+    QString name = mp_dbDialog->databaseName();
+
+    if (!mp_catalog) mp_catalog = new Catalogue(name,this);
+    mp_catalog->show();
+}
+
+void  MainWindow::showProdDialog()
+{
+    if (!mp_dbDialog) mp_dbDialog = new DatabaseDialog;
+    QString name = mp_dbDialog->databaseName();
+
+    if (!mp_prodDialog) mp_prodDialog = new ProductDialog(name,this);
+    mp_prodDialog->show();
 }

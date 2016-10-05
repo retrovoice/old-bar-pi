@@ -2,18 +2,12 @@
 #define INVDATABASE_H
 
 #include <QWidget>
-#include <QtSql>
-#include "appStructs.h"
-#include "productwindow.h"
 
 QT_BEGIN_NAMESPACE
-class QString;
 class QTableView;
-class QLabel;
-class QLineEdit;
-class QComboBox;
-class QPushButton;
-class QDataWidgetMapper;
+class QSqlTableModel;
+class QSqlRelationalTableModel;
+class ProductDialog;
 QT_END_NAMESPACE
 
 class Catalogue : public QWidget
@@ -22,7 +16,7 @@ class Catalogue : public QWidget
 
 public:
 
-    explicit Catalogue(QWidget *parent = 0);
+    explicit Catalogue(const QString &database, QWidget *parent = 0);
 
     // The database exists and this call attaches
     // the database to the QSqlRelationalTableModel
@@ -34,53 +28,27 @@ public:
 
     QTableView *createView(const QString &title, QSqlTableModel *model);
 
-    // Used to add a new product to the database.
-    // If the product already exists, this function
-    // should return a non-zero value.
-
-    int addProduct(productPtr product);
-
-    // Used to add a product item to the inventory.
-    // If the product is not yet in the database, this
-    // function should return a non-zero value.  The
-    // GUI should use the return value to prompt the user
-    // to add the item to the product catalogue.
-
-    int addToInventory(inventoryPtr item);
-
-    // Used to record the weight data of an inventory item
-    // with a date/time stamp.  A non-zero return value indicates
-    // an error.
-    /** TODO: define return values for recordReading */
-
-    int recordReading(readingPtr data);
-
-    // Used to alter the information on an existing product
-    // in the catalogue.  Use a findProduct method to return
-    // a pointer to the desired catalogue item.
-
-    int updateProduct(productPtr product);
-
-    // A set of overloaded methods for retrieving an instance
-    // of a product based on different data
-
-    productPtr findProduct(quint32 ID);
-    productPtr findProduct(QString field); // Label, ABC Code, or Barcode
 
 private:
 
-    // These are the models that map to the Products, Inventory,
-    // and Readings tables in the relational database
-    QSqlRelationalTableModel *prodModel;
-    QSqlRelationalTableModel *invModel;
-    QSqlRelationalTableModel *readModel;
-    QSqlRelationalTableModel *categoryModel;
+    // Database name passed in with constructor
+    const QString *dbName;
 
-    ProductWindow *prodDialog;
+    // Used to map to Products tables in the relational database
+    QSqlRelationalTableModel *prodModel;
+
+    //ProductDialog *prodDialog;
 
     signals:
 
     public slots:
+
+    // Display the Product table in a window
+    void showCatalog(QSqlRelationalTableModel *model);
+
+    // Display a dialog to edit catalog entries and
+    // add new records
+    void editCatalog();
 
 };
 

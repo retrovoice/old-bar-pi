@@ -1,0 +1,173 @@
+#include "databasedialog.h"
+#include <QtGui>
+#include <QtSql>
+
+DatabaseDialog::DatabaseDialog(QWidget *parent) :
+    QDialog(parent)
+{
+    dbTypes = new QStringList;
+    dbTypes->append("QSQLITE");
+    dbTypes->append("QPSQL");
+    dbTypes->append("QMYSQL");
+    dbTypes->append("QDB2");
+    dbTypes->append("QIBASE");
+    dbTypes->append("QOCI");
+    dbTypes->append("QDBC");
+    dbTypes->append("QSYMYSQL");
+    dbTypes->append("QTDS");
+
+    dbName = new QString(":memory:");
+
+    hostLabel = new QLabel(tr("&Hostname:"));
+    hostEdit = new QLineEdit;
+    hostLabel->setBuddy(hostEdit);
+
+    dbLabel = new QLabel(tr("Database &Name:"));
+    dbEdit = new QLineEdit;
+    dbEdit->insert(*dbName);
+    dbLabel->setBuddy(dbEdit);
+
+    userLabel = new QLabel(tr("&Username:"));
+    userEdit = new QLineEdit;
+    userLabel->setBuddy(userEdit);
+
+    passwordLabel = new QLabel(tr("&Password:"));
+    passwordEdit = new QLineEdit;
+    passwordEdit->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+    passwordLabel->setBuddy(passwordEdit);
+
+    typeLabel = new QLabel(tr("&Database Type:"));
+    typeCombo = new QComboBox();
+    for (int i = 0; i < dbTypes->size(); i++)
+    {
+        typeCombo->addItem(dbTypes->at(i));
+    }
+
+    testButton = new QPushButton(tr("&Test"));
+    initButton = new QPushButton(tr("&Initialize"));
+    cancelButton = new QPushButton(tr("Cancel"));
+
+    testButton->setEnabled(false);
+    initButton->setEnabled(false);
+    cancelButton->setEnabled(true);
+
+    connect(testButton, SIGNAL(clicked()), this, SLOT(testConnection()));
+    connect(initButton, SIGNAL(clicked()), this, SLOT(initdb()));
+    connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
+
+    bBox = new QDialogButtonBox(this);
+    bBox->addButton(testButton, QDialogButtonBox::ActionRole);
+    bBox->addButton(initButton, QDialogButtonBox::AcceptRole);
+    bBox->addButton(cancelButton, QDialogButtonBox::RejectRole);
+
+    connect(hostEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
+    connect(dbEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
+    connect(userEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
+    connect(passwordEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
+}
+
+void DatabaseDialog::testConnection()
+{
+    dbName->clear();
+    dbName->append(dbEdit->text());
+    QString dbType = typeCombo->itemText(typeCombo->currentIndex());
+    QString hostname(hostEdit->text());
+    QString username(userEdit->text());
+    QString password(passwordEdit->text());
+
+    QSqlDatabase db = QSqlDatabase::addDatabase(dbType);
+
+    db.setDatabaseName(*dbName);
+    if (hostname.size()) db.setHostName(hostname);
+    if (username.size()) db.setUserName(username);
+    if (password.size()) db.setPassword(password);
+
+    if (!db.open())
+    {
+        QString error("Error: ");
+        error.append(db.lastError().text());
+
+        QMessageBox::critical(this, tr("Cannot open database"),
+                              error, QMessageBox::Cancel);
+    }
+    else
+    {
+        QMessageBox::information(this, tr("Success!"),tr("Database successfully opened"));
+    }
+}
+
+void DatabaseDialog::initdb()
+{
+    dbName->clear();
+    dbName->append(dbEdit->text());
+    QSqlDatabase db = QSqlDatabase::database(*dbName);
+
+    if (db.isValid())
+    {
+        QSqlQuery query;
+        query.exec("create table categories (id integer primary key, label varchar(15))");
+        query.exec("create table products ("
+                   "upccode varchar(15) primary key,"
+                   "label varchar(30),"
+                   "abccode varchar(8) unique,"
+                   "price real,"
+                   "category integer references categories(id),"
+                   "volume real,"
+                   "density real)");
+        query.exec("create table inventory ("
+                   "id integer primary key autoincrement,"
+                   "upc varchar(15) references products(upccode),"
+                   "barcode varchar(30) unique,"
+                   "retired boolean,"
+                   "gross real,"
+                   "tare  real,"
+                   "arrival timestamp,"
+                   "departure timestamp )");
+        query.exec("create table readings ("
+                   "id integer primary key autoincrement,"
+                   "item varchar(30),"
+                   "stamp timestamp,"
+                   "weight real )");
+
+        query.exec("insert into categories values (1,'bourbon')");
+        query.exec("insert into categories values (2,'brandy')");
+        query.exec("insert into categories values (3,'cognac')");
+        query.exec("insert into categories values (4,'gin')");
+        query.exec("insert into categories values (5,'liqueur')");
+        query.exec("insert into categories values (6,'rum')");
+        query.exec("insert into categories values (7,'scotch')");
+        query.exec("insert into categories values (8,'tequila')");
+        query.exec("insert into categories values (9,'vodka')");
+        query.exec("insert into categories values (10,'whiskey')");
+
+        query.exec("insert into products values ("
+                   "'0082184090008', 'Jack Daniels No. 7',"
+                   "'E305', 31.49, 10, 1.0, 0.916)");
+        query.exec("insert into products values ("
+                   "'0830895501098', 'Grey Goose',"
+                   "'E1400', 39.99, 9, 1.0, 0.916)");
+        query.exec("insert into products values ("
+                   "'0083664868780', 'Hendricks',"
+                   "'A723',35.99, 4, 0.75, 0.9076)");
+
+        QString msg("Last Error Reported was: ");
+        msg.append(db.lastError().text());
+        QMessageBox::information(this, tr("Database Initialized"),msg);
+    }
+    else
+    {
+        QString msg("The database named \"");
+        msg.append(*dbName);
+        msg.append("\" is not valid");
+
+
+        QMessageBox::critical(this, tr("Database Invalid"),
+                              msg, QMessageBox::Cancel);
+    }
+}
+
+void DatabaseDialog::enablebuttons(bool enable)
+{
+    initButton->setEnabled(enable);
+    testButton->setEnabled(enable);
+}

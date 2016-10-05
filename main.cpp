@@ -1,12 +1,9 @@
-#include <QApplication>
 #include <iostream>
+#include <QApplication>
 #include <QString>
 #include <QStringList>
-#include <iostream>
 #include "mainwindow.h"
-#include "catalogue.h"
 #include "commandlineparser.h"
-#include <QGridLayout>
 
 int main(int argc, char *argv[])
 {
@@ -47,7 +44,7 @@ int main(int argc, char *argv[])
 		itr++;
 	}
 
-	Catalogue myCat;
+    //Catalogue myCat;
 
 	MainWindow window;
 	window.show();

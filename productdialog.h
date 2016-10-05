@@ -1,14 +1,24 @@
 #ifndef PRODUCTWINDOW_H
 #define PRODUCTWINDOW_H
 
-#include <QtGui>
-#include <QtSql>
+#include <QDialog>
 
-class ProductWindow : public QDialog
+QT_BEGIN_NAMESPACE
+class QStringList;
+class QLabel;
+class QLineEdit;
+class QComboBox;
+class QPushButton;
+class QDialogButtonBox;
+class QDataWidgetMapper;
+class QSqlRelationalTableModel;
+QT_END_NAMESPACE
+
+class ProductDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit ProductWindow(QSqlRelationalTableModel *products, QWidget *parent = 0);
+    explicit ProductDialog(const QString &database, QWidget *parent = 0);
 
 signals:
 
@@ -23,6 +33,14 @@ private slots:
 private:
 
     void createButtons();
+
+    void initModels();
+
+    // Database name passed in with constructor
+    const QString *dbName;
+
+    // A copy of the database passed in the constructor
+    QSqlRelationalTableModel *pmodel;
 
     // Widgets for Products table UI
     QLabel *upcLabel;

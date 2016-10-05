@@ -6,6 +6,10 @@
 
 class QStackedLayout;
 class QButtonGroup;
+class Catalogue;
+class DatabaseDialog;
+class ProductDialog;
+
 
 class MainWindow : public QWidget
 {
@@ -15,16 +19,19 @@ public:
 	MainWindow();
 	MainWindow(QString configFile);
 
-	private slots:
-		void openConfigFile();
-		void setSubMenu();
-		//void saveConfigFile();
-		//void saveConfigFileAs();
-		//void addItem();
-		//void delItem();
-		//void doReport();
+private slots:
+    void openConfigFile();
+    void setSubMenu();
+    void showDbDialog();
+    void showCatalogue();
+    void showProdDialog();
 
 private:
+
+    Catalogue *mp_catalog;
+    DatabaseDialog *mp_dbDialog;
+    ProductDialog *mp_prodDialog;
+
 	void createLayout();
 	QPushButton *mp_button10;
 	QPushButton *mp_button20;
