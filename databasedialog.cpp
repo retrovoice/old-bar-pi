@@ -64,6 +64,21 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) :
     connect(dbEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
     connect(userEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
     connect(passwordEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
+
+    QFormLayout *layout = new QFormLayout;
+    layout->addRow(typeLabel,typeCombo);
+    layout->addRow(dbLabel, dbEdit);
+    layout->addRow(hostLabel,hostEdit);
+    layout->addRow(userLabel,userEdit);
+    layout->addRow(passwordLabel,passwordEdit);
+
+    QVBoxLayout *vlayout = new QVBoxLayout;
+    vlayout->addLayout(layout);
+    vlayout->addWidget(bBox);
+    setLayout(vlayout);
+    setWindowTitle(tr("Database Setup"));
+
+    enablebuttons(true);
 }
 
 void DatabaseDialog::testConnection()
