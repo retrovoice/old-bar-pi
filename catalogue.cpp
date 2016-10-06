@@ -31,6 +31,22 @@ Catalogue::Catalogue(const QString &database, QWidget *parent) :
 
     dbName = new QString(database);
 
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(*dbName);
+
+    if (!db.open())
+    {
+        QString error("Database open failed.");
+        error.append(db.lastError().text());
+        QMessageBox::critical(this, tr("Error"),
+                              error, QMessageBox::Cancel);
+        return;
+    }
+    else
+    {
+        QMessageBox::information(this, tr("Success!"),tr("Database successfully opened"));
+    }
+
     prodModel = new QSqlRelationalTableModel;
 
     this->initModels();

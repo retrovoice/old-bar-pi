@@ -23,6 +23,5 @@ HEADERS  += mainwindow.h \
     catalogue.h \
     appStructs.h \
     commandlineparser.h \
-    connection.h \
     databasedialog.h \
     productdialog.h

@@ -12,7 +12,7 @@ MainWindow::MainWindow()
     dbDialog = 0;
     prodDialog = 0;
 
-    dbName = new QString;
+    dbName = new QString("bp001");
 
     // do stuff to setup GUI
     createLayout();
@@ -26,7 +26,7 @@ MainWindow::MainWindow(QString configFile):
     dbDialog = 0;
     prodDialog = 0;
 
-    dbName = new QString;
+    dbName = new QString("bp001");
 
     // do stuff to setup GUI
 	createLayout();
@@ -240,20 +240,12 @@ void  MainWindow::showDbDialog()
 
 void  MainWindow::showCatalogue()
 {
-    if (!dbDialog) dbDialog = new DatabaseDialog(this);
-    dbName->clear();
-    dbName->append(dbDialog->databaseName());
-
     if (!catalog) catalog = new Catalogue(*dbName,this);
     catalog->show();
 }
 
 void  MainWindow::showProdDialog()
 {
-    if (!dbDialog) dbDialog = new DatabaseDialog(this);
-    dbName->clear();
-    dbName->append(dbDialog->databaseName());
-
     if (!prodDialog) prodDialog = new ProductDialog(*dbName,this);
     prodDialog->show();
 }

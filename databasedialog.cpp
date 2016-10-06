@@ -5,7 +5,11 @@
 DatabaseDialog::DatabaseDialog(QWidget *parent) :
     QDialog(parent)
 {    
-    connectionName = new QString("barpi");
+    dbName = new QString("barpi.sql");
+
+    dbLabel = new QLabel(tr("Database &Name:"));
+    dbEdit = new QLineEdit;
+    dbLabel->setBuddy(hostEdit);
 
     hostLabel = new QLabel(tr("&Hostname:"));
     hostEdit = new QLineEdit;
@@ -20,15 +24,11 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) :
     passwordEdit->setEchoMode(QLineEdit::PasswordEchoOnEdit);
     passwordLabel->setBuddy(passwordEdit);
 
-    typeLabel = new QLabel(tr("&Database Type:"));
+    typeLabel = new QLabel(tr("Database Type:"));
     typeCombo = new QComboBox();
 
     QStringList dbTypes;
-    {
-        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE","test");
-        dbTypes = db.drivers();
-    }
-    QSqlDatabase::removeDatabase("test");
+    dbTypes = QSqlDatabase::drivers();
     for (int i = 0; i < dbTypes.size(); i++)
     {
         typeCombo->addItem(dbTypes.at(i));
@@ -36,27 +36,29 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) :
 
     testButton = new QPushButton(tr("&Test"));
     initButton = new QPushButton(tr("&Initialize"));
-    cancelButton = new QPushButton(tr("Cancel"));
+    closeButton = new QPushButton(tr("Close"));
 
     testButton->setEnabled(false);
     initButton->setEnabled(false);
-    cancelButton->setEnabled(true);
+    closeButton->setEnabled(true);
 
     connect(testButton, SIGNAL(clicked()), this, SLOT(testConnection()));
     connect(initButton, SIGNAL(clicked()), this, SLOT(initdb()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
     bBox = new QDialogButtonBox(this);
     bBox->addButton(testButton, QDialogButtonBox::ActionRole);
     bBox->addButton(initButton, QDialogButtonBox::AcceptRole);
-    bBox->addButton(cancelButton, QDialogButtonBox::RejectRole);
+    bBox->addButton(closeButton, QDialogButtonBox::RejectRole);
 
+    connect(dbEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
     connect(hostEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
     connect(userEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
     connect(passwordEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
 
     QFormLayout *layout = new QFormLayout;
     layout->addRow(typeLabel,typeCombo);
+    layout->addRow(dbLabel,dbEdit);
     layout->addRow(hostLabel,hostEdit);
     layout->addRow(userLabel,userEdit);
     layout->addRow(passwordLabel,passwordEdit);
@@ -76,25 +78,11 @@ void DatabaseDialog::testConnection()
     QString hostname(hostEdit->text());
     QString username(userEdit->text());
     QString password(passwordEdit->text());
+    dbName->clear();
+    dbName->append(dbEdit->text());
 
-    QSqlDatabase db;
-    if (db.contains(*connectionName))
-    {
-        db = QSqlDatabase::database(*connectionName);
-        QString msg("Existing connection ");
-        msg.append(*connectionName);
-        msg.append(" complete.");
-        QMessageBox::information(this, tr("Test"), msg);
-    }
-    else
-    {
-        db = QSqlDatabase::addDatabase(dbType,*connectionName);
-        db.setDatabaseName(":memory:");
-        QString msg("Connection ");
-        msg.append(*connectionName);
-        msg.append(" created");
-        QMessageBox::information(this, tr("Test"), msg);
-    }
+    QSqlDatabase db = QSqlDatabase::addDatabase(dbType);
+    db.setDatabaseName(*dbName);
 
     if (hostname.size()) db.setHostName(hostname);
     if (username.size()) db.setUserName(username);
@@ -120,25 +108,11 @@ void DatabaseDialog::initdb()
     QString hostname(hostEdit->text());
     QString username(userEdit->text());
     QString password(passwordEdit->text());
+    dbName->clear();
+    dbName->append(dbEdit->text());
 
-    QSqlDatabase db;
-    if (db.contains(*connectionName))
-    {
-        db = QSqlDatabase::database(*connectionName);
-        QString msg("Existing connection ");
-        msg.append(*connectionName);
-        msg.append(" complete.");
-        QMessageBox::information(this, tr("Test"), msg);
-    }
-    else
-    {
-        db = QSqlDatabase::addDatabase(dbType,*connectionName);
-        db.setDatabaseName(":memory:");
-        QString msg("Connection ");
-        msg.append(*connectionName);
-        msg.append(" created");
-        QMessageBox::information(this, tr("Test"), msg);
-    }
+    QSqlDatabase db = QSqlDatabase::addDatabase(dbType);
+    db.setDatabaseName(*dbName);
 
     if (hostname.size()) db.setHostName(hostname);
     if (username.size()) db.setUserName(username);
@@ -209,9 +183,9 @@ void DatabaseDialog::initdb()
     }
     else
     {
-        QString msg("The database associated with connection \"");
-        msg.append(*connectionName);
-        msg.append("\" is not valid");
+        QString msg("The database \"");
+        msg.append(*dbName);
+        msg.append("\" is invalid");
 
 
         QMessageBox::critical(this, tr("Database Invalid"),

@@ -2,13 +2,29 @@
 #include <QtGui>
 #include "productdialog.h"
 
-ProductDialog::ProductDialog(const QString &database, QWidget *parent) :
+ProductDialog::ProductDialog(const QString &dbname, QWidget *parent) :
     QDialog(parent)
 {
 
-    dbName = new QString(database);
+    dbName = new QString(dbname);
 
-    pmodel = new QSqlRelationalTableModel;
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(*dbName);
+
+    if (!db.open())
+    {
+        QString error("Database open failed.");
+        error.append(db.lastError().text());
+        QMessageBox::critical(this, tr("Error"),
+                              error, QMessageBox::Cancel);
+        return;
+    }
+    else
+    {
+        QMessageBox::information(this, tr("Success!"),tr("Database successfully opened"));
+    }
+
+    prodTableModel = new QSqlRelationalTableModel;
 
     this->initModels();
 
@@ -38,8 +54,8 @@ ProductDialog::ProductDialog(const QString &database, QWidget *parent) :
 
     categoryLabel = new QLabel(tr("Category:"));
     categoryCombo = new QComboBox();
-    categoryCombo->setModel(pmodel->relationModel(4));
-    categoryCombo->setModelColumn(pmodel->relationModel(4)->fieldIndex("label"));
+    categoryCombo->setModel(prodTableModel->relationModel(4));
+    categoryCombo->setModelColumn(prodTableModel->relationModel(4)->fieldIndex("label"));
 
     productCategories = new QStringList;
     for (int i = 0; i < categoryCombo->count(); i++)
@@ -50,7 +66,7 @@ ProductDialog::ProductDialog(const QString &database, QWidget *parent) :
     createButtons();
 
     mapper = new QDataWidgetMapper(this);
-    mapper->setModel(pmodel);
+    mapper->setModel(prodTableModel);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     mapper->setItemDelegate(new QSqlRelationalDelegate(mapper));
     mapper->addMapping(upcEdit, 0);
@@ -99,17 +115,17 @@ ProductDialog::ProductDialog(const QString &database, QWidget *parent) :
 
 void ProductDialog::initModels()
 {
-    pmodel->setTable("products");
-    pmodel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    pmodel->setRelation(4, QSqlRelation("categories", "id", "label"));
-    pmodel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
-    pmodel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
-    pmodel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
-    pmodel->setHeaderData(3, Qt::Horizontal, QObject::tr("price"));
-    pmodel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
-    pmodel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
-    pmodel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
-    pmodel->select();
+    prodTableModel->setTable("products");
+    prodTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    prodTableModel->setRelation(4, QSqlRelation("categories", "id", "label"));
+    prodTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
+    prodTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
+    prodTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
+    prodTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("price"));
+    prodTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
+    prodTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
+    prodTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
+    prodTableModel->select();
 }
 
 void ProductDialog::newitem()
@@ -201,18 +217,18 @@ void ProductDialog::writenewrecord()
 
     QString index(cindex.toString());
 
-    QSqlRecord newRecord;
-    newRecord.insert(0,QSqlField(upccode));
-    newRecord.insert(1,QSqlField(label));
-    newRecord.insert(2,QSqlField(abccode));
-    newRecord.insert(3,QSqlField(price));
-    newRecord.insert(4,QSqlField(index));
-    newRecord.insert(5,QSqlField(volume));
-    newRecord.insert(6,QSqlField(density));
+    //QSqlRecord newRecord;
+    //newRecord.insert(0,QSqlField(upccode));
+    //newRecord.insert(1,QSqlField(label));
+    //newRecord.insert(2,QSqlField(abccode));
+    //newRecord.insert(3,QSqlField(price));
+    //newRecord.insert(4,QSqlField(index));
+    //newRecord.insert(5,QSqlField(volume));
+    //newRecord.insert(6,QSqlField(density));
 
-    pmodel->insertRecord(-1,newRecord);
-    //pmodel->select();
-    /*
+    //prodTableModel->insertRecord(-1,newRecord);
+    //prodTableModel->select();
+
     QString queryText01("\"insert into products values (\'");
     queryText01.append(upccode);
     queryText01.append("\',\'");
@@ -234,7 +250,7 @@ void ProductDialog::writenewrecord()
 
     QSqlQuery insertquery;
     insertquery.exec(queryText01);
-    */
+
 }
 
 void ProductDialog::enablesavenew(bool enable)
