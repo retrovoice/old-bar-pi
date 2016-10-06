@@ -4,11 +4,13 @@
 #include <QWidget>
 #include <QPushButton>
 
+QT_BEGIN_NAMESPACE
 class QStackedLayout;
 class QButtonGroup;
 class Catalogue;
 class DatabaseDialog;
 class ProductDialog;
+QT_END_NAMESPACE
 
 
 class MainWindow : public QWidget
@@ -28,50 +30,51 @@ private slots:
 
 private:
 
-    Catalogue *mp_catalog;
-    DatabaseDialog *mp_dbDialog;
-    ProductDialog *mp_prodDialog;
+    QString *dbName;
+    Catalogue *catalog;
+    DatabaseDialog *dbDialog;
+    ProductDialog *prodDialog;
 
 	void createLayout();
-	QPushButton *mp_button10;
-	QPushButton *mp_button20;
-	QPushButton *mp_button30;
-	QPushButton *mp_button40;
+    QPushButton *button10;
+    QPushButton *button20;
+    QPushButton *button30;
+    QPushButton *button40;
 
-	QPushButton *mp_button11;
-	QPushButton *mp_button12;
-	QPushButton *mp_button13;
-	QPushButton *mp_button14;
+    QPushButton *button11;
+    QPushButton *button12;
+    QPushButton *button13;
+    QPushButton *button14;
 
-	QPushButton *mp_button21;
-	QPushButton *mp_button22;
-	QPushButton *mp_button23;
-	QPushButton *mp_button24;
+    QPushButton *button21;
+    QPushButton *button22;
+    QPushButton *button23;
+    QPushButton *button24;
 
-	QPushButton *mp_button31;
-	QPushButton *mp_button32;
-	QPushButton *mp_button33;
-	QPushButton *mp_button34;
+    QPushButton *button31;
+    QPushButton *button32;
+    QPushButton *button33;
+    QPushButton *button34;
 
-	QPushButton *mp_button41;
-	QPushButton *mp_button42;
-	QPushButton *mp_button43;
-	QPushButton *mp_button44;
+    QPushButton *button41;
+    QPushButton *button42;
+    QPushButton *button43;
+    QPushButton *button44;
 
-	QWidget *mp_page1;
-	QWidget *mp_page2;
-	QWidget *mp_page3;
-	QWidget *mp_page4;
+    QWidget *page1;
+    QWidget *page2;
+    QWidget *page3;
+    QWidget *page4;
 
-	QButtonGroup *mp_col01Group;
-	QButtonGroup *mp_page1Group;
-	QButtonGroup *mp_page2Group;
-	QButtonGroup *mp_page3Group;
-	QButtonGroup *mp_page4Group;
+    QButtonGroup *col01Group;
+    QButtonGroup *page1Group;
+    QButtonGroup *page2Group;
+    QButtonGroup *page3Group;
+    QButtonGroup *page4Group;
 
-	QStackedLayout *mp_pagesLayout;
+    QStackedLayout *pagesLayout;
 
-	QString m_currentConfigFile;
+    QString currentConfigFile;
 };
 
 #endif // MAINWINDOW_H

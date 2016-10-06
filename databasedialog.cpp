@@ -4,28 +4,12 @@
 
 DatabaseDialog::DatabaseDialog(QWidget *parent) :
     QDialog(parent)
-{
-    dbTypes = new QStringList;
-    dbTypes->append("QSQLITE");
-    dbTypes->append("QPSQL");
-    dbTypes->append("QMYSQL");
-    dbTypes->append("QDB2");
-    dbTypes->append("QIBASE");
-    dbTypes->append("QOCI");
-    dbTypes->append("QDBC");
-    dbTypes->append("QSYMYSQL");
-    dbTypes->append("QTDS");
-
-    dbName = new QString(":memory:");
+{    
+    connectionName = new QString("barpi");
 
     hostLabel = new QLabel(tr("&Hostname:"));
     hostEdit = new QLineEdit;
     hostLabel->setBuddy(hostEdit);
-
-    dbLabel = new QLabel(tr("Database &Name:"));
-    dbEdit = new QLineEdit;
-    dbEdit->insert(*dbName);
-    dbLabel->setBuddy(dbEdit);
 
     userLabel = new QLabel(tr("&Username:"));
     userEdit = new QLineEdit;
@@ -38,9 +22,16 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) :
 
     typeLabel = new QLabel(tr("&Database Type:"));
     typeCombo = new QComboBox();
-    for (int i = 0; i < dbTypes->size(); i++)
+
+    QStringList dbTypes;
     {
-        typeCombo->addItem(dbTypes->at(i));
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE","test");
+        dbTypes = db.drivers();
+    }
+    QSqlDatabase::removeDatabase("test");
+    for (int i = 0; i < dbTypes.size(); i++)
+    {
+        typeCombo->addItem(dbTypes.at(i));
     }
 
     testButton = new QPushButton(tr("&Test"));
@@ -61,13 +52,11 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) :
     bBox->addButton(cancelButton, QDialogButtonBox::RejectRole);
 
     connect(hostEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
-    connect(dbEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
     connect(userEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
     connect(passwordEdit, SIGNAL(textEdited(QString)), this, SLOT(enablebuttons()));
 
     QFormLayout *layout = new QFormLayout;
     layout->addRow(typeLabel,typeCombo);
-    layout->addRow(dbLabel, dbEdit);
     layout->addRow(hostLabel,hostEdit);
     layout->addRow(userLabel,userEdit);
     layout->addRow(passwordLabel,passwordEdit);
@@ -83,27 +72,41 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) :
 
 void DatabaseDialog::testConnection()
 {
-    dbName->clear();
-    dbName->append(dbEdit->text());
     QString dbType = typeCombo->itemText(typeCombo->currentIndex());
     QString hostname(hostEdit->text());
     QString username(userEdit->text());
     QString password(passwordEdit->text());
 
-    QSqlDatabase db = QSqlDatabase::addDatabase(dbType);
+    QSqlDatabase db;
+    if (db.contains(*connectionName))
+    {
+        db = QSqlDatabase::database(*connectionName);
+        QString msg("Existing connection ");
+        msg.append(*connectionName);
+        msg.append(" complete.");
+        QMessageBox::information(this, tr("Test"), msg);
+    }
+    else
+    {
+        db = QSqlDatabase::addDatabase(dbType,*connectionName);
+        db.setDatabaseName(":memory:");
+        QString msg("Connection ");
+        msg.append(*connectionName);
+        msg.append(" created");
+        QMessageBox::information(this, tr("Test"), msg);
+    }
 
-    db.setDatabaseName(*dbName);
     if (hostname.size()) db.setHostName(hostname);
     if (username.size()) db.setUserName(username);
     if (password.size()) db.setPassword(password);
 
     if (!db.open())
     {
-        QString error("Error: ");
+        QString error("Database open failed.");
         error.append(db.lastError().text());
-
-        QMessageBox::critical(this, tr("Cannot open database"),
+        QMessageBox::critical(this, tr("Error"),
                               error, QMessageBox::Cancel);
+        return;
     }
     else
     {
@@ -113,13 +116,48 @@ void DatabaseDialog::testConnection()
 
 void DatabaseDialog::initdb()
 {
-    dbName->clear();
-    dbName->append(dbEdit->text());
-    QSqlDatabase db = QSqlDatabase::database(*dbName);
+    QString dbType = typeCombo->itemText(typeCombo->currentIndex());
+    QString hostname(hostEdit->text());
+    QString username(userEdit->text());
+    QString password(passwordEdit->text());
 
+    QSqlDatabase db;
+    if (db.contains(*connectionName))
+    {
+        db = QSqlDatabase::database(*connectionName);
+        QString msg("Existing connection ");
+        msg.append(*connectionName);
+        msg.append(" complete.");
+        QMessageBox::information(this, tr("Test"), msg);
+    }
+    else
+    {
+        db = QSqlDatabase::addDatabase(dbType,*connectionName);
+        db.setDatabaseName(":memory:");
+        QString msg("Connection ");
+        msg.append(*connectionName);
+        msg.append(" created");
+        QMessageBox::information(this, tr("Test"), msg);
+    }
+
+    if (hostname.size()) db.setHostName(hostname);
+    if (username.size()) db.setUserName(username);
+    if (password.size()) db.setPassword(password);
+
+    if (!db.isOpen())
+    {
+        if (!db.open())
+        {
+            QString error("Database open failed.");
+            error.append(db.lastError().text());
+            QMessageBox::critical(this, tr("Error"),
+                                  error, QMessageBox::Cancel);
+            return;
+        }
+    }
     if (db.isValid())
     {
-        QSqlQuery query;
+        QSqlQuery query(db);
         query.exec("create table categories (id integer primary key, label varchar(15))");
         query.exec("create table products ("
                    "upccode varchar(15) primary key,"
@@ -165,14 +203,14 @@ void DatabaseDialog::initdb()
                    "'0083664868780', 'Hendricks',"
                    "'A723',35.99, 4, 0.75, 0.9076)");
 
-        QString msg("Last Error Reported was: ");
+        QString msg("Last reported error: ");
         msg.append(db.lastError().text());
         QMessageBox::information(this, tr("Database Initialized"),msg);
     }
     else
     {
-        QString msg("The database named \"");
-        msg.append(*dbName);
+        QString msg("The database associated with connection \"");
+        msg.append(*connectionName);
         msg.append("\" is not valid");
 
 

@@ -18,7 +18,7 @@ class DatabaseDialog : public QDialog
 public:
     explicit DatabaseDialog(QWidget *parent = 0);
 
-    const QString& databaseName(){return *dbName;}
+    const QString& databaseName(){return *connectionName;}
     
 signals:
     
@@ -29,14 +29,11 @@ public slots:
     void enablebuttons(bool enable = true);
 
 private:
-    QStringList *dbTypes;
     QLabel *hostLabel;
-    QLabel *dbLabel;
     QLabel *userLabel;
     QLabel *passwordLabel;
     QLabel *typeLabel;
     QLineEdit *hostEdit;
-    QLineEdit *dbEdit;
     QLineEdit *userEdit;
     QLineEdit *passwordEdit;
     QComboBox *typeCombo;
@@ -44,7 +41,7 @@ private:
     QPushButton *initButton;
     QPushButton *cancelButton;
     QDialogButtonBox *bBox;
-    QString *dbName;
+    QString *connectionName;
 };
 
 #endif // DATABASEDIALOG_H

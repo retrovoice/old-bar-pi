@@ -2,8 +2,6 @@
 
 #include <QtSql>
 #include <QtGui>
-#include "connection.h"
-#include "productdialog.h"
 
 QT_BEGIN_NAMESPACE
 class QString;
@@ -39,9 +37,6 @@ Catalogue::Catalogue(const QString &database, QWidget *parent) :
 
     QTableView *prodView = this->createView(QObject::tr("Barpi Products"), prodModel);
     prodView->show();
-
-    //prodDialog = new ProductDialog(*dbName,this);
-    //prodDialog->show();
 }
 
 // The database exists and this call attaches
@@ -71,17 +66,4 @@ QTableView *Catalogue::createView(const QString &title, QSqlTableModel *model)
     view->setItemDelegate(new QSqlRelationalDelegate(view));
     view->setWindowTitle(title);
     return view;
-}
-
-// Display the Product table in a window
-void Catalogue::showCatalog(QSqlRelationalTableModel *model)
-{
-
-}
-
-// Display a dialog to edit catalog entries and
-// add new records
-void Catalogue::editCatalog()
-{
-
 }

@@ -43,13 +43,6 @@ private:
 
     public slots:
 
-    // Display the Product table in a window
-    void showCatalog(QSqlRelationalTableModel *model);
-
-    // Display a dialog to edit catalog entries and
-    // add new records
-    void editCatalog();
-
 };
 
 #endif // INVDATABASE_H
