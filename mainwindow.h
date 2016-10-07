@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
-#include <QPushButton>
 
 QT_BEGIN_NAMESPACE
 class QStackedLayout;
@@ -10,6 +9,8 @@ class QButtonGroup;
 class Catalogue;
 class DatabaseDialog;
 class ProductDialog;
+class QPushButton;
+class QString;
 QT_END_NAMESPACE
 
 

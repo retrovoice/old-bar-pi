@@ -1,6 +1,17 @@
 #include "databasedialog.h"
-#include <QtGui>
-#include <QtSql>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QStringList>
+#include <QString>
+#include <QFormLayout>
+#include <QVBoxLayout>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QPushButton>
+#include <QDialogButtonBox>
+#include <QMessageBox>
+#include <QSqlQuery>
 
 DatabaseDialog::DatabaseDialog(QWidget *parent) :
     QDialog(parent)

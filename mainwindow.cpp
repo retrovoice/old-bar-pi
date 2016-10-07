@@ -1,9 +1,15 @@
-#include <QtGui>
-#include <QtSql>
 #include "mainwindow.h"
 #include "catalogue.h"
 #include "productdialog.h"
 #include "databasedialog.h"
+
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QButtonGroup>
+#include <QStackedLayout>
+#include <QFileDialog>
 
 MainWindow::MainWindow()
 {
@@ -37,13 +43,13 @@ void MainWindow::createLayout()
 	// The layout for this window will be a grid.
 	QGridLayout *gLayout = new QGridLayout;
 
-	QLabel *banner = new QLabel();
-	banner->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    QLabel *banner = new QLabel;
+    banner->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 	//banner->setTextFormat(Qt::RichText);
-	banner->setText("Barpi");
+    banner->setText("Barpi");
 
     // Specify row 0, col 0, to span 1 row and 3 columns
-	gLayout->addWidget(banner,0,0,1,3);
+    gLayout->addWidget(banner,0,0,1,3);
 
 	// These 4 buttons make up the main menu of the app.
 	// Set the buttons Checkable, and make one of

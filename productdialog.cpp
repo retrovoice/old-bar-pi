@@ -1,6 +1,21 @@
-#include <QtSql>
-#include <QtGui>
 #include "productdialog.h"
+
+#include <QMessageBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QPushButton>
+#include <QStringList>
+#include <QString>
+#include <QFormLayout>
+#include <QVBoxLayout>
+#include <QDialogButtonBox>
+#include <QSqlDatabase>
+#include <QSqlRelationalTableModel>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QDataWidgetMapper>
+#include <QSqlRelationalDelegate>
 
 ProductDialog::ProductDialog(const QString &dbname, QWidget *parent) :
     QDialog(parent)

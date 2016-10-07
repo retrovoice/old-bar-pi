@@ -1,7 +1,11 @@
 #include "catalogue.h"
 
-#include <QtSql>
-#include <QtGui>
+#include <QMessageBox>
+#include <QTableView>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlRelationalTableModel>
+#include <QSqlRelationalDelegate>
 
 QT_BEGIN_NAMESPACE
 class QString;
