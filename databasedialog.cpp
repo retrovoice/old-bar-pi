@@ -17,6 +17,7 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) :
     QDialog(parent)
 {    
     dbName = new QString("barpi.sql");
+    dbConnection = new QString("barpi");
 
     dbLabel = new QLabel(tr("Database &Name:"));
     dbEdit = new QLineEdit;
@@ -89,15 +90,28 @@ void DatabaseDialog::testConnection()
     QString hostname(hostEdit->text());
     QString username(userEdit->text());
     QString password(passwordEdit->text());
-    dbName->clear();
-    dbName->append(dbEdit->text());
 
-    QSqlDatabase db = QSqlDatabase::addDatabase(dbType);
-    db.setDatabaseName(*dbName);
+    QSqlDatabase db;
+    if (QSqlDatabase::contains(*dbConnection))
+    {
+        QMessageBox::information(this, tr("Contains Connection"),*dbConnection);
+        db = QSqlDatabase::database(*dbConnection);
+        dbName->clear();
+        dbName->append(db.databaseName());
+        dbEdit->insert(*dbName);
+        db.setDatabaseName(dbEdit->text());
+    }
+    else
+    {
+        QMessageBox::information(this, tr("Connection Added"),*dbConnection);
+        db = QSqlDatabase::addDatabase(dbType,*dbConnection);
+        db.setDatabaseName(dbEdit->text());
+    }
 
     if (hostname.size()) db.setHostName(hostname);
     if (username.size()) db.setUserName(username);
     if (password.size()) db.setPassword(password);
+
 
     if (!db.open())
     {

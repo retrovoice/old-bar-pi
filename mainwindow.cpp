@@ -10,15 +10,20 @@
 #include <QButtonGroup>
 #include <QStackedLayout>
 #include <QFileDialog>
+#include <QSqlDatabase>
 
 MainWindow::MainWindow()
 {
-    // Initialize dialog pointers to NULL
+    // Initialize dialog pointers to 0
     catalog = 0;
     dbDialog = 0;
     prodDialog = 0;
 
     dbName = new QString("bp001");
+    QString connection("barpi");
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE",connection);
+    db.setDatabaseName(*dbName);
 
     // do stuff to setup GUI
     createLayout();
@@ -27,12 +32,16 @@ MainWindow::MainWindow()
 MainWindow::MainWindow(QString configFile):
     currentConfigFile(configFile)
 {
-    // Initialize dialog pointers to NULL
+    // Initialize dialog pointers to 0
     catalog = 0;
     dbDialog = 0;
     prodDialog = 0;
 
     dbName = new QString("bp001");
+    QString connection("barpi");
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE",connection);
+    db.setDatabaseName(*dbName);
 
     // do stuff to setup GUI
 	createLayout();

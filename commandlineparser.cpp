@@ -25,15 +25,15 @@
 
 CommandLineParser::CommandLineParser(QStringList& options)
 {
-   m_tokenDict = new QMap<QString,QString>;
-   m_optionList = new QStringList;
+   tokenDict = new QMap<QString,QString>;
+   optionList = new QStringList;
    this->addParserOptions(options);
 }
 
 CommandLineParser::~CommandLineParser()
 {
-   delete m_tokenDict;
-   delete m_optionList;
+   delete tokenDict;
+   delete optionList;
 }
 
 void CommandLineParser::processArgvList(QStringList& argv)
@@ -42,11 +42,11 @@ void CommandLineParser::processArgvList(QStringList& argv)
    while (!newArgs.isEmpty())
    {
       QString token = newArgs.takeFirst();
-      if (m_optionList->contains(token))
+      if (optionList->contains(token))
       {
-         if (!newArgs.isEmpty() && !m_optionList->contains(newArgs.at(0)))
+         if (!newArgs.isEmpty() && !optionList->contains(newArgs.at(0)))
          {
-            m_tokenDict->operator[](token) = newArgs.takeFirst();
+            tokenDict->operator[](token) = newArgs.takeFirst();
          }
       }
    }
@@ -57,15 +57,15 @@ void CommandLineParser::addParserOptions(QStringList& opts)
    QStringList::const_iterator itr = opts.constBegin();
    while (itr != opts.constEnd())
    {
-      if(!m_optionList->contains(*itr))
-         m_optionList->append(*itr);
+      if(!optionList->contains(*itr))
+         optionList->append(*itr);
       itr++;
    }
 }
 
 QString CommandLineParser::optionValue(QString opt)
 {
-   if (m_tokenDict->count(opt))
-      return m_tokenDict->operator[](opt);
+   if (tokenDict->count(opt))
+      return tokenDict->operator[](opt);
    return "";
 }

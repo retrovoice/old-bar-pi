@@ -44,6 +44,7 @@ private:
     QPushButton *closeButton;
     QDialogButtonBox *bBox;
     QString *dbName;
+    QString *dbConnection;
 };
 
 #endif // DATABASEDIALOG_H

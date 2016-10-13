@@ -37,8 +37,8 @@ public:
    QString optionValue(QString opt);
    
 private:
-   QMap<QString,QString> *m_tokenDict;
-   QStringList *m_optionList;
+   QMap<QString,QString> *tokenDict;
+   QStringList *optionList;
    void addParserOptions(QStringList& opts);
 };
 
