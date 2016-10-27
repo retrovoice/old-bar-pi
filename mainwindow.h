@@ -11,8 +11,10 @@ class DatabaseDialog;
 class ProductDialog;
 class QPushButton;
 class QString;
+template <class Key, class T> class QMap;
 QT_END_NAMESPACE
 
+typedef QMap<QString,QString> paramMap;
 
 class MainWindow : public QWidget
 {
@@ -23,7 +25,6 @@ public:
 	MainWindow(QString configFile);
 
 private slots:
-    void openConfigFile();
     void setSubMenu();
     void showDbDialog();
     void showCatalogue();
@@ -75,7 +76,13 @@ private:
 
     QStackedLayout *pagesLayout;
 
-    QString currentConfigFile;
+    QString *currentConfigFile;
+    paramMap *paramvalues;
+
+    void readconfigfile(const QString filename, paramMap *params);
+    void writeconfigfile(const QString filename, const paramMap &values);
+    void createdefaultconfig(const QString filename);
+
 };
 
 #endif // MAINWINDOW_H

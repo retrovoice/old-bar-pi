@@ -35,6 +35,7 @@ public:
     
    void processArgvList(QStringList &argv);
    QString optionValue(QString opt);
+   const QStringList getList() { return *optionList; }
    
 private:
    QMap<QString,QString> *tokenDict;

@@ -11,6 +11,12 @@
 #include <QStackedLayout>
 #include <QFileDialog>
 #include <QSqlDatabase>
+#include <QMap>
+#include <QFile>
+#include <QDir>
+#include <QTextStream>
+#include <QMessageBox>
+#include <QVariant>
 
 MainWindow::MainWindow()
 {
@@ -29,13 +35,16 @@ MainWindow::MainWindow()
     createLayout();
 }
 
-MainWindow::MainWindow(QString configFile):
-    currentConfigFile(configFile)
+MainWindow::MainWindow(QString configFile)
 {
     // Initialize dialog pointers to 0
     catalog = 0;
     dbDialog = 0;
     prodDialog = 0;
+
+    currentConfigFile = new QString(configFile);
+    paramvalues = new paramMap();
+    readconfigfile(*currentConfigFile,paramvalues);
 
     dbName = new QString("bp001");
     QString connection("barpi");
@@ -44,26 +53,26 @@ MainWindow::MainWindow(QString configFile):
     db.setDatabaseName(*dbName);
 
     // do stuff to setup GUI
-	createLayout();
+    createLayout();
 }
 
 void MainWindow::createLayout()
 {
-	// The layout for this window will be a grid.
-	QGridLayout *gLayout = new QGridLayout;
+    // The layout for this window will be a grid.
+    QGridLayout *gLayout = new QGridLayout;
 
     QLabel *banner = new QLabel;
     banner->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-	//banner->setTextFormat(Qt::RichText);
+    //banner->setTextFormat(Qt::RichText);
     banner->setText("Barpi");
 
     // Specify row 0, col 0, to span 1 row and 3 columns
     gLayout->addWidget(banner,0,0,1,3);
 
-	// These 4 buttons make up the main menu of the app.
-	// Set the buttons Checkable, and make one of
-	// them Checked for mutual exclusive operation
-	// when added to the button group.
+    // These 4 buttons make up the main menu of the app.
+    // Set the buttons Checkable, and make one of
+    // them Checked for mutual exclusive operation
+    // when added to the button group.
     button10 = new QPushButton("Catalogue");
     button10->setCheckable(true);
     button10->setChecked(false);
@@ -77,22 +86,22 @@ void MainWindow::createLayout()
     button40->setCheckable(true);
     button40->setChecked(false);
 
-	// Add items to a button group which will enforce
-	// mutual exclusion, allowing only one of them
-	// to be active at a time.
+    // Add items to a button group which will enforce
+    // mutual exclusion, allowing only one of them
+    // to be active at a time.
     col01Group = new QButtonGroup;
     col01Group->addButton(button10,0);
     col01Group->addButton(button20,1);
     col01Group->addButton(button30,2);
     col01Group->addButton(button40,3);
 
-	QVBoxLayout *col01Layout = new QVBoxLayout;
+    QVBoxLayout *col01Layout = new QVBoxLayout;
     col01Layout->addWidget(button10);
     col01Layout->addWidget(button20);
     col01Layout->addWidget(button30);
     col01Layout->addWidget(button40);
 
-	gLayout->addLayout(col01Layout,1,0);
+    gLayout->addLayout(col01Layout,1,0);
 
     button11 = new QPushButton("Add to Catalogue");
     button11->setCheckable(true);
@@ -179,25 +188,25 @@ void MainWindow::createLayout()
     page4Group->addButton(button43,43);
     page4Group->addButton(button44,44);
 
-	QVBoxLayout *page1Layout = new QVBoxLayout;
+    QVBoxLayout *page1Layout = new QVBoxLayout;
     page1Layout->addWidget(button11);
     page1Layout->addWidget(button12);
     page1Layout->addWidget(button13);
     page1Layout->addWidget(button14);
 
-	QVBoxLayout *page2Layout = new QVBoxLayout;
+    QVBoxLayout *page2Layout = new QVBoxLayout;
     page2Layout->addWidget(button21);
     page2Layout->addWidget(button22);
     page2Layout->addWidget(button23);
     page2Layout->addWidget(button24);
 
-	QVBoxLayout *page3Layout = new QVBoxLayout;
+    QVBoxLayout *page3Layout = new QVBoxLayout;
     page3Layout->addWidget(button31);
     page3Layout->addWidget(button32);
     page3Layout->addWidget(button33);
     page3Layout->addWidget(button34);
 
-	QVBoxLayout *page4Layout = new QVBoxLayout;
+    QVBoxLayout *page4Layout = new QVBoxLayout;
     page4Layout->addWidget(button41);
     page4Layout->addWidget(button42);
     page4Layout->addWidget(button43);
@@ -211,7 +220,7 @@ void MainWindow::createLayout()
     page3->setLayout(page3Layout);
     page4 = new QWidget;
     page4->setLayout(page4Layout);
-	
+
     pagesLayout = new QStackedLayout;
     pagesLayout->addWidget(page1);
     pagesLayout->addWidget(page2);
@@ -221,7 +230,7 @@ void MainWindow::createLayout()
 
     gLayout->addLayout(pagesLayout,1,1);
 
-	setLayout(gLayout);
+    setLayout(gLayout);
 
     connect(button10, SIGNAL(clicked()), this, SLOT(setSubMenu()));
     connect(button20, SIGNAL(clicked()), this, SLOT(setSubMenu()));
@@ -229,21 +238,11 @@ void MainWindow::createLayout()
     connect(button40, SIGNAL(clicked()), this, SLOT(setSubMenu()));
 }
 
-void MainWindow::openConfigFile()
-{
-	QString fileName = QFileDialog::getOpenFileName(this,
-		tr("Select Simulation Input file") );
-	if (!fileName.isEmpty())
-	{
-        currentConfigFile = fileName;
-	}
-}
-
 void MainWindow::setSubMenu()
 {
     int buttonID = col01Group->checkedId();
-	//std::cout << "Button " << buttonID << " clicked.\n";
-	if (buttonID > -1)
+    //std::cout << "Button " << buttonID << " clicked.\n";
+    if (buttonID > -1)
         pagesLayout->setCurrentIndex(buttonID);
 }
 
@@ -263,4 +262,115 @@ void  MainWindow::showProdDialog()
 {
     if (!prodDialog) prodDialog = new ProductDialog(*dbName,this);
     prodDialog->show();
+}
+
+void MainWindow::readconfigfile(const QString filename, paramMap *params)
+{
+    // Set homedir to point to user's home directory
+    QDir homedir(QDir::home());
+
+    // Check to see if .barpi directory exists and
+    // if not, create it.  If it exists, cd to .barpi
+    // will work, and skip directory creation.
+    if (!homedir.cd(".barpi")) {
+        homedir.mkdir(".barpi");
+        homedir.cd(".barpi");
+        QMessageBox::information(this, tr("Create Directory"), tr(".barpi dir created"));
+    }
+
+    QString filepath = homedir.path();
+    filepath.append("/");
+    filepath.append(filename);
+    QFile conf(filepath);
+
+    if (!conf.exists()) {
+        QString msg(filepath);
+        msg.append(" does not exist!\n Creating default config file.");
+        QMessageBox::information(this, tr("Create Default Config"), msg);
+        this->createdefaultconfig(filepath);
+    }
+
+    if (!conf.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QString msg;
+        msg.append("Cannot open ");
+        msg.append(filename);
+        QMessageBox::critical(this, tr("File Open Error"),
+                              msg, QMessageBox::Cancel);
+        return;
+    }
+
+    const QChar comment('#');
+    const QChar delimiter('=');
+
+    QTextStream in(&conf);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList parts = line.split(QRegExp("\\s+"));
+        int dindex = 0;
+        for (int i = 0; i < parts.size(); i++) {
+
+            if (parts[i][0] == comment) break;
+
+            QString msg("Part ");
+            QVariant partnum(i);
+            msg.append(partnum.toString());
+            msg.append(" is ");
+            msg.append(parts[i]);
+            QMessageBox::information(this, tr("Parts"), msg);
+
+            QStringList segments = parts[i].split(delimiter,QString::SkipEmptyParts);
+
+            if (segments.size() == 2) {
+                QString msg("Adding |");
+                msg.append(segments[0]);
+                msg.append("| = |");
+                msg.append(segments[1]);
+                msg.append("|");
+                QMessageBox::information(this, tr("Param Map"), msg);
+                params->insert(segments[0],segments[1]);
+            }
+            if (parts[i] == delimiter) {
+                dindex = i;
+            }
+        }
+        if (dindex > 0 && parts.size() > 2) {
+            QString msg("Adding <");
+            msg.append(parts[dindex-1]);
+            msg.append("> = <");
+            msg.append(parts[dindex+1]);
+            msg.append(">");
+            QMessageBox::information(this, tr("Param Map"), msg);
+            params->insert(parts[dindex-1],parts[dindex+1]);
+        }
+    }
+}
+
+
+void MainWindow::writeconfigfile(const QString filename, const paramMap &values)
+{
+
+}
+
+void MainWindow::createdefaultconfig(const QString filename)
+{
+    QFile conf(filename);
+
+    if (!conf.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QString msg;
+        msg.append("Cannot open ");
+        msg.append(filename);
+        msg.append(" for writing.");
+        QMessageBox::critical(this, tr("File Open Error"),
+                              msg, QMessageBox::Cancel);
+        return;
+    }
+    else {
+        QTextStream output(&conf);
+        output << "# This is the default barpi configuration file.\n";
+        output << "dbname = bpdata\n";
+        output << "connection = barpi\n";
+        output << "dbtype = QSQLITE\n";
+        output.flush();
+        conf.close();
+    }
 }
