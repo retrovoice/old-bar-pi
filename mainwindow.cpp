@@ -42,14 +42,34 @@ MainWindow::MainWindow(QString configFile)
     dbDialog = 0;
     prodDialog = 0;
 
+    QString connection;
+    QString dbType;
     currentConfigFile = new QString(configFile);
     paramvalues = new paramMap();
     readconfigfile(*currentConfigFile,paramvalues);
 
-    dbName = new QString("bp001");
-    QString connection("barpi");
+    if (paramvalues->size()) {
+        if (paramvalues->contains("dbname"))
+            dbName = new QString(paramvalues->value("dbname"));
+        else
+            dbName = new QString("bpdata");
+        if (paramvalues->contains("connection"))
+            connection = paramvalues->value("connection");
+        else
+            connection = "barpi";
+        if (paramvalues->contains("dbtype"))
+            dbType = paramvalues->value("dbtype");
+        else
+            dbType = "QSQLITE";
+    }
+    else {
 
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE",connection);
+        dbName = new QString("bpdata");
+        connection = "barpi";
+        dbType = "QSQLITE";
+    }
+
+    QSqlDatabase db = QSqlDatabase::addDatabase(dbType,connection);
     db.setDatabaseName(*dbName);
 
     // do stuff to setup GUI
@@ -311,22 +331,9 @@ void MainWindow::readconfigfile(const QString filename, paramMap *params)
 
             if (parts[i][0] == comment) break;
 
-            QString msg("Part ");
-            QVariant partnum(i);
-            msg.append(partnum.toString());
-            msg.append(" is ");
-            msg.append(parts[i]);
-            QMessageBox::information(this, tr("Parts"), msg);
-
             QStringList segments = parts[i].split(delimiter,QString::SkipEmptyParts);
 
             if (segments.size() == 2) {
-                QString msg("Adding |");
-                msg.append(segments[0]);
-                msg.append("| = |");
-                msg.append(segments[1]);
-                msg.append("|");
-                QMessageBox::information(this, tr("Param Map"), msg);
                 params->insert(segments[0],segments[1]);
             }
             if (parts[i] == delimiter) {
@@ -334,12 +341,6 @@ void MainWindow::readconfigfile(const QString filename, paramMap *params)
             }
         }
         if (dindex > 0 && parts.size() > 2) {
-            QString msg("Adding <");
-            msg.append(parts[dindex-1]);
-            msg.append("> = <");
-            msg.append(parts[dindex+1]);
-            msg.append(">");
-            QMessageBox::information(this, tr("Param Map"), msg);
             params->insert(parts[dindex-1],parts[dindex+1]);
         }
     }
