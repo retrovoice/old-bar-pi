@@ -1,0 +1,43 @@
+create table category (
+id serial primary key,
+label varchar(15) );
+
+create table products (
+upccode varchar(15) primary key,
+label varchar(30),
+abccode varchar(8) unique,
+volume real,
+type integer references category(id),
+density real );
+
+create table inventory (
+id serial primary key,
+upc varchar(15) references products(upccode),
+barcode varchar(30) unique,
+retired boolean,
+gross real,
+tare  real,
+arrival timestamp,
+departure timestamp );
+
+create table readings (
+id serial primary key,
+item integer references inventory(id),
+stamp timestamp,
+weight real );
+
+insert into category (label) values ('bourbon');
+insert into category (label) values ('brandy');
+insert into category (label) values ('cognac');
+insert into category (label) values ('gin');
+insert into category (label) values ('liqueur');
+insert into category (label) values ('rum');
+insert into category (label) values ('scotch');
+insert into category (label) values ('tequila');
+insert into category (label) values ('vodka');
+insert into category (label) values ('whiskey');
+
+
+insert into products values ('0082184090008', 'Jack Daniels No. 7','A305', 0.75,10,0.916);
+insert into products values ('0830895501098', 'Grey Goose','E1400',1.0,9,0.916);
+insert into products values ('0083664868780', 'Hendricks','A723',0.75,4,0.9076);

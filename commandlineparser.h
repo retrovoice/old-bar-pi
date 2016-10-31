@@ -35,10 +35,11 @@ public:
     
    void processArgvList(QStringList &argv);
    QString optionValue(QString opt);
+   const QStringList getList() { return *optionList; }
    
 private:
-   QMap<QString,QString> *m_tokenDict;
-   QStringList *m_optionList;
+   QMap<QString,QString> *tokenDict;
+   QStringList *optionList;
    void addParserOptions(QStringList& opts);
 };
 

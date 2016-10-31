@@ -1,16 +1,19 @@
-#include <QApplication>
 #include <iostream>
+#include <QApplication>
+//#include <QGuiApplication>
 #include <QString>
 #include <QStringList>
-#include <iostream>
+#include <QFont>
 #include "mainwindow.h"
-#include "catalogue.h"
 #include "commandlineparser.h"
-#include <QGridLayout>
 
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
+
+    QFont sansFont("Sans [DejaVu]",12);
+
+    QApplication::setFont(sansFont);
 
 	// Store the command line arguments in a list
 	QStringList *args = new QStringList(QApplication::arguments());
@@ -30,26 +33,28 @@ int main(int argc, char *argv[])
 	// options.
 	cp->processArgvList(*args);
 
-	// Iterate through the list of valid options to see whether
+    // Default name of configuration file
+    QString configFile("barpi.conf");
+
+    // Iterate through the list of valid options to see whether
 	// any were found on the command line.
-	QStringList::const_iterator itr = cpOptions.constBegin();
-	QString configFile;
-	while (itr != cpOptions.constEnd())
-	{
-		//p NOTE:  If the same option is set multiple times,
-		// the last instance is used.
-		if (*itr == "-F")
-			configFile = cp->optionValue(*itr);
-		else if (*itr == "--file")
-			configFile = cp->optionValue(*itr);
-		else
-			configFile = "barpi.conf";
-		itr++;
-	}
+//	QStringList::const_iterator itr = cpOptions.constBegin();
+//	while (itr != cpOptions.constEnd())
+//	{
+//		//p NOTE:  If the same option is set multiple times,
+//		// the last instance is used.
+//        if (*itr == "-F") {
+//            configFile.clear();
+//            configFile.append(cp->optionValue(*itr));
+//        }
+//        else if (*itr == "--file") {
+//            configFile.clear();
+//            configFile.append(cp->optionValue(*itr));
+//        }
+//        itr++;
+//	}
 
-	Catalogue myCat;
-
-	MainWindow window;
+    MainWindow window(configFile);
 	window.show();
 	return a.exec();
 }

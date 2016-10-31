@@ -1,14 +1,22 @@
 #include "catalogue.h"
 
-#include <iostream>
-#include <QtSql/QtSql>
+#include <QMessageBox>
+#include <QTableView>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlRelationalTableModel>
+#include <QSqlRelationalDelegate>
 
-Catalogue::Catalogue(QObject *parent) :
-    QObject(parent)
+QT_BEGIN_NAMESPACE
+class QString;
+QT_END_NAMESPACE
+
+
+Catalogue::Catalogue(const QString &database, QWidget *parent) :
+    QWidget(parent)
 {
-    //myDb = QSqlDatabase::addDatabase("QSQLITE", "conBarpi");
-    myDb = QSqlDatabase::addDatabase("QPSQL");
-	myDb.setHostName("localhost");
+    /* myDb = QSqlDatabase::addDatabase("QSQLITE", "conBarpi");
+    //myDb.setHostName("localhost");
     myDb.setDatabaseName("barpi");
     myDb.setUserName("juno");
     myDb.setPassword("f4s6n5");
@@ -21,68 +29,61 @@ Catalogue::Catalogue(QObject *parent) :
     else
     {
         std::cout << "Database did not open.\n";
+    } */
+
+    //createConnection();
+
+    dbName = new QString(database);
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(*dbName);
+
+    if (!db.open())
+    {
+        QString error("Database open failed.");
+        error.append(db.lastError().text());
+        QMessageBox::critical(this, tr("Error"),
+                              error, QMessageBox::Cancel);
+        return;
     }
+    else
+    {
+        QMessageBox::information(this, tr("Success!"),tr("Database successfully opened"));
+    }
+
+    prodModel = new QSqlRelationalTableModel;
+
+    this->initModels();
+
+    QTableView *prodView = this->createView(QObject::tr("Barpi Products"), prodModel);
+    prodView->show();
 }
 
-// Initialize an empty database.  The database
-// should not already exist, and if it does, this
-// function should return a non-zero value.
+// The database exists and this call attaches
+// the database to the QSqlRelationalTableModel
 
-int Catalogue::initDatabase(QString url,
-                 QString username,
-                 QString password)
+void Catalogue::initModels()
 {
-    return 0;
+
+    prodModel->setTable("products");
+    prodModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    prodModel->setRelation(4, QSqlRelation("categories", "id", "label"));
+    prodModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
+    prodModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
+    prodModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
+    prodModel->setHeaderData(3, Qt::Horizontal, QObject::tr("price"));
+    prodModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
+    prodModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
+    prodModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
+    prodModel->select();
+
 }
 
-// Used to add a new product to the database.
-// If the product already exists, this function
-// should return a non-zero value.
-
-int Catalogue::addProduct(productPtr product)
+QTableView *Catalogue::createView(const QString &title, QSqlTableModel *model)
 {
-    return 0;
-}
-
-// Used to add a product item to the inventory.
-// If the product is not yet in the database, this
-// function should return a non-zero value.  The
-// GUI should use the return value to prompt the user
-// to add the item to the product catalogue.
-
-int Catalogue::addToInventory(inventoryPtr item)
-{
-    return 0;
-}
-
-// Used to record the weight data of an inventory item
-// with a date/time stamp.  A non-zero return value indicates
-// an error.
-/** TODO: define return values for recordReading */
-
-int Catalogue::recordReading(readingPtr data)
-{
-    return 0;
-}
-
-// Used to alter the information on an existing product
-// in the catalogue.  Use a findProduct method to return
-// a pointer to the desired catalogue item.
-
-int Catalogue::updateProduct(productPtr product)
-{
-    return 0;
-}
-
-// A set of overloaded methods for retrieving an instance
-// of a product based on different data
-
-productPtr Catalogue::findProduct(quint32 ID)
-{
-    return 0;
-}
-
-productPtr Catalogue::findProduct(QString field) // Label, ABC Code, or Barcode
-{
-    return 0;
+    QTableView *view = new QTableView;
+    view->setModel(model);
+    view->setItemDelegate(new QSqlRelationalDelegate(view));
+    view->setWindowTitle(title);
+    return view;
 }

@@ -14,8 +14,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    catalogue.cpp
+    catalogue.cpp \
+    commandlineparser.cpp \
+    databasedialog.cpp \
+    productdialog.cpp
 
 HEADERS  += mainwindow.h \
     catalogue.h \
-    appStructs.h
+    appStructs.h \
+    commandlineparser.h \
+    databasedialog.h \
+    productdialog.h
