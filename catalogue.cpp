@@ -18,8 +18,8 @@ Catalogue::Catalogue(const QString &database, QWidget *parent) :
     /* myDb = QSqlDatabase::addDatabase("QSQLITE", "conBarpi");
     //myDb.setHostName("localhost");
     myDb.setDatabaseName("barpi");
-    myDb.setUserName("juno");
-    myDb.setPassword("f4s6n5");
+    //myDb.setUserName("juno");
+    //myDb.setPassword("f4s6n5");
     bool ok = myDb.open();
     if (ok)
     {
