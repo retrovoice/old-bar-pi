@@ -12,45 +12,9 @@ class QString;
 QT_END_NAMESPACE
 
 
-Catalogue::Catalogue(const QString &database, QWidget *parent) :
+Catalogue::Catalogue(QWidget *parent) :
     QWidget(parent)
 {
-    /* myDb = QSqlDatabase::addDatabase("QSQLITE", "conBarpi");
-    //myDb.setHostName("localhost");
-    myDb.setDatabaseName("barpi");
-    //myDb.setUserName("juno");
-    //myDb.setPassword("f4s6n5");
-    bool ok = myDb.open();
-    if (ok)
-    {
-        std::cout << "Database successfully opened from catalogue.\n";
-        myDb.close();
-    }
-    else
-    {
-        std::cout << "Database did not open.\n";
-    } */
-
-    //createConnection();
-
-    dbName = new QString(database);
-
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(*dbName);
-
-    if (!db.open())
-    {
-        QString error("Database open failed.");
-        error.append(db.lastError().text());
-        QMessageBox::critical(this, tr("Error"),
-                              error, QMessageBox::Cancel);
-        return;
-    }
-    else
-    {
-        QMessageBox::information(this, tr("Success!"),tr("Database successfully opened"));
-    }
-
     prodModel = new QSqlRelationalTableModel;
 
     this->initModels();
@@ -58,9 +22,6 @@ Catalogue::Catalogue(const QString &database, QWidget *parent) :
     QTableView *prodView = this->createView(QObject::tr("Barpi Products"), prodModel);
     prodView->show();
 }
-
-// The database exists and this call attaches
-// the database to the QSqlRelationalTableModel
 
 void Catalogue::initModels()
 {

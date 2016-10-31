@@ -11,29 +11,13 @@
 #include <QStackedLayout>
 #include <QFileDialog>
 #include <QSqlDatabase>
+#include <QSqlError>
 #include <QMap>
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
 #include <QMessageBox>
 #include <QVariant>
-
-MainWindow::MainWindow()
-{
-    // Initialize dialog pointers to 0
-    catalog = 0;
-    dbDialog = 0;
-    prodDialog = 0;
-
-    dbName = new QString("bp001");
-    QString connection("barpi");
-
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE",connection);
-    db.setDatabaseName(*dbName);
-
-    // do stuff to setup GUI
-    createLayout();
-}
 
 MainWindow::MainWindow(QString configFile)
 {
@@ -42,35 +26,60 @@ MainWindow::MainWindow(QString configFile)
     dbDialog = 0;
     prodDialog = 0;
 
-    QString connection;
-    QString dbType;
-    currentConfigFile = new QString(configFile);
     paramvalues = new paramMap();
-    readconfigfile(*currentConfigFile,paramvalues);
+    readconfigfile(configFile,paramvalues);
 
-    if (paramvalues->size()) {
-        if (paramvalues->contains("dbname"))
-            dbName = new QString(paramvalues->value("dbname"));
-        else
-            dbName = new QString("bpdata");
-        if (paramvalues->contains("connection"))
-            connection = paramvalues->value("connection");
-        else
-            connection = "barpi";
-        if (paramvalues->contains("dbtype"))
-            dbType = paramvalues->value("dbtype");
-        else
-            dbType = "QSQLITE";
-    }
-    else {
-
+    if (paramvalues->contains("dbname"))
+        dbName = new QString(paramvalues->value("dbname"));
+    else
         dbName = new QString("bpdata");
-        connection = "barpi";
-        dbType = "QSQLITE";
-    }
 
-    QSqlDatabase db = QSqlDatabase::addDatabase(dbType,connection);
+    if (paramvalues->contains("connection"))
+        connection = new QString(paramvalues->value("connection"));
+    else
+        connection = new QString("barpi");
+
+    if (paramvalues->contains("dbtype"))
+        dbType = new QString(paramvalues->value("dbtype"));
+    else
+        dbType = new QString("QSQLITE");
+
+    if (paramvalues->contains("hostname"))
+        hostname = new QString(paramvalues->value("hostname"));
+    else
+        hostname = new QString;
+
+    if (paramvalues->contains("username"))
+        username = new QString(paramvalues->value("username"));
+    else
+        username = new QString;
+
+    if (paramvalues->contains("password"))
+        password = new QString(paramvalues->value("password"));
+    else
+        password = new QString;
+
+    QSqlDatabase db = QSqlDatabase::addDatabase(*dbType);
     db.setDatabaseName(*dbName);
+
+    if (hostname->size()) db.setHostName(*hostname);
+    if (username->size()) db.setUserName(*username);
+    if (password->size()) db.setPassword(*password);
+
+    if (!db.open())
+    {
+        QString error("Database open failed.");
+        QSqlError dberror(db.lastError());
+        error.append(dberror.text());
+        QMessageBox::critical(this, tr("Error"),
+                              error, QMessageBox::Cancel);
+        return;
+    }
+    else
+    {
+        QMessageBox::information(this, tr("Success!"),tr("Database successfully opened"));
+        db.close();
+    }
 
     // do stuff to setup GUI
     createLayout();
@@ -274,13 +283,13 @@ void  MainWindow::showDbDialog()
 
 void  MainWindow::showCatalogue()
 {
-    if (!catalog) catalog = new Catalogue(*dbName,this);
+    if (!catalog) catalog = new Catalogue(this);
     catalog->show();
 }
 
 void  MainWindow::showProdDialog()
 {
-    if (!prodDialog) prodDialog = new ProductDialog(*dbName,this);
+    if (!prodDialog) prodDialog = new ProductDialog(this);
     prodDialog->show();
 }
 

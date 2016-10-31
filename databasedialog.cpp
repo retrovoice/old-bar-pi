@@ -16,24 +16,27 @@
 DatabaseDialog::DatabaseDialog(QWidget *parent) :
     QDialog(parent)
 {    
-    dbName = new QString("barpi.sql");
-    dbConnection = new QString("barpi");
+    QSqlDatabase db = QSqlDatabase::database();
 
     dbLabel = new QLabel(tr("Database Name:"));
     dbEdit = new QLineEdit;
+    dbEdit->insert(db.databaseName());
     dbLabel->setBuddy(hostEdit);
 
     hostLabel = new QLabel(tr("&Hostname:"));
     hostEdit = new QLineEdit;
+    hostEdit->insert(db.hostName());
     hostLabel->setBuddy(hostEdit);
 
     userLabel = new QLabel(tr("&Username:"));
     userEdit = new QLineEdit;
+    userEdit->insert(db.userName());
     userLabel->setBuddy(userEdit);
 
     passwordLabel = new QLabel(tr("&Password:"));
     passwordEdit = new QLineEdit;
     passwordEdit->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+    passwordEdit->insert(db.password());
     passwordLabel->setBuddy(passwordEdit);
 
     typeLabel = new QLabel(tr("Database Type:"));
@@ -45,12 +48,18 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) :
     {
         typeCombo->addItem(dbTypes.at(i));
     }
+    int cbindex = typeCombo->findText(db.driverName());
+    if (cbindex > -1)
+    {
+        typeCombo->setCurrentIndex(cbindex);
+    }
+
 
     testButton = new QPushButton(tr("&Test"));
     initButton = new QPushButton(tr("&Initialize"));
     closeButton = new QPushButton(tr("Close"));
 
-    testButton->setEnabled(false);
+    testButton->setEnabled(true);
     initButton->setEnabled(false);
     closeButton->setEnabled(true);
 
@@ -87,31 +96,17 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) :
 void DatabaseDialog::testConnection()
 {
     QString dbType = typeCombo->itemText(typeCombo->currentIndex());
+    QString dbName(dbEdit->text());
     QString hostname(hostEdit->text());
     QString username(userEdit->text());
     QString password(passwordEdit->text());
 
-    QSqlDatabase db;
-    if (QSqlDatabase::contains(*dbConnection))
-    {
-        QMessageBox::information(this, tr("Contains Connection"),*dbConnection);
-        db = QSqlDatabase::database(*dbConnection);
-        dbName->clear();
-        dbName->append(db.databaseName());
-        dbEdit->insert(*dbName);
-        db.setDatabaseName(dbEdit->text());
-    }
-    else
-    {
-        QMessageBox::information(this, tr("Adding Connection"),*dbConnection);
-        db = QSqlDatabase::addDatabase(dbType,*dbConnection);
-        db.setDatabaseName(dbEdit->text());
-    }
+    QSqlDatabase db = QSqlDatabase::addDatabase(dbType);
+    db.setDatabaseName(dbName);
 
     if (hostname.size()) db.setHostName(hostname);
     if (username.size()) db.setUserName(username);
     if (password.size()) db.setPassword(password);
-
 
     if (!db.open())
     {
@@ -124,6 +119,7 @@ void DatabaseDialog::testConnection()
     else
     {
         QMessageBox::information(this, tr("Success!"),tr("Database successfully opened"));
+        db.close();
     }
 }
 
@@ -133,23 +129,10 @@ void DatabaseDialog::initdb()
     QString hostname(hostEdit->text());
     QString username(userEdit->text());
     QString password(passwordEdit->text());
+    QString dbName(dbEdit->text());
 
-    QSqlDatabase db;
-    if (QSqlDatabase::contains(*dbConnection))
-    {
-        QMessageBox::information(this, tr("Contains Connection"),*dbConnection);
-        db = QSqlDatabase::database(*dbConnection);
-        dbName->clear();
-        dbName->append(db.databaseName());
-        dbEdit->insert(*dbName);
-        db.setDatabaseName(dbEdit->text());
-    }
-    else
-    {
-        QMessageBox::information(this, tr("Adding Connection"),*dbConnection);
-        db = QSqlDatabase::addDatabase(dbType,*dbConnection);
-        db.setDatabaseName(dbEdit->text());
-    }
+    QSqlDatabase db = QSqlDatabase::addDatabase(dbType);
+    db.setDatabaseName(dbName);
 
     if (hostname.size()) db.setHostName(hostname);
     if (username.size()) db.setUserName(username);
@@ -214,6 +197,7 @@ void DatabaseDialog::initdb()
         QString msg("Last reported error: ");
         msg.append(db.lastError().text());
         QMessageBox::information(this, tr("Database Initialized"),msg);
+        db.close();
     }
 }
 

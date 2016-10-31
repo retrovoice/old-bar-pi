@@ -21,7 +21,6 @@ class MainWindow : public QWidget
 	Q_OBJECT
 
 public:
-	MainWindow();
 	MainWindow(QString configFile);
 
 private slots:
@@ -33,6 +32,11 @@ private slots:
 private:
 
     QString *dbName;
+    QString *connection;
+    QString *dbType;
+    QString *hostname;
+    QString *username;
+    QString *password;
     Catalogue *catalog;
     DatabaseDialog *dbDialog;
     ProductDialog *prodDialog;
@@ -76,7 +80,6 @@ private:
 
     QStackedLayout *pagesLayout;
 
-    QString *currentConfigFile;
     paramMap *paramvalues;
 
     void readconfigfile(const QString filename, paramMap *params);

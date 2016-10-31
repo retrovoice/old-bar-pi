@@ -16,28 +16,17 @@ class Catalogue : public QWidget
 
 public:
 
-    explicit Catalogue(const QString &database, QWidget *parent = 0);
-
-    // The database exists and this call attaches
-    // the database to the QSqlRelationalTableModel
-
-    void initModels();
-
-
-    // Map a view to the relational database
-
-    QTableView *createView(const QString &title, QSqlTableModel *model);
-
+    explicit Catalogue(QWidget *parent = 0);
 
 private:
 
-    // Database name passed in with constructor
-    const QString *dbName;
+    void initModels();
+
+    // Map a view to the relational database
+    QTableView *createView(const QString &title, QSqlTableModel *model);
 
     // Used to map to Products tables in the relational database
     QSqlRelationalTableModel *prodModel;
-
-    //ProductDialog *prodDialog;
 
     signals:
 

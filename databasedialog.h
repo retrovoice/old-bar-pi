@@ -18,8 +18,6 @@ class DatabaseDialog : public QDialog
 public:
     explicit DatabaseDialog(QWidget *parent = 0);
 
-    const QString& databaseName(){return *dbName;}
-    
 signals:
     
 public slots:
@@ -43,8 +41,9 @@ private:
     QPushButton *initButton;
     QPushButton *closeButton;
     QDialogButtonBox *bBox;
-    QString *dbName;
-    QString *dbConnection;
+
+    QString *dbconn;
+
 };
 
 #endif // DATABASEDIALOG_H

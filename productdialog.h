@@ -18,7 +18,7 @@ class ProductDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit ProductDialog(const QString &dbname, QWidget *parent = 0);
+    explicit ProductDialog(QWidget *parent = 0);
 
 signals:
 
@@ -35,9 +35,6 @@ private:
     void createButtons();
 
     void initModels();
-
-    // Database name passed in with constructor
-    const QString *dbName;
 
     // Relational table model used to display product catalog
     QSqlRelationalTableModel *prodTableModel;

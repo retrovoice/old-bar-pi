@@ -17,11 +17,9 @@
 #include <QDataWidgetMapper>
 #include <QSqlRelationalDelegate>
 
-ProductDialog::ProductDialog(const QString &dbname, QWidget *parent) :
+ProductDialog::ProductDialog(QWidget *parent) :
     QDialog(parent)
 {
-
-    dbName = new QString(dbname);
 
     prodTableModel = new QSqlRelationalTableModel;
 
