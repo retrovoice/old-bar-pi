@@ -101,7 +101,7 @@ void DatabaseDialog::testConnection()
     QString username(userEdit->text());
     QString password(passwordEdit->text());
 
-    QSqlDatabase db = QSqlDatabase::addDatabase(dbType);
+    QSqlDatabase db = QSqlDatabase::addDatabase(dbType,"test");
     db.setDatabaseName(dbName);
 
     if (hostname.size()) db.setHostName(hostname);
@@ -120,6 +120,7 @@ void DatabaseDialog::testConnection()
     {
         QMessageBox::information(this, tr("Success!"),tr("Database successfully opened"));
         db.close();
+        QSqlDatabase::removeDatabase("test");
     }
 }
 
@@ -131,7 +132,7 @@ void DatabaseDialog::initdb()
     QString password(passwordEdit->text());
     QString dbName(dbEdit->text());
 
-    QSqlDatabase db = QSqlDatabase::addDatabase(dbType);
+    QSqlDatabase db = QSqlDatabase::addDatabase(dbType,"init");
     db.setDatabaseName(dbName);
 
     if (hostname.size()) db.setHostName(hostname);
@@ -198,6 +199,7 @@ void DatabaseDialog::initdb()
         msg.append(db.lastError().text());
         QMessageBox::information(this, tr("Database Initialized"),msg);
         db.close();
+        QSqlDatabase::removeDatabase("init");
     }
 }
 

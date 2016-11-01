@@ -54,10 +54,10 @@ ProductDialog::ProductDialog(QWidget *parent) :
     categoryCombo->setModel(prodTableModel->relationModel(4));
     categoryCombo->setModelColumn(prodTableModel->relationModel(4)->fieldIndex("label"));
 
-    productCategories = new QStringList;
+    QStringList productCategories;
     for (int i = 0; i < categoryCombo->count(); i++)
     {
-        productCategories->append( categoryCombo->itemText(i) );
+        productCategories.append( categoryCombo->itemText(i) );
     }
 
     createButtons();
@@ -105,7 +105,7 @@ ProductDialog::ProductDialog(QWidget *parent) :
     layout->addLayout(productLayout);
     layout->addWidget(buttonBox);
     setLayout(layout);
-    setWindowTitle(tr("Barpi Product"));
+    setWindowTitle(tr("Barpi Products"));
 
     enableButtons(true);
 }
@@ -127,90 +127,24 @@ void ProductDialog::initModels()
 
 void ProductDialog::newitem()
 {
-    // Need to launch a new dialog to capture at a minimum,
-    // the actual UPC code of the product.  Once a record
-    // is saved to the database, the primary key, in the case
-    // the UPC code, cannot be changed
 
-    newProductDialog = new QDialog(this);
-
-    newUpcLabel = new QLabel(tr("&UPC Code:"));
-    newUpcEdit = new QLineEdit();
-    newUpcLabel->setBuddy(newUpcEdit);
-
-    newNameLabel = new QLabel(tr("Na&me:"));
-    newNameEdit = new QLineEdit();
-    newNameLabel->setBuddy(newNameEdit);
-
-    newAbcCodeLabel = new QLabel(tr("&ABC Code:"));
-    newAbcCodeEdit = new QLineEdit();
-    newAbcCodeLabel->setBuddy(newAbcCodeEdit);
-
-    newPriceLabel = new QLabel(tr("&Price:"));
-    newPriceEdit = new QLineEdit();
-    newPriceLabel->setBuddy(newPriceEdit);
-
-    newVolumeLabel = new QLabel(tr("&Volume"));
-    newVolumeEdit = new QLineEdit();
-    newVolumeLabel->setBuddy(newVolumeEdit);
-
-    newDensityLabel = new QLabel(tr("&Density:"));
-    newDensityEdit = new QLineEdit();
-    newDensityLabel->setBuddy(newDensityEdit);
-
-    newCategoryLabel = new QLabel(tr("Category:"));
-    newCategoryCombo = new QComboBox();
-
-    for ( int i = 0; i < productCategories->size(); i++ )
-    {
-        newCategoryCombo->addItem(productCategories->at(i));
-    }
-
-    newSaveButton = new QPushButton(tr("&Save"));
-    newCancelButton = new QPushButton(tr("&Cancel"));
-
-    connect(newSaveButton, SIGNAL(clicked()), this, SLOT(writenewrecord()));
-    connect(newCancelButton, SIGNAL(clicked()), newProductDialog, SLOT(close()));
-
-    newCancelButton->setEnabled(true);
-    newSaveButton->setEnabled(false);
-
-    newButtonBox = new QDialogButtonBox(this);
-    newButtonBox->addButton(newSaveButton, QDialogButtonBox::AcceptRole);
-    newButtonBox->addButton(newCancelButton, QDialogButtonBox::RejectRole);
-
-    connect(newUpcEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enablesavenew()));
-
-    QFormLayout *newProductLayout = new QFormLayout;
-    newProductLayout->addRow(newUpcLabel, newUpcEdit);
-    newProductLayout->addRow(newNameLabel, newNameEdit);
-    newProductLayout->addRow(newAbcCodeLabel, newAbcCodeEdit);
-    newProductLayout->addRow(newPriceLabel, newPriceEdit);
-    newProductLayout->addRow(newCategoryLabel, newCategoryCombo);
-    newProductLayout->addRow(newVolumeLabel, newVolumeEdit);
-    newProductLayout->addRow(newDensityLabel, newDensityEdit);
-
-    QVBoxLayout *newLayout = new QVBoxLayout;
-    newLayout->addLayout(newProductLayout);
-    newLayout->addWidget(newButtonBox);
-
-    newProductDialog->setLayout(newLayout);
-    newProductDialog->setWindowTitle(tr("New Barpi Product"));
-    newProductDialog->show();
-
-    enableButtons(true);
+    upcEdit->clear();
+    nameEdit->clear();
+    abcCodeEdit->clear();
+    priceEdit->clear();
+    volumeEdit->clear();
+    densityEdit->clear();
 }
 
 void ProductDialog::writenewrecord()
 {
-    QString upccode = newUpcEdit->text();
-    QString label = newNameEdit->text();
-    QString abccode = newAbcCodeEdit->text();
-    QString price = newPriceEdit->text();
-    QVariant cindex = newCategoryCombo->currentIndex();
-    QString volume = newVolumeEdit->text();
-    QString density = newDensityEdit->text();
+    QString upccode = upcEdit->text();
+    QString label = nameEdit->text();
+    QString abccode = abcCodeEdit->text();
+    QString price = priceEdit->text();
+    QVariant cindex = categoryCombo->currentIndex();
+    QString volume = volumeEdit->text();
+    QString density = densityEdit->text();
 
     QString index(cindex.toString());
 
@@ -226,7 +160,7 @@ void ProductDialog::writenewrecord()
     //prodTableModel->insertRecord(-1,newRecord);
     //prodTableModel->select();
 
-    QString queryText01("\"insert into products values (\'");
+    QString queryText01("\"INSERT INTO products VALUES (\'");
     queryText01.append(upccode);
     queryText01.append("\',\'");
     queryText01.append(label);
@@ -245,14 +179,10 @@ void ProductDialog::writenewrecord()
     newRecordMessage.setText(queryText01);
     newRecordMessage.exec();
 
-    QSqlQuery insertquery;
-    insertquery.exec(queryText01);
+    QSqlQuery query;
+    query.exec(queryText01);
+    QSqlDatabase::database().commit();
 
-}
-
-void ProductDialog::enablesavenew(bool enable)
-{
-    newSaveButton->setEnabled(enable);
 }
 
 void ProductDialog::submit()
@@ -271,7 +201,7 @@ void ProductDialog::createButtons()
 {
     newButton = new QPushButton(tr("&New"));
     saveButton = new QPushButton(tr("&Save"));
-    cancelButton = new QPushButton(tr("&Cancel"));
+    prevButton = new QPushButton(tr("&Cancel"));
     closeButton = new QPushButton(tr("Close"));
 
     closeButton->setDefault(true);
@@ -280,17 +210,17 @@ void ProductDialog::createButtons()
     connect(newButton, SIGNAL(clicked()), this, SLOT(newitem()));
     connect(saveButton, SIGNAL(clicked()), this, SLOT(submit()));
     connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(revert()));
+    connect(prevButton, SIGNAL(clicked()), this, SLOT(revert()));
 
     buttonBox = new QDialogButtonBox(this);
     buttonBox->addButton(newButton, QDialogButtonBox::ResetRole);
     buttonBox->addButton(saveButton, QDialogButtonBox::AcceptRole);
-    buttonBox->addButton(cancelButton, QDialogButtonBox::RejectRole);
+    buttonBox->addButton(prevButton, QDialogButtonBox::RejectRole);
     buttonBox->addButton(closeButton, QDialogButtonBox::RejectRole);
 }
 
 void ProductDialog::enableButtons(bool enable)
 {
-    cancelButton->setEnabled(enable);
+    prevButton->setEnabled(enable);
     saveButton->setEnabled(enable);
 }
