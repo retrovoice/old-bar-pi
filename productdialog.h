@@ -26,7 +26,6 @@ signals:
 private slots:
     void newitem();
     void submit();
-    void revert();
     void enableButtons(bool enable = true);
 
 private:

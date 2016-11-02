@@ -150,30 +150,13 @@ void ProductDialog::submit()
         QString label = nameEdit->text();
         QString abccode = abcCodeEdit->text();
         QString price = priceEdit->text();
-        QVariant cindex = categoryCombo->currentIndex();
+        QVariant cindex = categoryCombo->currentIndex() + 1;
         QString volume = volumeEdit->text();
         QString density = densityEdit->text();
 
         QString index(cindex.toString());
 
         QSqlDatabase db = QSqlDatabase::database();
-
-//        if (!db.open()) {
-//            showError(db.lastError());
-//            return;
-//        }
-
-        //    QSqlRecord newRecord;
-        //    newRecord.insert(0,QSqlField(upccode));
-        //    newRecord.insert(1,QSqlField(label));
-        //    newRecord.insert(2,QSqlField(abccode));
-        //    newRecord.insert(3,QSqlField(price));
-        //    newRecord.insert(4,QSqlField(index));
-        //    newRecord.insert(5,QSqlField(volume));
-        //    newRecord.insert(6,QSqlField(density));
-
-        //prodTableModel->insertRecord(-1,newRecord);
-        //prodTableModel->select();
 
         QString queryText01("INSERT INTO products VALUES (\'");
         queryText01.append(upccode);
@@ -190,9 +173,6 @@ void ProductDialog::submit()
         queryText01.append(",");
         queryText01.append(density);
         queryText01.append(")");
-        QMessageBox newRecordMessage(this);
-        newRecordMessage.setText(queryText01);
-        newRecordMessage.exec();
 
         isNew = false;
 
@@ -204,12 +184,6 @@ void ProductDialog::submit()
     }
     mapper->submit();
     enableButtons(false);
-}
-
-void ProductDialog::revert()
-{
-    mapper->revert();
-    this->close();
 }
 
 void ProductDialog::createButtons()
@@ -225,7 +199,7 @@ void ProductDialog::createButtons()
 
     connect(newButton, SIGNAL(clicked()), this, SLOT(newitem()));
     connect(saveButton, SIGNAL(clicked()), this, SLOT(submit()));
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(revert()));
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(prevButton, SIGNAL(clicked()), mapper, SLOT(toPrevious()));
     connect(nextButton, SIGNAL(clicked()), mapper, SLOT(toNext()));
 

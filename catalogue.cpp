@@ -36,7 +36,6 @@ void Catalogue::initModels()
     prodModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
     prodModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
     prodModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
-    prodModel->select();
     // Populate the model
     if (!prodModel->select()) {
         showError(prodModel->lastError());
