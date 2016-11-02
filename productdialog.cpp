@@ -14,11 +14,14 @@
 #include <QSqlRelationalTableModel>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QSqlRecord>
+#include <QSqlField>
 #include <QDataWidgetMapper>
 #include <QSqlRelationalDelegate>
 
 ProductDialog::ProductDialog(QWidget *parent) :
-    QDialog(parent)
+    QDialog(parent),
+    isNew(false)
 {
 
     prodTableModel = new QSqlRelationalTableModel;
@@ -60,12 +63,10 @@ ProductDialog::ProductDialog(QWidget *parent) :
         productCategories.append( categoryCombo->itemText(i) );
     }
 
-    createButtons();
-
     mapper = new QDataWidgetMapper(this);
     mapper->setModel(prodTableModel);
-    mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     mapper->setItemDelegate(new QSqlRelationalDelegate(mapper));
+    mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     mapper->addMapping(upcEdit, 0);
     mapper->addMapping(nameEdit, 1);
     mapper->addMapping(abcCodeEdit, 2);
@@ -75,7 +76,7 @@ ProductDialog::ProductDialog(QWidget *parent) :
     mapper->addMapping(densityEdit, 6);
     mapper->toLast();
 
-    //QString changedText;
+    createButtons();
 
     connect(upcEdit, SIGNAL(textEdited(QString)),
             this, SLOT(enableButtons()));
@@ -105,7 +106,7 @@ ProductDialog::ProductDialog(QWidget *parent) :
     layout->addLayout(productLayout);
     layout->addWidget(buttonBox);
     setLayout(layout);
-    setWindowTitle(tr("Barpi Products"));
+    setWindowTitle(tr("Catalog Edit"));
 
     enableButtons(true);
 }
@@ -122,71 +123,85 @@ void ProductDialog::initModels()
     prodTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
     prodTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
     prodTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
-    prodTableModel->select();
+    // Populate the model
+    if (!prodTableModel->select()) {
+        showError(prodTableModel->lastError());
+        return;
+    }
 }
 
 void ProductDialog::newitem()
 {
-
     upcEdit->clear();
     nameEdit->clear();
     abcCodeEdit->clear();
     priceEdit->clear();
     volumeEdit->clear();
     densityEdit->clear();
-}
-
-void ProductDialog::writenewrecord()
-{
-    QString upccode = upcEdit->text();
-    QString label = nameEdit->text();
-    QString abccode = abcCodeEdit->text();
-    QString price = priceEdit->text();
-    QVariant cindex = categoryCombo->currentIndex();
-    QString volume = volumeEdit->text();
-    QString density = densityEdit->text();
-
-    QString index(cindex.toString());
-
-    //QSqlRecord newRecord;
-    //newRecord.insert(0,QSqlField(upccode));
-    //newRecord.insert(1,QSqlField(label));
-    //newRecord.insert(2,QSqlField(abccode));
-    //newRecord.insert(3,QSqlField(price));
-    //newRecord.insert(4,QSqlField(index));
-    //newRecord.insert(5,QSqlField(volume));
-    //newRecord.insert(6,QSqlField(density));
-
-    //prodTableModel->insertRecord(-1,newRecord);
-    //prodTableModel->select();
-
-    QString queryText01("\"INSERT INTO products VALUES (\'");
-    queryText01.append(upccode);
-    queryText01.append("\',\'");
-    queryText01.append(label);
-    queryText01.append("\',\'");
-    queryText01.append(abccode);
-    queryText01.append("\',");
-    queryText01.append(price);
-    queryText01.append(",");
-    queryText01.append(index);
-    queryText01.append(",");
-    queryText01.append(volume);
-    queryText01.append(",");
-    queryText01.append(density);
-    queryText01.append(")\"");
-    QMessageBox newRecordMessage(this);
-    newRecordMessage.setText(queryText01);
-    newRecordMessage.exec();
-
-    QSqlQuery query;
-    query.exec(queryText01);
-    QSqlDatabase::database().commit();
-
+    categoryCombo->setCurrentIndex(0);
+    isNew = true;
+    enableButtons(false);
 }
 
 void ProductDialog::submit()
 {
+    if (isNew) {
+        QString upccode = upcEdit->text();
+        QString label = nameEdit->text();
+        QString abccode = abcCodeEdit->text();
+        QString price = priceEdit->text();
+        QVariant cindex = categoryCombo->currentIndex();
+        QString volume = volumeEdit->text();
+        QString density = densityEdit->text();
+
+        QString index(cindex.toString());
+
+        QSqlDatabase db = QSqlDatabase::database();
+
+//        if (!db.open()) {
+//            showError(db.lastError());
+//            return;
+//        }
+
+        //    QSqlRecord newRecord;
+        //    newRecord.insert(0,QSqlField(upccode));
+        //    newRecord.insert(1,QSqlField(label));
+        //    newRecord.insert(2,QSqlField(abccode));
+        //    newRecord.insert(3,QSqlField(price));
+        //    newRecord.insert(4,QSqlField(index));
+        //    newRecord.insert(5,QSqlField(volume));
+        //    newRecord.insert(6,QSqlField(density));
+
+        //prodTableModel->insertRecord(-1,newRecord);
+        //prodTableModel->select();
+
+        QString queryText01("INSERT INTO products VALUES (\'");
+        queryText01.append(upccode);
+        queryText01.append("\',\'");
+        queryText01.append(label);
+        queryText01.append("\',\'");
+        queryText01.append(abccode);
+        queryText01.append("\',");
+        queryText01.append(price);
+        queryText01.append(",");
+        queryText01.append(index);
+        queryText01.append(",");
+        queryText01.append(volume);
+        queryText01.append(",");
+        queryText01.append(density);
+        queryText01.append(")");
+        QMessageBox newRecordMessage(this);
+        newRecordMessage.setText(queryText01);
+        newRecordMessage.exec();
+
+        isNew = false;
+
+        QSqlQuery query;
+        if (!query.exec(queryText01)) {
+            showError(query.lastError());
+            return;
+        }
+    }
     mapper->submit();
     enableButtons(false);
 }
@@ -194,33 +209,41 @@ void ProductDialog::submit()
 void ProductDialog::revert()
 {
     mapper->revert();
-    enableButtons(false);
+    this->close();
 }
 
 void ProductDialog::createButtons()
 {
-    newButton = new QPushButton(tr("&New"));
-    saveButton = new QPushButton(tr("&Save"));
-    prevButton = new QPushButton(tr("&Cancel"));
+    newButton = new QPushButton(tr("New"));
+    saveButton = new QPushButton(tr("Save"));
+    prevButton = new QPushButton(tr("Previous"));
+    nextButton = new QPushButton(tr("Next"));
     closeButton = new QPushButton(tr("Close"));
 
-    closeButton->setDefault(true);
+    //closeButton->setDefault(true);
     newButton->setEnabled(true);
 
     connect(newButton, SIGNAL(clicked()), this, SLOT(newitem()));
     connect(saveButton, SIGNAL(clicked()), this, SLOT(submit()));
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(prevButton, SIGNAL(clicked()), this, SLOT(revert()));
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(revert()));
+    connect(prevButton, SIGNAL(clicked()), mapper, SLOT(toPrevious()));
+    connect(nextButton, SIGNAL(clicked()), mapper, SLOT(toNext()));
 
     buttonBox = new QDialogButtonBox(this);
     buttonBox->addButton(newButton, QDialogButtonBox::ResetRole);
-    buttonBox->addButton(saveButton, QDialogButtonBox::AcceptRole);
-    buttonBox->addButton(prevButton, QDialogButtonBox::RejectRole);
+    buttonBox->addButton(saveButton, QDialogButtonBox::ApplyRole);
+    buttonBox->addButton(prevButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(nextButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(closeButton, QDialogButtonBox::RejectRole);
 }
 
 void ProductDialog::enableButtons(bool enable)
 {
-    prevButton->setEnabled(enable);
     saveButton->setEnabled(enable);
+}
+
+void ProductDialog::showError(const QSqlError &err)
+{
+    QMessageBox::critical(this, "Database Error",
+                          "Reported Error: " + err.text());
 }

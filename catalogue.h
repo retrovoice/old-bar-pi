@@ -8,6 +8,7 @@ class QTableView;
 class QSqlTableModel;
 class QSqlRelationalTableModel;
 class ProductDialog;
+class QSqlError;
 QT_END_NAMESPACE
 
 class Catalogue : public QWidget
@@ -21,6 +22,8 @@ public:
 private:
 
     void initModels();
+
+    void showError(const QSqlError &err);
 
     // Map a view to the relational database
     QTableView *createView(const QString &title, QSqlTableModel *model);

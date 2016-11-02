@@ -23,6 +23,8 @@ class MainWindow : public QWidget
 public:
 	MainWindow(QString configFile);
 
+    const QString dbname() { return *dbName; }
+
 private slots:
     void setSubMenu();
     void showDbDialog();

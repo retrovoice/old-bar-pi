@@ -75,11 +75,11 @@ MainWindow::MainWindow(QString configFile)
                               error, QMessageBox::Cancel);
         return;
     }
-    else
-    {
-        QMessageBox::information(this, tr("Success!"),tr("Database successfully opened"));
-        db.close();
-    }
+//    else
+//    {
+//        QMessageBox::information(this, tr("Success!"),tr("Database successfully opened"));
+//        db.close();
+//    }
 
     // do stuff to setup GUI
     createLayout();
@@ -132,7 +132,7 @@ void MainWindow::createLayout()
 
     gLayout->addLayout(col01Layout,1,0);
 
-    button11 = new QPushButton("Add to Catalogue");
+    button11 = new QPushButton("Edit Catalogue");
     button11->setCheckable(true);
     button11->setChecked(false);
     connect(button11, SIGNAL(clicked()), this, SLOT(showProdDialog()));

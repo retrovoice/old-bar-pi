@@ -12,6 +12,7 @@ class QPushButton;
 class QDialogButtonBox;
 class QDataWidgetMapper;
 class QSqlRelationalTableModel;
+class QSqlError;
 QT_END_NAMESPACE
 
 class ProductDialog : public QDialog
@@ -24,7 +25,6 @@ signals:
 
 private slots:
     void newitem();
-    void writenewrecord();
     void submit();
     void revert();
     void enableButtons(bool enable = true);
@@ -34,6 +34,8 @@ private:
     void createButtons();
 
     void initModels();
+
+    void showError(const QSqlError &err);
 
     // Relational table model used to display product catalog
     QSqlRelationalTableModel *prodTableModel;
@@ -60,6 +62,9 @@ private:
     QPushButton *closeButton;
     QDataWidgetMapper *mapper;
     QDialogButtonBox *buttonBox;
+
+    // Flag to determine is adding record to database
+    bool isNew;
 
 
 };

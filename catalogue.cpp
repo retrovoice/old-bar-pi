@@ -37,6 +37,11 @@ void Catalogue::initModels()
     prodModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
     prodModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
     prodModel->select();
+    // Populate the model
+    if (!prodModel->select()) {
+        showError(prodModel->lastError());
+        return;
+    }
 
 }
 
@@ -47,4 +52,10 @@ QTableView *Catalogue::createView(const QString &title, QSqlTableModel *model)
     view->setItemDelegate(new QSqlRelationalDelegate(view));
     view->setWindowTitle(title);
     return view;
+}
+
+void Catalogue::showError(const QSqlError &err)
+{
+    QMessageBox::critical(this, "Error Mapping Database",
+                          "Reported Error: " + err.text());
 }
