@@ -26,18 +26,16 @@ signals:
 private slots:
     void newitem();
     void submit();
-//    void enableButtons(bool enable = true);
+    void cancel();
     void previous();
     void next();
     void remove();
 
-
 private:
 
-//    void createButtons();
-
-    void initModels();
-
+    void initModel();
+    void mapModel();
+    void createLayout();
     void showError(const QSqlError &err);
 
     // Relational table model used to display product catalog
@@ -59,17 +57,18 @@ private:
     QLineEdit *densityEdit;
     QComboBox *categoryCombo;
     QDataWidgetMapper *mapper;
-//    QPushButton *newButton;
-//    QPushButton *saveButton;
-//    QPushButton *prevButton;
-//    QPushButton *nextButton;
-//    QPushButton *closeButton;
-//    QDialogButtonBox *buttonBox;
+
+    QPushButton *newButton;
+    QPushButton *saveButton;
+    QPushButton *cancelButton;
+    QPushButton *deleteButton;
+    QPushButton *prevButton;
+    QPushButton *nextButton;
 
     // Flag to determine is adding record to database
     bool isNew;
-
-
+    // An index used to keep track of current record in the database
+    int spot;
 };
 
 #endif // PRODUCTWINDOW_H

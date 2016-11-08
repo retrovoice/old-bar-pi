@@ -29,10 +29,6 @@ public:
     const QString dbname() { return *dbName; }
 
 private slots:
-//    void setSubMenu();
-//    void showDbDialog();
-//    void showCatalogue();
-//    void showProdDialog();
 
 private:
 
@@ -46,44 +42,13 @@ private:
     DatabaseDialog *dbDialog;
     ProductDialog *prodDialog;
 
-	void createLayout();
-    QPushButton *catAdd;
-    QPushButton *catEdit;
+    void createTabs();
+    QPushButton *catNew;
     QPushButton *catSave;
+    QPushButton *catCancel;
     QPushButton *catDelete;
     QPushButton *catPrev;
     QPushButton *catNext;
-//    QPushButton *button12;
-//    QPushButton *button13;
-//    QPushButton *button14;
-
-//    QPushButton *button21;
-//    QPushButton *button22;
-//    QPushButton *button23;
-//    QPushButton *button24;
-
-//    QPushButton *button31;
-//    QPushButton *button32;
-//    QPushButton *button33;
-//    QPushButton *button34;
-
-//    QPushButton *button41;
-//    QPushButton *button42;
-//    QPushButton *button43;
-//    QPushButton *button44;
-
-//    QWidget *page1;
-//    QWidget *page2;
-//    QWidget *page3;
-//    QWidget *page4;
-
-//    QButtonGroup *col01Group;
-//    QButtonGroup *page1Group;
-//    QButtonGroup *page2Group;
-//    QButtonGroup *page3Group;
-//    QButtonGroup *page4Group;
-
-//    QStackedLayout *pagesLayout;
     QTabWidget *tabs;
 
     paramMap *paramvalues;

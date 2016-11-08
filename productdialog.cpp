@@ -4,12 +4,13 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QComboBox>
-//#include <QPushButton>
+#include <QPushButton>
 #include <QStringList>
 #include <QString>
+#include <QGridLayout>
 #include <QFormLayout>
 #include <QVBoxLayout>
-//#include <QDialogButtonBox>
+#include <QHBoxLayout>
 #include <QSqlDatabase>
 #include <QSqlRelationalTableModel>
 #include <QSqlError>
@@ -26,8 +27,52 @@ ProductDialog::ProductDialog(QWidget *parent) :
 
     prodTableModel = new QSqlRelationalTableModel;
 
-    this->initModels();
+    // These must be done in order due to initializaion
+    // of access types.
+    this->initModel();
+    this->createLayout();
+    this->mapModel();
 
+    //    enableButtons(true);
+}
+
+void ProductDialog::initModel()
+{
+    prodTableModel->setTable("products");
+    prodTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    prodTableModel->setRelation(4, QSqlRelation("categories", "id", "label"));
+    prodTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
+    prodTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
+    prodTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
+    prodTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("price"));
+    prodTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
+    prodTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
+    prodTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
+    // Synchronize model with database
+    if (!prodTableModel->select()) {
+        showError(prodTableModel->lastError());
+        return;
+    }
+}
+
+void ProductDialog::mapModel()
+{
+    mapper = new QDataWidgetMapper(this);
+    mapper->setModel(prodTableModel);
+    mapper->setItemDelegate(new QSqlRelationalDelegate(mapper));
+    mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+    mapper->addMapping(upcEdit, 0);
+    mapper->addMapping(nameEdit, 1);
+    mapper->addMapping(abcCodeEdit, 2);
+    mapper->addMapping(priceEdit, 3);
+    mapper->addMapping(categoryCombo, 4);
+    mapper->addMapping(volumeEdit, 5);
+    mapper->addMapping(densityEdit, 6);
+    mapper->toFirst();
+}
+
+void ProductDialog::createLayout()
+{
     upcLabel = new QLabel(tr("&UPC Code:"));
     upcEdit = new QLineEdit();
     upcLabel->setBuddy(upcEdit);
@@ -63,36 +108,6 @@ ProductDialog::ProductDialog(QWidget *parent) :
         productCategories.append( categoryCombo->itemText(i) );
     }
 
-    mapper = new QDataWidgetMapper(this);
-    mapper->setModel(prodTableModel);
-    mapper->setItemDelegate(new QSqlRelationalDelegate(mapper));
-    mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-    mapper->addMapping(upcEdit, 0);
-    mapper->addMapping(nameEdit, 1);
-    mapper->addMapping(abcCodeEdit, 2);
-    mapper->addMapping(priceEdit, 3);
-    mapper->addMapping(categoryCombo, 4);
-    mapper->addMapping(volumeEdit, 5);
-    mapper->addMapping(densityEdit, 6);
-    mapper->toLast();
-
-//    createButtons();
-
-//    connect(upcEdit, SIGNAL(textEdited(QString)),
-//            this, SLOT(enableButtons()));
-//    connect(nameEdit, SIGNAL(textEdited(QString)),
-//            this, SLOT(enableButtons()));
-//    connect(abcCodeEdit, SIGNAL(textEdited(QString)),
-//            this, SLOT(enableButtons()));
-//    connect(priceEdit, SIGNAL(textEdited(QString)),
-//            this, SLOT(enableButtons()));
-//    connect(volumeEdit, SIGNAL(textEdited(QString)),
-//            this, SLOT(enableButtons()));
-//    connect(densityEdit, SIGNAL(textEdited(QString)),
-//            this, SLOT(enableButtons()));
-//    connect(categoryCombo, SIGNAL(currentIndexChanged(int)),
-//            this, SLOT(enableButtons()));
-
     QFormLayout *productLayout = new QFormLayout;
     productLayout->addRow(upcLabel, upcEdit);
     productLayout->addRow(nameLabel, nameEdit);
@@ -102,36 +117,43 @@ ProductDialog::ProductDialog(QWidget *parent) :
     productLayout->addRow(volumeLabel, volumeEdit);
     productLayout->addRow(densityLabel, densityEdit);
 
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addLayout(productLayout);
-//    layout->addWidget(buttonBox);
-    setLayout(layout);
-//    setWindowTitle(tr("Catalog Edit"));
+    // These 5 buttons control actions for the catalog page
+    newButton = new QPushButton(tr("&New"));
+    cancelButton = new QPushButton(tr("&Cancel"));
+    saveButton = new QPushButton(tr("&Save"));
+    deleteButton = new QPushButton(tr("&Delete"));
+    prevButton = new QPushButton(tr("&Previous"));
+    nextButton = new QPushButton(tr("Next"));
 
-//    enableButtons(true);
-}
+    connect (newButton, SIGNAL(clicked()), this, SLOT(newitem()));
+    connect (saveButton, SIGNAL(clicked()), this, SLOT(submit()));
+    connect (cancelButton, SIGNAL(clicked()),this, SLOT(cancel()));
+    connect (deleteButton, SIGNAL(clicked()), this, SLOT(remove()));
+    connect (prevButton, SIGNAL(clicked()), this, SLOT(previous()));
+    connect (nextButton, SIGNAL(clicked()), this, SLOT(next()));
 
-void ProductDialog::initModels()
-{
-    prodTableModel->setTable("products");
-    prodTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    prodTableModel->setRelation(4, QSqlRelation("categories", "id", "label"));
-    prodTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
-    prodTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
-    prodTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
-    prodTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("price"));
-    prodTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
-    prodTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
-    prodTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
-    // Populate the model
-    if (!prodTableModel->select()) {
-        showError(prodTableModel->lastError());
-        return;
-    }
+    QVBoxLayout *leftLayout = new QVBoxLayout;
+    leftLayout->addWidget(newButton,1);
+    leftLayout->addWidget(saveButton,1);
+    leftLayout->addWidget(cancelButton,1);
+    leftLayout->addWidget(deleteButton,1);
+
+    QHBoxLayout *bottomLayout = new QHBoxLayout;
+    bottomLayout->addWidget(prevButton,1);
+    bottomLayout->addWidget(nextButton,1);
+
+    // The layout for this window will be a grid.
+    QGridLayout *gLayout = new QGridLayout;
+    gLayout->addLayout(leftLayout,0,0,2,1);
+    gLayout->addLayout(bottomLayout,1,1);
+    gLayout->addLayout(productLayout,0,1);
+
+    this->setLayout(gLayout);
 }
 
 void ProductDialog::newitem()
 {
+    spot = mapper->currentIndex();
     upcEdit->clear();
     nameEdit->clear();
     abcCodeEdit->clear();
@@ -140,11 +162,13 @@ void ProductDialog::newitem()
     densityEdit->clear();
     categoryCombo->setCurrentIndex(0);
     isNew = true;
-//    enableButtons(false);
 }
 
 void ProductDialog::submit()
 {
+    // If this is a new record, then construct the SQL
+    // command to insert it into the database, based on
+    // the values in the LineEdit widgets.
     if (isNew) {
         QString upccode = upcEdit->text();
         QString label = nameEdit->text();
@@ -154,8 +178,12 @@ void ProductDialog::submit()
         QString volume = volumeEdit->text();
         QString density = densityEdit->text();
 
+        // Convert integer index to string for use in
+        // SQL command.
         QString index(cindex.toString());
 
+        // The database was previously opened, so attach
+        // to it with default connection name.
         QSqlDatabase db = QSqlDatabase::database();
 
         QString queryText01("INSERT INTO products VALUES (\'");
@@ -174,44 +202,74 @@ void ProductDialog::submit()
         queryText01.append(density);
         queryText01.append(")");
 
+        // Reset the isNew flag prior to executing the
+        // database query.
         isNew = false;
+        spot = mapper->currentIndex();
 
+        // Create a query object and execute it
         QSqlQuery query;
         if (!query.exec(queryText01)) {
             showError(query.lastError());
             return;
         }
     }
+    // Submit the change to the database
     mapper->submit();
+    // Update the mapping between the database and the
+    // QDataWidgetMapper
     prodTableModel->select();
+    // Set the mapper index to last, i.e. the new record
     mapper->toLast();
+    spot = mapper->currentIndex();
+}
+
+void ProductDialog::cancel()
+{
+    mapper->setCurrentIndex(spot);
 }
 
 void ProductDialog::previous()
 {
     mapper->toPrevious();
+    spot = mapper->currentIndex();
 }
 
 void ProductDialog::next()
 {
     mapper->toNext();
+    spot = mapper->currentIndex();
 }
 
 void ProductDialog::remove()
 {
-    int idx = mapper->currentIndex();
-    if (!prodTableModel->removeRows(idx,1)) {
+    // Capture the current index of the record being removed
+    spot = mapper->currentIndex();
+
+    // Remove the row and check result for error.
+    if (!prodTableModel->removeRows(spot,1)) {
         QSqlError err = prodTableModel->lastError();
-        QMessageBox::warning(this, "Database Remove Row Error",
+        QMessageBox::warning(this, "Error - Remove Row",
                              "Reported Error: " + err.text());
         return;
     }
+
+    // Submit the change to the database
     prodTableModel->submitAll();
+    // Update the mapping between the database and the
+    // QDataWidgetMapper
     prodTableModel->select();
-    if ((idx-1) > 0)
-        mapper->setCurrentIndex(idx-1);
-    else
+    // Move the mapper to the index just before the
+    // deleted record, or the first record in index
+    // is 1 or less
+    if ((spot-1) > 0) {
+        mapper->setCurrentIndex(spot-1);
+        spot--;
+    }
+    else {
         mapper->toFirst();
+        spot = mapper->currentIndex();
+    }
 }
 
 void ProductDialog::showError(const QSqlError &err)
