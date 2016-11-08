@@ -12,8 +12,8 @@ class QString;
 QT_END_NAMESPACE
 
 
-Catalogue::Catalogue(QWidget *parent) :
-    QWidget(parent)
+Catalogue::Catalogue(QTableWidget *parent) :
+    QTableWidget(parent)
 {
     prodModel = new QSqlRelationalTableModel;
 

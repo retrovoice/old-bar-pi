@@ -1,7 +1,7 @@
 #ifndef INVDATABASE_H
 #define INVDATABASE_H
 
-#include <QWidget>
+#include <QTableWidget>
 
 QT_BEGIN_NAMESPACE
 class QTableView;
@@ -11,13 +11,13 @@ class ProductDialog;
 class QSqlError;
 QT_END_NAMESPACE
 
-class Catalogue : public QWidget
+class Catalogue : public QTableWidget
 {
     Q_OBJECT
 
 public:
 
-    explicit Catalogue(QWidget *parent = 0);
+    explicit Catalogue(QTableWidget *parent = 0);
 
 private:
 

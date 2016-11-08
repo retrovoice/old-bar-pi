@@ -15,7 +15,7 @@ class QSqlRelationalTableModel;
 class QSqlError;
 QT_END_NAMESPACE
 
-class ProductDialog : public QDialog
+class ProductDialog : public QWidget
 {
     Q_OBJECT
 public:
@@ -26,11 +26,15 @@ signals:
 private slots:
     void newitem();
     void submit();
-    void enableButtons(bool enable = true);
+//    void enableButtons(bool enable = true);
+    void previous();
+    void next();
+    void remove();
+
 
 private:
 
-    void createButtons();
+//    void createButtons();
 
     void initModels();
 
@@ -54,13 +58,13 @@ private:
     QLineEdit *volumeEdit;
     QLineEdit *densityEdit;
     QComboBox *categoryCombo;
-    QPushButton *newButton;
-    QPushButton *saveButton;
-    QPushButton *prevButton;
-    QPushButton *nextButton;
-    QPushButton *closeButton;
     QDataWidgetMapper *mapper;
-    QDialogButtonBox *buttonBox;
+//    QPushButton *newButton;
+//    QPushButton *saveButton;
+//    QPushButton *prevButton;
+//    QPushButton *nextButton;
+//    QPushButton *closeButton;
+//    QDialogButtonBox *buttonBox;
 
     // Flag to determine is adding record to database
     bool isNew;

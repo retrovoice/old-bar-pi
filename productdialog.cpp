@@ -4,12 +4,12 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QComboBox>
-#include <QPushButton>
+//#include <QPushButton>
 #include <QStringList>
 #include <QString>
 #include <QFormLayout>
 #include <QVBoxLayout>
-#include <QDialogButtonBox>
+//#include <QDialogButtonBox>
 #include <QSqlDatabase>
 #include <QSqlRelationalTableModel>
 #include <QSqlError>
@@ -20,7 +20,7 @@
 #include <QSqlRelationalDelegate>
 
 ProductDialog::ProductDialog(QWidget *parent) :
-    QDialog(parent),
+    QWidget(parent),
     isNew(false)
 {
 
@@ -76,22 +76,22 @@ ProductDialog::ProductDialog(QWidget *parent) :
     mapper->addMapping(densityEdit, 6);
     mapper->toLast();
 
-    createButtons();
+//    createButtons();
 
-    connect(upcEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(nameEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(abcCodeEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(priceEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(volumeEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(densityEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(categoryCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(enableButtons()));
+//    connect(upcEdit, SIGNAL(textEdited(QString)),
+//            this, SLOT(enableButtons()));
+//    connect(nameEdit, SIGNAL(textEdited(QString)),
+//            this, SLOT(enableButtons()));
+//    connect(abcCodeEdit, SIGNAL(textEdited(QString)),
+//            this, SLOT(enableButtons()));
+//    connect(priceEdit, SIGNAL(textEdited(QString)),
+//            this, SLOT(enableButtons()));
+//    connect(volumeEdit, SIGNAL(textEdited(QString)),
+//            this, SLOT(enableButtons()));
+//    connect(densityEdit, SIGNAL(textEdited(QString)),
+//            this, SLOT(enableButtons()));
+//    connect(categoryCombo, SIGNAL(currentIndexChanged(int)),
+//            this, SLOT(enableButtons()));
 
     QFormLayout *productLayout = new QFormLayout;
     productLayout->addRow(upcLabel, upcEdit);
@@ -104,11 +104,11 @@ ProductDialog::ProductDialog(QWidget *parent) :
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addLayout(productLayout);
-    layout->addWidget(buttonBox);
+//    layout->addWidget(buttonBox);
     setLayout(layout);
-    setWindowTitle(tr("Catalog Edit"));
+//    setWindowTitle(tr("Catalog Edit"));
 
-    enableButtons(true);
+//    enableButtons(true);
 }
 
 void ProductDialog::initModels()
@@ -140,7 +140,7 @@ void ProductDialog::newitem()
     densityEdit->clear();
     categoryCombo->setCurrentIndex(0);
     isNew = true;
-    enableButtons(false);
+//    enableButtons(false);
 }
 
 void ProductDialog::submit()
@@ -183,37 +183,35 @@ void ProductDialog::submit()
         }
     }
     mapper->submit();
-    enableButtons(false);
+    prodTableModel->select();
+    mapper->toLast();
 }
 
-void ProductDialog::createButtons()
+void ProductDialog::previous()
 {
-    newButton = new QPushButton(tr("New"));
-    saveButton = new QPushButton(tr("Save"));
-    prevButton = new QPushButton(tr("Previous"));
-    nextButton = new QPushButton(tr("Next"));
-    closeButton = new QPushButton(tr("Close"));
-
-    //closeButton->setDefault(true);
-    newButton->setEnabled(true);
-
-    connect(newButton, SIGNAL(clicked()), this, SLOT(newitem()));
-    connect(saveButton, SIGNAL(clicked()), this, SLOT(submit()));
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(prevButton, SIGNAL(clicked()), mapper, SLOT(toPrevious()));
-    connect(nextButton, SIGNAL(clicked()), mapper, SLOT(toNext()));
-
-    buttonBox = new QDialogButtonBox(this);
-    buttonBox->addButton(newButton, QDialogButtonBox::ResetRole);
-    buttonBox->addButton(saveButton, QDialogButtonBox::ApplyRole);
-    buttonBox->addButton(prevButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(nextButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(closeButton, QDialogButtonBox::RejectRole);
+    mapper->toPrevious();
 }
 
-void ProductDialog::enableButtons(bool enable)
+void ProductDialog::next()
 {
-    saveButton->setEnabled(enable);
+    mapper->toNext();
+}
+
+void ProductDialog::remove()
+{
+    int idx = mapper->currentIndex();
+    if (!prodTableModel->removeRows(idx,1)) {
+        QSqlError err = prodTableModel->lastError();
+        QMessageBox::warning(this, "Database Remove Row Error",
+                             "Reported Error: " + err.text());
+        return;
+    }
+    prodTableModel->submitAll();
+    prodTableModel->select();
+    if ((idx-1) > 0)
+        mapper->setCurrentIndex(idx-1);
+    else
+        mapper->toFirst();
 }
 
 void ProductDialog::showError(const QSqlError &err)
