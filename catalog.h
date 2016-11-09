@@ -15,11 +15,11 @@ class QSqlRelationalTableModel;
 class QSqlError;
 QT_END_NAMESPACE
 
-class ProductDialog : public QWidget
+class Catalog : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ProductDialog(QWidget *parent = 0);
+    explicit Catalog(QWidget *parent = 0);
 
 signals:
 
@@ -30,6 +30,7 @@ private slots:
     void previous();
     void next();
     void remove();
+    void enableButtons(const bool st = true);
 
 private:
 

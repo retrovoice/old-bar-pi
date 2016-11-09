@@ -8,20 +8,17 @@ QT       += core gui sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = weightsAndMeasures
+TARGET = barpi
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    catalogue.cpp \
     commandlineparser.cpp \
     databasedialog.cpp \
-    productdialog.cpp
+    catalog.cpp
 
 HEADERS  += mainwindow.h \
-    catalogue.h \
-    appStructs.h \
     commandlineparser.h \
     databasedialog.h \
-    productdialog.h
+    catalog.h

@@ -1,7 +1,4 @@
 #include "mainwindow.h"
-#include "catalogue.h"
-#include "productdialog.h"
-#include "databasedialog.h"
 
 #include <QGridLayout>
 #include <QTabWidget>
@@ -30,7 +27,7 @@ MainWindow::MainWindow(QString configFile,
     // Initialize dialog pointers to 0
     catalog = 0;
     dbDialog = 0;
-    prodDialog = 0;
+    prodCatalog = 0;
 
     paramvalues = new paramMap();
     readconfigfile(configFile,paramvalues);
@@ -93,7 +90,7 @@ void MainWindow::createTabs()
     tabs = new QTabWidget;
 
     // The interface to the product catalog
-    prodDialog = new ProductDialog(this);
+    prodCatalog = new Catalog(this);
 
 //    // Widget for catalog page
 //    QWidget *catWidget = new QWidget;
@@ -134,7 +131,7 @@ void MainWindow::createTabs()
 
 //    catWidget->setLayout(gLayout);
 
-    tabs->addTab(prodDialog,tr("Catalog"));
+    tabs->addTab(prodCatalog,tr("Catalog"));
 
 }
 
