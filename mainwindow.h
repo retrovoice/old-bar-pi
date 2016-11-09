@@ -2,14 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "catalog.h"
 
 QT_BEGIN_NAMESPACE
 class QStackedLayout;
 class QButtonGroup;
-class Catalogue;
 class DatabaseDialog;
 class Catalog;
+class Inventory;
+class DatabaseDialog;
 class QPushButton;
 class QString;
 class QTabWidget;
@@ -39,9 +39,10 @@ private:
     QString *hostname;
     QString *username;
     QString *password;
-    Catalogue *catalog;
-    DatabaseDialog *dbDialog;
     Catalog *prodCatalog;
+    Inventory *prodInventory;
+    DatabaseDialog *dbDialog;
+
 
     void createTabs();
     QPushButton *catNew;

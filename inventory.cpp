@@ -1,4 +1,4 @@
-#include "catalog.h"
+#include "inventory.h"
 
 #include <QMessageBox>
 #include <QLabel>
@@ -20,11 +20,11 @@
 #include <QDataWidgetMapper>
 #include <QSqlRelationalDelegate>
 
-Catalog::Catalog(QWidget *parent) :
+Inventory::Inventory(QWidget *parent) :
     QWidget(parent),
     isNew(false)
 {
-    prodTableModel = new QSqlRelationalTableModel;
+    invTableModel = new QSqlRelationalTableModel;
 
     // These must be done in order due to initializaion
     // of access types.
@@ -35,28 +35,28 @@ Catalog::Catalog(QWidget *parent) :
     enableButtons(false);
 }
 
-void Catalog::initModel()
+void Inventory::initModel()
 {
-    prodTableModel->setTable("products");
-    prodTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    prodTableModel->setRelation(4, QSqlRelation("categories", "id", "label"));
-    prodTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
-    prodTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
-    prodTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
-    prodTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("price"));
-    prodTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
-    prodTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
-    prodTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
+    invTableModel->setTable("products");
+    invTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    invTableModel->setRelation(4, QSqlRelation("categories", "id", "label"));
+    invTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
+    invTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
+    invTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
+    invTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("price"));
+    invTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
+    invTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
+    invTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
     // Synchronize model with database
-    if (!prodTableModel->select()) {
-        showError(prodTableModel->lastError());
+    if (!invTableModel->select()) {
+        showError(invTableModel->lastError());
     }
 }
 
-void Catalog::mapModel()
+void Inventory::mapModel()
 {
     mapper = new QDataWidgetMapper(this);
-    mapper->setModel(prodTableModel);
+    mapper->setModel(invTableModel);
     mapper->setItemDelegate(new QSqlRelationalDelegate(mapper));
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     mapper->addMapping(upcEdit, 0);
@@ -69,7 +69,7 @@ void Catalog::mapModel()
     mapper->toFirst();
 }
 
-void Catalog::createLayout()
+void Inventory::createLayout()
 {
     upcLabel = new QLabel(tr("&UPC Code:"));
     upcEdit = new QLineEdit();
@@ -97,8 +97,8 @@ void Catalog::createLayout()
 
     categoryLabel = new QLabel(tr("Category:"));
     categoryCombo = new QComboBox();
-    categoryCombo->setModel(prodTableModel->relationModel(4));
-    categoryCombo->setModelColumn(prodTableModel->relationModel(4)->fieldIndex("label"));
+    categoryCombo->setModel(invTableModel->relationModel(4));
+    categoryCombo->setModelColumn(invTableModel->relationModel(4)->fieldIndex("label"));
 
 //    QStringList productCategories;
 //    for (int i = 0; i < categoryCombo->count(); i++)
@@ -164,7 +164,7 @@ void Catalog::createLayout()
     this->setLayout(gLayout);
 }
 
-void Catalog::newitem()
+void Inventory::newitem()
 {
     spot = mapper->currentIndex();
     upcEdit->clear();
@@ -178,7 +178,7 @@ void Catalog::newitem()
     enableButtons(false);
 }
 
-void Catalog::submit()
+void Inventory::submit()
 {
     spot = mapper->currentIndex();
     // If this is a new record, then construct the SQL
@@ -226,14 +226,14 @@ void Catalog::submit()
     }
     // Submit the change to the database
     if (!mapper->submit()) {
-        showError(prodTableModel->lastError());
+        showError(invTableModel->lastError());
         this->cancel();
         return;
     }
     // Update the mapping between the database and the
     // QDataWidgetMapper
-    if (!prodTableModel->submitAll()) {
-        showError(prodTableModel->lastError());
+    if (!invTableModel->submitAll()) {
+        showError(invTableModel->lastError());
         this->cancel();
         return;
     }
@@ -248,44 +248,44 @@ void Catalog::submit()
     enableButtons(false);
 }
 
-void Catalog::cancel()
+void Inventory::cancel()
 {
     mapper->setCurrentIndex(spot);
     enableButtons(false);
 }
 
-void Catalog::previous()
+void Inventory::previous()
 {
     mapper->toPrevious();
     spot = mapper->currentIndex();
     enableButtons(false);
 }
 
-void Catalog::next()
+void Inventory::next()
 {
     mapper->toNext();
     spot = mapper->currentIndex();
     enableButtons(false);
 }
 
-void Catalog::remove()
+void Inventory::remove()
 {
     // Capture the current index of the record being removed
     spot = mapper->currentIndex();
 
     // Remove the row and check result for error.
-    if (!prodTableModel->removeRows(spot,1)) {
-        QSqlError err = prodTableModel->lastError();
+    if (!invTableModel->removeRows(spot,1)) {
+        QSqlError err = invTableModel->lastError();
         QMessageBox::warning(this, "Error - Remove Row",
                              "Reported Error: " + err.text());
         return;
     }
 
     // Submit the change to the database
-    prodTableModel->submitAll();
+    invTableModel->submitAll();
     // Update the mapping between the database and the
     // QDataWidgetMapper
-    prodTableModel->select();
+    invTableModel->select();
     // Move the mapper to the index just before the
     // deleted record, or the first record in index
     // is 1 or less
@@ -300,13 +300,13 @@ void Catalog::remove()
     enableButtons(false);
 }
 
-void Catalog::enableButtons(const bool st)
+void Inventory::enableButtons(const bool st)
 {
     saveButton->setEnabled(st);
     cancelButton->setEnabled(st);
 }
 
-void Catalog::showError(const QSqlError &err)
+void Inventory::showError(const QSqlError &err)
 {
     QMessageBox::critical(this, "Database Error",
                           "Reported Error: " + err.text());

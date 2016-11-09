@@ -16,9 +16,11 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     commandlineparser.cpp \
     databasedialog.cpp \
-    catalog.cpp
+    catalog.cpp \
+    inventory.cpp
 
 HEADERS  += mainwindow.h \
     commandlineparser.h \
     databasedialog.h \
-    catalog.h
+    catalog.h \
+    inventory.h

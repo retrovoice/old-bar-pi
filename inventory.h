@@ -1,5 +1,5 @@
-#ifndef CATALOG_H
-#define CATALOG_H
+#ifndef INVENTORY_H
+#define INVENTORY_H
 
 #include <QWidget>
 
@@ -15,12 +15,11 @@ class QSqlRelationalTableModel;
 class QSqlError;
 QT_END_NAMESPACE
 
-class Catalog : public QWidget
+class Inventory : public QWidget
 {
     Q_OBJECT
 public:
-    explicit Catalog(QWidget *parent = 0);
-
+    explicit Inventory(QWidget *parent = 0);
 signals:
 
 private slots:
@@ -40,7 +39,7 @@ private:
     void showError(const QSqlError &err);
 
     // Relational table model used to display product catalog
-    QSqlRelationalTableModel *prodTableModel;
+    QSqlRelationalTableModel *invTableModel;
 
     // Widgets for Products table UI
     QLabel *upcLabel;
@@ -72,4 +71,4 @@ private:
     int spot;
 };
 
-#endif // PRODUCTWINDOW_H
+#endif // INVENTORY_H

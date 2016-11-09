@@ -1,7 +1,7 @@
 #ifndef DATABASEDIALOG_H
 #define DATABASEDIALOG_H
 
-#include <QDialog>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QStringList;
@@ -12,7 +12,7 @@ class QPushButton;
 class QDialogButtonBox;
 QT_END_NAMESPACE
 
-class DatabaseDialog : public QDialog
+class DatabaseDialog : public QWidget
 {
     Q_OBJECT
 public:
@@ -24,7 +24,7 @@ public slots:
 
     void testConnection();
     void initdb();
-    void enablebuttons(bool enable = true);
+    void enableInit(bool enable = true);
 
 private:
     QLabel *dbLabel;
@@ -39,11 +39,7 @@ private:
     QComboBox *typeCombo;
     QPushButton *testButton;
     QPushButton *initButton;
-    QPushButton *closeButton;
     QDialogButtonBox *bBox;
-
-    QString *dbconn;
-
 };
 
 #endif // DATABASEDIALOG_H

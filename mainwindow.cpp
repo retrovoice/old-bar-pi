@@ -1,4 +1,7 @@
 #include "mainwindow.h"
+#include "catalog.h"
+#include "inventory.h"
+#include "databasedialog.h"
 
 #include <QGridLayout>
 #include <QTabWidget>
@@ -24,11 +27,6 @@ MainWindow::MainWindow(QString configFile,
                        Qt::WindowFlags flags):
     QMainWindow(parent, flags)
 {
-    // Initialize dialog pointers to 0
-    catalog = 0;
-    dbDialog = 0;
-    prodCatalog = 0;
-
     paramvalues = new paramMap();
     readconfigfile(configFile,paramvalues);
 
@@ -92,46 +90,15 @@ void MainWindow::createTabs()
     // The interface to the product catalog
     prodCatalog = new Catalog(this);
 
-//    // Widget for catalog page
-//    QWidget *catWidget = new QWidget;
+    // The interface to the product inventory
+    prodInventory = new Inventory(this);
 
-//    // The layout for this window will be a grid.
-//    QGridLayout *gLayout = new QGridLayout;
-
-
-//    // These 5 buttons control actions for the catalog page
-//    catNew = new QPushButton(tr("&New"));
-//    catCancel = new QPushButton(tr("&Cancel"));
-//    catSave = new QPushButton(tr("&Save"));
-//    catDelete = new QPushButton(tr("&Delete"));
-//    catPrev = new QPushButton(tr("&Previous"));
-//    catNext = new QPushButton(tr("Next"));
-
-//    connect (catNew, SIGNAL(clicked()), prodDialog, SLOT(newitem()));
-//    connect (catSave, SIGNAL(clicked()), prodDialog, SLOT(submit()));
-//    connect (catCancel, SIGNAL(clicked()),prodDialog, SLOT(cancel()));
-//    connect (catDelete, SIGNAL(clicked()), prodDialog, SLOT(remove()));
-//    connect (catPrev, SIGNAL(clicked()), prodDialog, SLOT(previous()));
-//    connect (catNext, SIGNAL(clicked()), prodDialog, SLOT(next()));
-
-//    QVBoxLayout *leftLayout = new QVBoxLayout;
-//    leftLayout->addWidget(catNew,1);
-//    leftLayout->addWidget(catSave,1);
-//    leftLayout->addWidget(catCancel,1);
-//    leftLayout->addWidget(catDelete,1);
-
-//    QHBoxLayout *bottomLayout = new QHBoxLayout;
-//    bottomLayout->addWidget(catPrev,1);
-//    bottomLayout->addWidget(catNext,1);
-
-//    gLayout->addLayout(leftLayout,0,0,2,1);
-//    gLayout->addLayout(bottomLayout,1,1);
-
-//    gLayout->addWidget(prodDialog,0,1);
-
-//    catWidget->setLayout(gLayout);
+    // Database settings
+    dbDialog = new DatabaseDialog(this);
 
     tabs->addTab(prodCatalog,tr("Catalog"));
+    tabs->addTab(prodInventory,tr("Inventory"));
+    tabs->addTab(dbDialog,tr("Database"));
 
 }
 
@@ -146,7 +113,8 @@ void MainWindow::readconfigfile(const QString filename, paramMap *params)
     if (!homedir.cd(".barpi")) {
         homedir.mkdir(".barpi");
         homedir.cd(".barpi");
-        QMessageBox::information(this, tr("Create Directory"), tr(".barpi dir created"));
+        QMessageBox::information(this, tr("Create Directory"),
+                                 tr(".barpi dir created"));
     }
 
     QString filepath = homedir.path();
