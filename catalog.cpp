@@ -176,6 +176,7 @@ void Catalog::newitem()
     densityEdit->clear();
     categoryCombo->setCurrentIndex(0);
     isNew = true;
+    enableButtons(false);
 }
 
 void Catalog::submit()
@@ -225,11 +226,17 @@ void Catalog::submit()
         }
     }
     // Submit the change to the database
-    mapper->submit();
+    if (!mapper->submit()) {
+        showError(prodTableModel->lastError());
+        this->cancel();
+        return;
+    }
     // Update the mapping between the database and the
     // QDataWidgetMapper
-    if (!prodTableModel->select()) {
+    if (!prodTableModel->submitAll()) {
         showError(prodTableModel->lastError());
+        this->cancel();
+        return;
     }
 
     if (isNew) {
