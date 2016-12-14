@@ -186,6 +186,10 @@ def processMenu(csvFile):
         # Sort items into their top-level category dictionaries
         for item in countDict:
             category = item.partition(': ')
+            # partition creates a 3-dim array with indexes
+            # 0 - Top level category (i.e. Alcohol, Food, Wine, or Beer)
+            # 1 - : (simply the colon separator)
+            # 2 - The menu item name
             if ( category[0] == 'Alcohol'):
                 alcoholDict[category[2]] = (countDict[item],salesDict[item])
             elif (category[0] == 'Food'):
@@ -195,37 +199,89 @@ def processMenu(csvFile):
             elif (category[0] == 'Beer'):
                 beerDict[category[2]] = (countDict[item],salesDict[item])
 
-        print ('SALES FOR ALCOHOLIC BEVERAGES')
-        for bev in alcoholDict:
-            if alcoholDict[bev][0] == 0:
-                avgp = 0
+        # For Wine and Liquor sales, need to consolidate variants of the same
+        # product into one total quantity, e.g. wine glass, bottle, and 9oz pour
+        consolidatewine = {}
+        for menuitem in wineDict:
+            # make sure there's no trailing white space
+            item = menuitem.rstrip()
+            # determine the volume based on Glass, Bottle or 9oz
+            volume = 0
+            sales = 0
+            root = ''
+            if ( item[-5:] == 'Glass'):
+                root = item[:-6]
+                volume = wineDict[menuitem][0]*177.441
+                sales = wineDict[menuitem][1]
+            elif ( item[-6:] == 'Bottle'):
+                root = item[:-7]
+                volume = wineDict[menuitem][0]*750.
+                sales = wineDict[menuitem][1]
+            elif ( item[-3:] == '9oz'):
+                root = item[:-4]
+                volume = wineDict[menuitem][0]*266.162
+                sales = wineDict[menuitem][1]
             else:
-                avgp = '${:.2f}'.format(alcoholDict[bev][1]/alcoholDict[bev][0])
-            print ( bev, ': sold', alcoholDict[bev][0], ', at average price of', avgp)
+                root = item
+                volume = wineDict[menuitem][0]*750.
+                sales = wineDict[menuitem][1]
+            #
 
-        print ('SALES FOR WINE')
-        for glass in wineDict:
-            if wineDict[glass][0] == 0:
-                avgp = 0
-            else:
-                avgp = '${:.2f}'.format(wineDict[glass][1]/wineDict[glass][0])
-            print ( glass, ': sold', wineDict[glass][0], ', at average price of', avgp)
+            if ( root not in consolidatewine and root != '' ):
+                consolidatewine[root] = ( volume, sales )
+            elif ( root != '' ):
+                currentVolume = consolidatewine[root][0]
+                newVolume = currentVolume + volume
+                currentSales = consolidatewine[root][1]
+                newSales = currentSales + sales
+                consolidatewine[root] =  ( newVolume, newSales )
 
-        print ('SALES FOR BEER')
-        for bottle in beerDict:
-            if beerDict[bottle][0] == 0:
-                avgp = 0
-            else:
-                avgp = '${:.2f}'.format(beerDict[bottle][1]/beerDict[bottle][0])
-            print ( bottle, ': sold', beerDict[bottle][0], ', at average price of', avgp)
+#        print ('SALES FOR ALCOHOLIC BEVERAGES')
+#        for bev in alcoholDict:
+#            if alcoholDict[bev][0] == 0:
+#                avgp = 0
+#            else:
+#                avgp = '${:.2f}'.format(alcoholDict[bev][1]/alcoholDict[bev][0])
+#            print ( bev, ': sold', alcoholDict[bev][0], ', at average price of', avgp)
 
-        print ('SALES FOR FOOD')
-        for plate in foodDict:
-            if foodDict[plate][0] == 0:
+#        print ('SALES FOR WINE')
+#        for glass in wineDict:
+#            if wineDict[glass][0] == 0:
+#                avgp = 0
+#            else:
+#                avgp = '${:.2f}'.format(wineDict[glass][1]/wineDict[glass][0])
+#            print ( glass, ': sold', wineDict[glass][0], ', at average price of', avgp)
+
+        print ('CONSOLIDATED WINE SALES')
+        print ('From ,',reportBegin)
+        print ('To ,', reportEnd)
+        print ('Wine , Bottles Sold , Avg. Price per Bottle')
+        for wine in consolidatewine:
+            bottles = 0
+            if consolidatewine[wine][0] == 0:
                 avgp = 0
+                pbottles = '0'
             else:
-                avgp = '${:.2f}'.format(foodDict[plate][1]/foodDict[plate][0])
-            print ( plate, ': sold', foodDict[plate][0], ', at average price of', avgp)
+                bottles = consolidatewine[wine][0]/750.
+                pbottles = '{:.2f}'.format(bottles)
+                avgp = '${:.2f}'.format(consolidatewine[wine][1]/bottles)
+            print ( wine, ',', pbottles, ',', avgp)
+
+#        print ('SALES FOR BEER')
+#        for bottle in beerDict:
+#            if beerDict[bottle][0] == 0:
+#                avgp = 0
+#            else:
+#                avgp = '${:.2f}'.format(beerDict[bottle][1]/beerDict[bottle][0])
+#            print ( bottle, ': sold', beerDict[bottle][0], ', at average price of', avgp)
+
+#        print ('SALES FOR FOOD')
+#        for plate in foodDict:
+#            if foodDict[plate][0] == 0:
+#                avgp = 0
+#            else:
+#                avgp = '${:.2f}'.format(foodDict[plate][1]/foodDict[plate][0])
+#            print ( plate, ': sold', foodDict[plate][0], ', at average price of', avgp)
 
         return 0
 
