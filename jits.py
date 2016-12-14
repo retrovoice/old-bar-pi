@@ -142,10 +142,10 @@ def processMenu(csvFile):
                     # If there are 4 items, it's a voide
                     countDict[row[0]] = int(row[1])
                     # Row index 2 is the sales total in dollars.
-                    saleString = row[2]
-                    # Convert the string, which can include '$' sign and commas
-                    # to a float value
-                    sales = locale.atof(saleString[1:])
+                    # Convert the string, which can include '$' sign, commas
+                    # and occasionally a leading minus sign, to a float value
+                    saleString = row[2].lstrip('-$')
+                    sales = locale.atof(saleString)
                     # Use the same key, i.e. row index 0 to add the sale
                     # float value to the sales dictionary.
                     salesDict[row[0]] = sales
@@ -160,8 +160,8 @@ def processMenu(csvFile):
                     countDict[row[0]] = newCount
 
                     currentSales = salesDict[row[0]]
-                    saleString = row[2]
-                    newSales = locale.atof(saleString[1:])
+                    saleString = row[2].lstrip('-$')
+                    newSales = locale.atof(saleString)
                     totalSales = currentSales + newSales
                     avgSale = totalSales / newCount
                     salesDict[row[0]] = totalSales
@@ -177,8 +177,8 @@ def processMenu(csvFile):
                     # The sales amount also needs to be deducted from the
                     # sales total
                     currentSales = salesDict[row[0]]
-                    voidString = row[2]
-                    voidAmt = locale.atof(voidString[1:])
+                    voidString = row[2].lstrip('-$')
+                    voidAmt = locale.atof(voidString)
                     newSales = currentSales - voidAmt
                     salesDict[row[0]] = newSales
 
@@ -231,5 +231,5 @@ def processMenu(csvFile):
 
 ##### _Main_
 
-processMenu('data/2016-07-menu.csv')
-processModifiers('data/2016-07-modifiers.csv')
+processMenu('data/tb01.csv')
+#processModifiers('data/2016-07-modifiers.csv')
