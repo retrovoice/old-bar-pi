@@ -121,7 +121,7 @@ void DatabaseDialog::initdb()
     query.exec("create table products ("
                "upccode varchar(15) primary key,"
                "label varchar(30),"
-               "abccode varchar(8) unique,"
+               "abccode varchar(8),"
                "price real,"
                "category integer references categories(id),"
                "volume real,"

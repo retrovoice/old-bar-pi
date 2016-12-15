@@ -221,21 +221,18 @@ void Catalog::submit()
         QSqlQuery query;
         if (!query.exec(queryText01)) {
             showError(query.lastError());
-            return;
         }
     }
     // Submit the change to the database
     if (!mapper->submit()) {
         showError(prodTableModel->lastError());
         this->cancel();
-        return;
     }
     // Update the mapping between the database and the
     // QDataWidgetMapper
     if (!prodTableModel->submitAll()) {
         showError(prodTableModel->lastError());
         this->cancel();
-        return;
     }
 
     if (isNew) {
@@ -278,7 +275,6 @@ void Catalog::remove()
         QSqlError err = prodTableModel->lastError();
         QMessageBox::warning(this, "Error - Remove Row",
                              "Reported Error: " + err.text());
-        return;
     }
 
     // Submit the change to the database
