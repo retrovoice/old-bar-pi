@@ -236,22 +236,6 @@ def processMenu(csvFile):
                 newSales = currentSales + sales
                 consolidatewine[root] =  ( newVolume, newSales )
 
-#        print ('SALES FOR ALCOHOLIC BEVERAGES')
-#        for bev in alcoholDict:
-#            if alcoholDict[bev][0] == 0:
-#                avgp = 0
-#            else:
-#                avgp = '${:.2f}'.format(alcoholDict[bev][1]/alcoholDict[bev][0])
-#            print ( bev, ': sold', alcoholDict[bev][0], ', at average price of', avgp)
-
-#        print ('SALES FOR WINE')
-#        for glass in wineDict:
-#            if wineDict[glass][0] == 0:
-#                avgp = 0
-#            else:
-#                avgp = '${:.2f}'.format(wineDict[glass][1]/wineDict[glass][0])
-#            print ( glass, ': sold', wineDict[glass][0], ', at average price of', avgp)
-
         print ('CONSOLIDATED WINE SALES')
         print ('From ,',reportBegin)
         print ('To ,', reportEnd)
@@ -266,6 +250,69 @@ def processMenu(csvFile):
                 pbottles = '{:.2f}'.format(bottles)
                 avgp = '${:.2f}'.format(consolidatewine[wine][1]/bottles)
             print ( wine, ',', pbottles, ',', avgp)
+
+        consolidateliquor = {}
+        for menuitem in alcoholDict:
+            # make sure there's no trailing white space
+            item = menuitem.rstrip()
+            # determine the volume based on no suffix, 2oz, or Up
+            volume = 0
+            sales = 0
+            root = ''
+            if ( item[-3:] == '2oz'):
+                root = item[:-4]
+                volume = alcoholDict[menuitem][0]*59.1471
+                sales = alcoholDict[menuitem][1]
+            elif ( item[-2:] == 'Up'):
+                root = item[:-3]
+                volume = alcoholDict[menuitem][0]*88.7206
+                sales = alcoholDict[menuitem][1]
+            else:
+                root = item
+                volume = alcoholDict[menuitem][0]*36.9669
+                sales = alcoholDict[menuitem][1]
+            #
+
+            if ( root not in consolidateliquor and root != '' ):
+                consolidateliquor[root] = ( volume, sales )
+            elif ( root != '' ):
+                currentVolume = consolidateliquor[root][0]
+                newVolume = currentVolume + volume
+                currentSales = consolidateliquor[root][1]
+                newSales = currentSales + sales
+                consolidateliquor[root] =  ( newVolume, newSales )
+
+        print('CONSOLIDATED LIQUOR SALES')
+        print('From ,', reportBegin)
+        print('To ,', reportEnd)
+        print('Name , Shots Sold , Avg. Price per shot')
+        for liquor in consolidateliquor:
+            shots = 0
+            if consolidateliquor[liquor][0] == 0:
+                avgp = 0
+                pshots = '0'
+            else:
+                shots = consolidateliquor[liquor][0] / 36.9669
+                pshots = '{:.2f}'.format(shots)
+                avgp = '${:.2f}'.format(consolidateliquor[liquor][1] / shots)
+            print(liquor, ',', pshots, ',', avgp)
+
+
+                #        print ('SALES FOR ALCOHOLIC BEVERAGES')
+#        for bev in alcoholDict:
+#            if alcoholDict[bev][0] == 0:
+#                avgp = 0
+#            else:
+#                avgp = '${:.2f}'.format(alcoholDict[bev][1]/alcoholDict[bev][0])
+#            print ( bev, ': sold', alcoholDict[bev][0], ', at average price of', avgp)
+
+#        print ('SALES FOR WINE')
+#        for glass in wineDict:
+#            if wineDict[glass][0] == 0:
+#                avgp = 0
+#            else:
+#                avgp = '${:.2f}'.format(wineDict[glass][1]/wineDict[glass][0])
+#            print ( glass, ': sold', wineDict[glass][0], ', at average price of', avgp)
 
 #        print ('SALES FOR BEER')
 #        for bottle in beerDict:
@@ -286,6 +333,7 @@ def processMenu(csvFile):
         return 0
 
 ##### _Main_
+
 
 processMenu('data/tb01.csv')
 #processModifiers('data/2016-07-modifiers.csv')
