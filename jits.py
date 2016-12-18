@@ -73,7 +73,7 @@ def processModifiers(modFile):
                     saleString = row[2]
                     # Convert the string, which can include '$' sign and commas
                     # to a float value
-                    sales = locale.atof(saleString[1:])
+                    sales = locale.atof(saleString.lstrip('-$'))
                     count = int(row[1])
                     # Create a tuple for the Count and Sales
                     x = (count,sales)
@@ -89,7 +89,7 @@ def processModifiers(modFile):
                     newCount = currentCount + int(row[1])
                     currentSales = modDict[row[0]][1]
                     saleString = row[2]
-                    newSales = locale.atof(saleString[1:])
+                    newSales = locale.atof(saleString.lstrip('-$'))
                     totalSales = currentSales + newSales
                     modDict[row[0]] = (newCount, totalSales)
 
@@ -163,7 +163,6 @@ def processMenu(csvFile):
                     saleString = row[2].lstrip('-$')
                     newSales = locale.atof(saleString)
                     totalSales = currentSales + newSales
-                    avgSale = totalSales / newCount
                     salesDict[row[0]] = totalSales
 
                 elif len(row) == 4:  # This item is a Void
