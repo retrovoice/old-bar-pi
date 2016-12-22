@@ -24,6 +24,14 @@ def processMenu(csvFile):
     with open(csvFile) as f:
 
         reader = csv.reader(f)
+        # read and discard first line
+        next(reader)
+        # Read first row, which contains date range information
+        dateString = next(reader)
+        tmp1 = dateString[0][16:]
+        pieces = tmp1.partition(' to ')
+        reportBegin = pieces[0]
+        reportEnd = pieces[2]
 
         # Iterate over lines in the CSV file
         for line in reader:
@@ -38,29 +46,33 @@ def processMenu(csvFile):
 
             if len(line) >= 2:
                 if line[1] == "Beer":
-                    saleAmt = locale.atof(line[4].lstrip('-$'))
+                    saleAmt = locale.atof(line[6].lstrip('-$'))
                     voidAmt = locale.atof(line[5].lstrip('-$'))
-                    qty     = locale.atof(line[3])
-                    beerDict[line[0]] = (qty, saleAmt - voidAmt)
+                    saleQty     = locale.atof(line[3])
+                    voidQty     = locale.atof(line[4])
+                    beerDict[line[0]] = (saleQty - voidQty, saleAmt - voidAmt)
 
                 elif line[1] == "Wine":
 
-                    saleAmt = locale.atof(line[4].lstrip('-$'))
+                    saleAmt = locale.atof(line[6].lstrip('-$'))
                     voidAmt = locale.atof(line[5].lstrip('-$'))
-                    qty     = locale.atof(line[3])
-                    wineDict[line[0]] = (qty, saleAmt - voidAmt)
+                    saleQty     = locale.atof(line[3])
+                    voidQty     = locale.atof(line[4])
+                    wineDict[line[0]] = (saleQty - voidQty, saleAmt - voidAmt)
 
                 elif line[1] == "Alcohol":
-                    saleAmt = locale.atof(line[4].lstrip('-$'))
+                    saleAmt = locale.atof(line[6].lstrip('-$'))
                     voidAmt = locale.atof(line[5].lstrip('-$'))
-                    qty     = locale.atof(line[3])
-                    alcoholDict[line[0]] = (qty, saleAmt - voidAmt)
+                    saleQty     = locale.atof(line[3])
+                    voidQty     = locale.atof(line[4])
+                    alcoholDict[line[0]] = (saleQty - voidQty, saleAmt - voidAmt)
 
                 elif line[1] == "Food":
-                    saleAmt = locale.atof(line[4].lstrip('-$'))
+                    saleAmt = locale.atof(line[6].lstrip('-$'))
                     voidAmt = locale.atof(line[5].lstrip('-$'))
-                    qty     = locale.atof(line[3])
-                    foodDict[line[0]] = (qty, saleAmt - voidAmt)
+                    saleQty     = locale.atof(line[3])
+                    voidQty     = locale.atof(line[4])
+                    foodDict[line[0]] = (saleQty - voidQty, saleAmt - voidAmt)
 
 #    print ('SALES FOR ALCOHOLIC BEVERAGES')
 #    for bev in alcoholDict:
@@ -140,4 +152,4 @@ def processMenu(csvFile):
 
 ##### _Main_
 
-processMenu('data/2016-11_MenuReport.csv')
+processMenu('data/junohsv-SalesByMenuItem-20161221-133524.csv')
