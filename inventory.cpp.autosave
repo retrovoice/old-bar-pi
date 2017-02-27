@@ -34,14 +34,15 @@ void Inventory::initModel()
 {
     invTableModel->setTable("inventory");
     invTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    invTableModel->setRelation(4, QSqlRelation("categories", "id", "label"));
-    invTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("upccode"));
-    invTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("label"));
-    invTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("abccode"));
-    invTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("price"));
-    invTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("category"));
-    invTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("volume"));
-    invTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("density"));
+    invTableModel->setRelation(1, QSqlRelation("products", "upccode", "label"));
+    invTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+    invTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Name"));
+    invTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Barcode"));
+    invTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Retired?"));
+    invTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("Gross"));
+    invTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("Tare"));
+    invTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("Arrival"));
+    invTableModel->setHeaderData(7, Qt::Horizontal, QObject::tr("Departure"));
     // Synchronize model with database
     if (!invTableModel->select()) {
         showError(invTableModel->lastError());

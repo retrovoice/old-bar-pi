@@ -4,12 +4,9 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QStringList;
 class QLabel;
-class QLineEdit;
-class QComboBox;
+class QCheckBox;
 class QPushButton;
-class QDialogButtonBox;
 class QDataWidgetMapper;
 class QSqlRelationalTableModel;
 class QSqlError;
@@ -23,13 +20,12 @@ public:
 signals:
 
 private slots:
-    void newitem();
+    void additem();
     void submit();
     void cancel();
     void previous();
     void next();
-    void remove();
-    void enableButtons(const bool st = true);
+    void retire();
 
 private:
 
@@ -37,33 +33,15 @@ private:
     void mapModel();
     void createLayout();
     void showError(const QSqlError &err);
+    double readScale();
 
     // Relational table model used to display product catalog
     QSqlRelationalTableModel *invTableModel;
 
     // Widgets for Products table UI
-    QLabel *upcLabel;
-    QLabel *nameLabel;
-    QLabel *abcCodeLabel;
-    QLabel *priceLabel;
-    QLabel *volumeLabel;
-    QLabel *categoryLabel;
-    QLabel *densityLabel;
-    QLineEdit *upcEdit;
-    QLineEdit *nameEdit;
-    QLineEdit *abcCodeEdit;
-    QLineEdit *priceEdit;
-    QLineEdit *volumeEdit;
-    QLineEdit *densityEdit;
-    QComboBox *categoryCombo;
+    QLabel *retiredLabel;
+    QCheckBox *Edit;
     QDataWidgetMapper *mapper;
-
-    QPushButton *newButton;
-    QPushButton *saveButton;
-    QPushButton *cancelButton;
-    QPushButton *deleteButton;
-    QPushButton *prevButton;
-    QPushButton *nextButton;
 
     // Flag to determine is adding record to database
     bool isNew;
