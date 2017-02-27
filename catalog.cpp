@@ -100,11 +100,11 @@ void Catalog::createLayout()
     categoryCombo->setModel(prodTableModel->relationModel(4));
     categoryCombo->setModelColumn(prodTableModel->relationModel(4)->fieldIndex("label"));
 
-//    QStringList productCategories;
-//    for (int i = 0; i < categoryCombo->count(); i++)
-//    {
-//        productCategories.append( categoryCombo->itemText(i) );
-//    }
+    //    QStringList productCategories;
+    //    for (int i = 0; i < categoryCombo->count(); i++)
+    //    {
+    //        productCategories.append( categoryCombo->itemText(i) );
+    //    }
 
     connect(upcEdit, SIGNAL(textEdited(QString)),
             this, SLOT(enableButtons()));
@@ -174,6 +174,7 @@ void Catalog::newitem()
     volumeEdit->clear();
     densityEdit->clear();
     categoryCombo->setCurrentIndex(0);
+    upcEdit->setFocus();
     isNew = true;
     enableButtons(false);
 }
@@ -197,6 +198,11 @@ void Catalog::submit()
         // SQL command.
         QString index(cindex.toString());
 
+        // Check label string for single quotes and
+        // escape them if found
+        //while (label.contains("'")) {
+
+        //}
         // The database was previously opened, so attach
         // to it with default connection name.
         QSqlDatabase db = QSqlDatabase::database();
@@ -223,18 +229,22 @@ void Catalog::submit()
             showError(query.lastError());
         }
     }
-    // Submit the change to the database
-    if (!mapper->submit()) {
-        showError(prodTableModel->lastError());
-        this->cancel();
-    }
+
     // Update the mapping between the database and the
     // QDataWidgetMapper
-    if (!prodTableModel->submitAll()) {
-        showError(prodTableModel->lastError());
-        this->cancel();
+    if (isNew) {
+        if (!prodTableModel->submitAll()) {
+            showError(prodTableModel->lastError());
+            this->cancel();
+        }
+    } else {
+        if (!mapper->submit()) {
+            showError(prodTableModel->lastError());
+            this->cancel();
+        }
     }
-
+    // If a new record was just added, display the last
+    // record, which is the item just added
     if (isNew) {
         mapper->toLast();
         isNew = false;
