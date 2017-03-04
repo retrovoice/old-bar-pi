@@ -14,20 +14,24 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlField>
+#include <QTableView>
 #include <QDataWidgetMapper>
 #include <QSqlRelationalDelegate>
 
 Inventory::Inventory(QWidget *parent) :
-    QWidget(parent),
-    isNew(false)
+    QWidget(parent)
 {
     invTableModel = new QSqlRelationalTableModel;
+    invTableView = new QTableView;
+    invLayout = new QGridLayout;
 
     // These must be done in order due to initializaion
     // of access types.
     this->initModel();
-    this->createLayout();
-    this->mapModel();
+    invTableView = this->createView("Barpi Inventory", invTableModel);
+    invLayout->addWidget(invTableView, 0, 0);
+    this->setLayout(invLayout);
+    invTableView->show();
 }
 
 void Inventory::initModel()
@@ -49,118 +53,16 @@ void Inventory::initModel()
     }
 }
 
-void Inventory::mapModel()
+QTableView* Inventory::createView(const QString &title, QSqlTableModel *model)
 {
-    mapper = new QDataWidgetMapper(this);
-    mapper->setModel(invTableModel);
-    mapper->setItemDelegate(new QSqlRelationalDelegate(mapper));
-    mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-    mapper->addMapping(upcEdit, 0);
-    mapper->addMapping(nameEdit, 1);
-    mapper->addMapping(abcCodeEdit, 2);
-    mapper->addMapping(priceEdit, 3);
-    mapper->addMapping(categoryCombo, 4);
-    mapper->addMapping(volumeEdit, 5);
-    mapper->addMapping(densityEdit, 6);
-    mapper->toFirst();
+    QTableView *view = new QTableView;
+    view->setModel(model);
+    view->setItemDelegate(new QSqlRelationalDelegate(view));
+    view->setWindowTitle(title);
+    return view;
 }
 
-void Inventory::createLayout()
-{
-    upcLabel = new QLabel(tr("&UPC Code:"));
-    upcEdit = new QLineEdit();
-    upcLabel->setBuddy(upcEdit);
-
-    nameLabel = new QLabel(tr("Na&me:"));
-    nameEdit = new QLineEdit();
-    nameLabel->setBuddy(nameEdit);
-
-    abcCodeLabel = new QLabel(tr("&ABC Code:"));
-    abcCodeEdit = new QLineEdit();
-    abcCodeLabel->setBuddy(abcCodeEdit);
-
-    priceLabel = new QLabel(tr("&Price"));
-    priceEdit = new QLineEdit();
-    priceLabel->setBuddy(priceEdit);
-
-    volumeLabel = new QLabel(tr("&Volume"));
-    volumeEdit = new QLineEdit();
-    volumeLabel->setBuddy(volumeEdit);
-
-    densityLabel = new QLabel(tr("&Density:"));
-    densityEdit = new QLineEdit();
-    densityLabel->setBuddy(densityEdit);
-
-    categoryLabel = new QLabel(tr("Category:"));
-    categoryCombo = new QComboBox();
-    categoryCombo->setModel(invTableModel->relationModel(4));
-    categoryCombo->setModelColumn(invTableModel->relationModel(4)->fieldIndex("label"));
-
-//    QStringList productCategories;
-//    for (int i = 0; i < categoryCombo->count(); i++)
-//    {
-//        productCategories.append( categoryCombo->itemText(i) );
-//    }
-
-    connect(upcEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(nameEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(abcCodeEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(priceEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(volumeEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(densityEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(categoryCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(enableButtons()));
-
-    QFormLayout *productLayout = new QFormLayout;
-    productLayout->addRow(upcLabel, upcEdit);
-    productLayout->addRow(nameLabel, nameEdit);
-    productLayout->addRow(abcCodeLabel, abcCodeEdit);
-    productLayout->addRow(priceLabel, priceEdit);
-    productLayout->addRow(categoryLabel, categoryCombo);
-    productLayout->addRow(volumeLabel, volumeEdit);
-    productLayout->addRow(densityLabel, densityEdit);
-
-    // These 5 buttons control actions for the catalog page
-    newButton = new QPushButton(tr("&New"));
-    cancelButton = new QPushButton(tr("&Cancel"));
-    saveButton = new QPushButton(tr("&Save"));
-    deleteButton = new QPushButton(tr("&Delete"));
-    prevButton = new QPushButton(tr("&Previous"));
-    nextButton = new QPushButton(tr("Next"));
-
-    connect (newButton, SIGNAL(clicked()), this, SLOT(newitem()));
-    connect (saveButton, SIGNAL(clicked()), this, SLOT(submit()));
-    connect (cancelButton, SIGNAL(clicked()),this, SLOT(cancel()));
-    connect (deleteButton, SIGNAL(clicked()), this, SLOT(remove()));
-    connect (prevButton, SIGNAL(clicked()), this, SLOT(previous()));
-    connect (nextButton, SIGNAL(clicked()), this, SLOT(next()));
-
-    QVBoxLayout *leftLayout = new QVBoxLayout;
-    leftLayout->addWidget(newButton,1);
-    leftLayout->addWidget(saveButton,1);
-    leftLayout->addWidget(cancelButton,1);
-    leftLayout->addWidget(deleteButton,1);
-
-    QHBoxLayout *bottomLayout = new QHBoxLayout;
-    bottomLayout->addWidget(prevButton,1);
-    bottomLayout->addWidget(nextButton,1);
-
-    // The layout for this window will be a grid.
-    QGridLayout *gLayout = new QGridLayout;
-    gLayout->addLayout(leftLayout,0,0,2,1);
-    gLayout->addLayout(bottomLayout,1,1);
-    gLayout->addLayout(productLayout,0,1);
-
-    this->setLayout(gLayout);
-}
-
-void Inventory::newitem()
+/*void Inventory::newitem()
 {
     spot = mapper->currentIndex();
     upcEdit->clear();
@@ -301,9 +203,10 @@ void Inventory::enableButtons(const bool st)
     saveButton->setEnabled(st);
     cancelButton->setEnabled(st);
 }
-
+*/
 void Inventory::showError(const QSqlError &err)
 {
     QMessageBox::critical(this, "Database Error",
                           "Reported Error: " + err.text());
 }
+

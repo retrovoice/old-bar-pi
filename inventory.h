@@ -10,6 +10,9 @@ class QPushButton;
 class QDataWidgetMapper;
 class QSqlRelationalTableModel;
 class QSqlError;
+class QTableView;
+class QSqlTableModel;
+class QGridLayout;
 QT_END_NAMESPACE
 
 class Inventory : public QWidget
@@ -20,33 +23,36 @@ public:
 signals:
 
 private slots:
-    void additem();
-    void submit();
-    void cancel();
-    void previous();
-    void next();
-    void retire();
+//    void additem();
+//    void submit();
+//    void cancel();
+//    void previous();
+//    void next();
+//    void retire();
 
 private:
 
     void initModel();
-    void mapModel();
-    void createLayout();
+    QTableView* createView(const QString &title, QSqlTableModel *model);
     void showError(const QSqlError &err);
-    double readScale();
+//    double readScale();
 
-    // Relational table model used to display product catalog
+    // Relational table model used to access inventory database
     QSqlRelationalTableModel *invTableModel;
+    QTableView* invTableView;
+
+    // Layout to contain table view
+    QGridLayout* invLayout;
 
     // Widgets for Products table UI
-    QLabel *retiredLabel;
-    QCheckBox *Edit;
-    QDataWidgetMapper *mapper;
+//    QLabel *retiredLabel;
+//    QCheckBox *Edit;
+//    QDataWidgetMapper *mapper;
 
     // Flag to determine is adding record to database
-    bool isNew;
+//    bool isNew;
     // An index used to keep track of current record in the database
-    int spot;
+//    int spot;
 };
 
 #endif // INVENTORY_H
