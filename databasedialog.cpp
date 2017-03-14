@@ -21,7 +21,7 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) :
     dbLabel = new QLabel(tr("Database Name:"));
     dbEdit = new QLineEdit;
     dbEdit->insert(db.databaseName());
-    dbLabel->setBuddy(hostEdit);
+    dbLabel->setBuddy(dbEdit);
 
     hostLabel = new QLabel(tr("&Hostname:"));
     hostEdit = new QLineEdit;
