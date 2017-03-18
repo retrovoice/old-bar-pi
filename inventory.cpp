@@ -2,6 +2,8 @@
 
 #include <QMessageBox>
 #include <QLabel>
+#include <QPushButton>
+#include <QLineEdit>
 #include <QCheckBox>
 #include <QString>
 #include <QGridLayout>
@@ -15,22 +17,22 @@
 #include <QSqlRecord>
 #include <QSqlField>
 #include <QTableView>
-#include <QDataWidgetMapper>
 #include <QSqlRelationalDelegate>
+#include <QDate>
+#include <QTime>
+#include <QDateTime>
 
 Inventory::Inventory(QWidget *parent) :
     QWidget(parent)
 {
     invTableModel = new QSqlRelationalTableModel;
     invTableView = new QTableView;
-    invLayout = new QGridLayout;
 
     // These must be done in order due to initializaion
     // of access types.
     this->initModel();
     invTableView = this->createView("Barpi Inventory", invTableModel);
-    invLayout->addWidget(invTableView, 0, 0);
-    this->setLayout(invLayout);
+    createLayout();
     invTableView->show();
 }
 
@@ -53,7 +55,7 @@ void Inventory::initModel()
     }
 }
 
-QTableView* Inventory::createView(const QString &title, QSqlTableModel *model)
+QTableView* Inventory::createView(const QString &title, QSqlRelationalTableModel *model)
 {
     QTableView *view = new QTableView;
     view->setModel(model);
@@ -62,38 +64,60 @@ QTableView* Inventory::createView(const QString &title, QSqlTableModel *model)
     return view;
 }
 
-/*void Inventory::newitem()
+void Inventory::createLayout()
 {
-    spot = mapper->currentIndex();
-    upcEdit->clear();
-    nameEdit->clear();
-    abcCodeEdit->clear();
-    priceEdit->clear();
-    volumeEdit->clear();
-    densityEdit->clear();
-    categoryCombo->setCurrentIndex(0);
-    isNew = true;
-    enableButtons(false);
+    retiredCB = new QCheckBox;
+    retiredCB->setText("Retired");
+    addButton = new QPushButton("&Add");
+    saveButton = new QPushButton("&Save");
+
+    upcEdit = new QLineEdit;
+    nameEdit = new QLineEdit;
+    barcodeEdit = new QLineEdit;
+    grossEdit = new QLineEdit;
+    tareEdit = new QLineEdit;
+
+    QHBoxLayout* buttonLayout = new QHBoxLayout;
+    buttonLayout->addWidget(addButton);
+    buttonLayout->addWidget(saveButton);
+    buttonLayout->addWidget(retiredCB);
+
+    connect (addButton, SIGNAL(clicked()), this, SLOT(additem()));
+    connect (saveButton, SIGNAL(clicked()), this, SLOT(submit()));
+    connect (retiredCB, SIGNAL(stateChanged(int)), this, SLOT(retire()));
+
+    QGridLayout* invLayout = new QGridLayout;
+    invLayout->addLayout(buttonLayout, 0, 0);
+    invLayout->addWidget(invTableView, 1, 0);
+
+    this->setLayout(invLayout);
+}
+
+void Inventory::additem()
+{
+    QSqlRecord newRecord;
+    QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
+    int datetimeInt = currentDateTime.toTime_t();
+    QVariant arrival(datetimeInt);
+    QMessageBox::information(this, "Date Variant", arrival.toString());
+
+    newRecord.setValue(6,datetimeInt);
+    invTableModel->insertRecord(-1,newRecord);
+    //isNew = true;
+    enableButtons(true);
 }
 
 void Inventory::submit()
 {
-    spot = mapper->currentIndex();
-    // If this is a new record, then construct the SQL
+/*    // If this is a new record, then construct the SQL
     // command to insert it into the database, based on
     // the values in the LineEdit widgets.
     if (isNew) {
         QString upccode = upcEdit->text();
         QString label = nameEdit->text();
-        QString abccode = abcCodeEdit->text();
-        QString price = priceEdit->text();
-        QVariant cindex = categoryCombo->currentIndex() + 1;
-        QString volume = volumeEdit->text();
-        QString density = densityEdit->text();
-
-        // Convert integer index to string for use in
-        // SQL command.
-        QString index(cindex.toString());
+        QString barcode = barcodeEdit->text();
+        QString gross = grossEdit->text();
+        QString tare = tareEdit->text();
 
         // The database was previously opened, so attach
         // to it with default connection name.
@@ -104,15 +128,11 @@ void Inventory::submit()
         queryText01.append("\',\'");
         queryText01.append(label);
         queryText01.append("\',\'");
-        queryText01.append(abccode);
+        queryText01.append(barcode);
         queryText01.append("\',");
-        queryText01.append(price);
+        queryText01.append(gross);
         queryText01.append(",");
-        queryText01.append(index);
-        queryText01.append(",");
-        queryText01.append(volume);
-        queryText01.append(",");
-        queryText01.append(density);
+        queryText01.append(tare);
         queryText01.append(")");
 
         // Create a query object and execute it
@@ -121,13 +141,7 @@ void Inventory::submit()
             showError(query.lastError());
             return;
         }
-    }
-    // Submit the change to the database
-    if (!mapper->submit()) {
-        showError(invTableModel->lastError());
-        this->cancel();
-        return;
-    }
+    }*/
     // Update the mapping between the database and the
     // QDataWidgetMapper
     if (!invTableModel->submitAll()) {
@@ -135,43 +149,20 @@ void Inventory::submit()
         this->cancel();
         return;
     }
-
-    if (isNew) {
-        mapper->toLast();
-        isNew = false;
-        spot = mapper->currentIndex();
-    } else {
-        mapper->setCurrentIndex(spot);
-    }
     enableButtons(false);
 }
 
 void Inventory::cancel()
 {
-    mapper->setCurrentIndex(spot);
+    invTableModel->revertAll();
     enableButtons(false);
 }
 
-void Inventory::previous()
+void Inventory::retire()
 {
-    mapper->toPrevious();
-    spot = mapper->currentIndex();
-    enableButtons(false);
-}
-
-void Inventory::next()
-{
-    mapper->toNext();
-    spot = mapper->currentIndex();
-    enableButtons(false);
-}
-
-void Inventory::remove()
-{
-    // Capture the current index of the record being removed
-    spot = mapper->currentIndex();
-
-    // Remove the row and check result for error.
+    // State has changed on the Retired checkbox
+    // Determine new state
+    if (retiredCB->isChecked())
     if (!invTableModel->removeRows(spot,1)) {
         QSqlError err = invTableModel->lastError();
         QMessageBox::warning(this, "Error - Remove Row",
@@ -184,26 +175,15 @@ void Inventory::remove()
     // Update the mapping between the database and the
     // QDataWidgetMapper
     invTableModel->select();
-    // Move the mapper to the index just before the
-    // deleted record, or the first record in index
-    // is 1 or less
-    if ((spot-1) > 0) {
-        mapper->setCurrentIndex(spot-1);
-        spot--;
-    }
-    else {
-        mapper->toFirst();
-        spot = mapper->currentIndex();
-    }
     enableButtons(false);
 }
 
 void Inventory::enableButtons(const bool st)
 {
     saveButton->setEnabled(st);
-    cancelButton->setEnabled(st);
+    addButton->setEnabled(st);
 }
-*/
+
 void Inventory::showError(const QSqlError &err)
 {
     QMessageBox::critical(this, "Database Error",

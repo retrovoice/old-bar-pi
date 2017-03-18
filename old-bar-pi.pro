@@ -17,10 +17,12 @@ SOURCES += main.cpp\
     commandlineparser.cpp \
     databasedialog.cpp \
     catalog.cpp \
-    inventory.cpp
+    inventory.cpp \
+    bpscan.cpp
 
 HEADERS  += mainwindow.h \
     commandlineparser.h \
     databasedialog.h \
     catalog.h \
-    inventory.h
+    inventory.h \
+    bpscan.h
