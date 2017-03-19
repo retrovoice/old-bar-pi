@@ -32,6 +32,7 @@ private:
     void initModel();
     QTableView* createView(const QString &title, QSqlRelationalTableModel *model);
     void createLayout();
+    QString createBarcode(int id);
     void showError(const QSqlError &err);
 //    double readScale();
 

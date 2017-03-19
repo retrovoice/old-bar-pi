@@ -95,15 +95,26 @@ void Inventory::createLayout()
 
 void Inventory::additem()
 {
-    QSqlRecord newRecord;
+    //SqlRecord newRecord;
     QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
     int datetimeInt = currentDateTime.toTime_t();
-    QVariant arrival(datetimeInt);
-    QMessageBox::information(this, "Date Variant", arrival.toString());
 
-    newRecord.setValue(6,datetimeInt);
-    invTableModel->insertRecord(-1,newRecord);
-    //isNew = true;
+    QVariant row = invTableModel->rowCount();
+    QString msg = "Row Index [";
+    msg.append( row.toString());
+    msg.append("] out of bounds.");
+
+    int iRow = row.toInt();
+
+    if (!invTableModel->insertRows(iRow, 1)) {
+        QMessageBox::warning( this,"Inventory::additem", msg );
+        this->cancel();
+    }
+
+    if (!invTableModel->setData(invTableModel->index(iRow, 6),datetimeInt)) {
+        QMessageBox::warning( this,"Inventory::additem", msg );
+        this->cancel();
+    }
     enableButtons(true);
 }
 
@@ -149,13 +160,13 @@ void Inventory::submit()
         this->cancel();
         return;
     }
-    enableButtons(false);
+    enableButtons();
 }
 
 void Inventory::cancel()
 {
     invTableModel->revertAll();
-    enableButtons(false);
+    enableButtons(TRUE);
 }
 
 void Inventory::retire()

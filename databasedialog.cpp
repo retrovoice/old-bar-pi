@@ -133,12 +133,12 @@ void DatabaseDialog::initdb()
                "retired boolean,"
                "gross real,"
                "tare  real,"
-               "arrival timestamp,"
-               "departure timestamp )");
+               "arrival integer,"
+               "departure integer )");
     query.exec("create table readings ("
                "id integer primary key autoincrement,"
                "item varchar(30),"
-               "stamp timestamp,"
+               "stamp integer,"
                "weight real )");
 
     query.exec("insert into categories values (1,'bourbon')");
@@ -162,9 +162,6 @@ void DatabaseDialog::initdb()
                "'0083664868780', 'Hendricks',"
                "'A723',35.99, 4, 0.75, 0.9076)");
 
-    QString msg("Last reported error: ");
-    msg.append(query.lastError().text());
-    QMessageBox::information(this, tr("Database Initialized"),msg);
     enableInit(false);
 }
 
