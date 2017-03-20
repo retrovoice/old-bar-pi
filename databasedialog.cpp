@@ -118,6 +118,7 @@ void DatabaseDialog::initdb()
 {
     QSqlQuery query;
     query.exec("create table categories (id integer primary key, label varchar(15))");
+    query.exec("create table yesno (id integer primary key, label varchar(3))");
     query.exec("create table products ("
                "upccode varchar(15) primary key,"
                "label varchar(30),"
@@ -130,7 +131,7 @@ void DatabaseDialog::initdb()
                "id integer primary key autoincrement,"
                "upc varchar(15) references products(upccode),"
                "barcode varchar(30) unique,"
-               "retired boolean,"
+               "retired integer references truefalse(id),"
                "gross real,"
                "tare  real,"
                "arrival integer,"
@@ -151,6 +152,9 @@ void DatabaseDialog::initdb()
     query.exec("insert into categories values (8,'tequila')");
     query.exec("insert into categories values (9,'vodka')");
     query.exec("insert into categories values (10,'whiskey')");
+
+    query.exec("insert into yesno values (0,'No')");
+    query.exec("insert into yesno values (1,'Yes')");
 
     query.exec("insert into products values ("
                "'0082184090008', 'Jack Daniels No. 7',"

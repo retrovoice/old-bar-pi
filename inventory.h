@@ -5,12 +5,10 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
-class QCheckBox;
 class QPushButton;
 class QSqlRelationalTableModel;
 class QSqlError;
 class QTableView;
-class QLineEdit;
 QT_END_NAMESPACE
 
 class Inventory : public QWidget
@@ -24,7 +22,6 @@ private slots:
     void additem();
     void submit();
     void cancel();
-    void retire();
     void enableButtons(const bool st = true);
 
 private:
@@ -41,22 +38,9 @@ private:
     QTableView* invTableView;
 
     // Widgets for Products table UI
-    QCheckBox* retiredCB;
     QPushButton* addButton;
     QPushButton* saveButton;
-
-    // Widgets for adding item to inventory
-    QLineEdit* upcEdit;
-    QLineEdit* nameEdit;
-    QLineEdit* barcodeEdit;
-    QLineEdit* grossEdit;
-    QLineEdit* tareEdit;
-
-
-    // Flag to determine is adding record to database
-    bool isNew;
-    // An index used to keep track of current record in the database
-    int spot;
+    QPushButton* cancelButton;
 };
 
 #endif // INVENTORY_H

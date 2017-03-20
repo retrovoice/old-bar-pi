@@ -30,7 +30,8 @@ private slots:
     void previous();
     void next();
     void remove();
-    void enableButtons(const bool st = true);
+    void updateButtons(const bool st = TRUE);
+    void updateNextPrev(int row);
 
 private:
 

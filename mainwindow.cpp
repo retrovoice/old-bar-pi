@@ -15,12 +15,14 @@
 #include <QFileDialog>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <QSqlTableModel>
 #include <QMap>
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
 #include <QMessageBox>
 #include <QVariant>
+#include <QDialog>
 
 MainWindow::MainWindow(QString configFile,
                        QWidget* parent,
@@ -69,13 +71,11 @@ MainWindow::MainWindow(QString configFile,
 
     if (!db.open())
     {
-        QString error("Database open failed.");
         QSqlError dberror(db.lastError());
-        error.append(dberror.text());
-        QMessageBox::critical(this, tr("Error"),
-                              error, QMessageBox::Cancel);
-        return;
+        QString dbError(dberror.text());
+        QMessageBox::critical(this,"Database Open Failed",dbError);
     }
+
     // do stuff to setup GUI
     createTabs();
     this->setCentralWidget(tabs);
@@ -84,6 +84,19 @@ MainWindow::MainWindow(QString configFile,
 
 void MainWindow::createTabs()
 {
+    // Check to see if the database contains the products table.
+    // If not, then the database hasn't yet been initialized.
+
+    // The database setting widget.  Create here so that
+    // the database can be created and
+    dbDialog = new DatabaseDialog(this);
+
+    QSqlTableModel checkModel;
+    checkModel.setTable("products");
+    if (!checkModel.select()) {
+        dbDialog->initdb();
+    }
+
     // Instantiate the tab widget
     tabs = new QTabWidget;
 
@@ -92,9 +105,6 @@ void MainWindow::createTabs()
 
     // The interface to the product inventory
     prodInventory = new Inventory(this);
-
-    // Database settings
-    dbDialog = new DatabaseDialog(this);
 
     tabs->addTab(prodCatalog,tr("Catalog"));
     tabs->addTab(prodInventory,tr("Inventory"));

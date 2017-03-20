@@ -32,7 +32,8 @@ Catalog::Catalog(QWidget *parent) :
     this->createLayout();
     this->mapModel();
 
-    enableButtons(false);
+    updateButtons(false);
+
 }
 
 void Catalog::initModel()
@@ -67,6 +68,9 @@ void Catalog::mapModel()
     mapper->addMapping(volumeEdit, 5);
     mapper->addMapping(densityEdit, 6);
     mapper->toFirst();
+
+    connect(mapper, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(updateNextPrev(int)));
 }
 
 void Catalog::createLayout()
@@ -100,26 +104,20 @@ void Catalog::createLayout()
     categoryCombo->setModel(prodTableModel->relationModel(4));
     categoryCombo->setModelColumn(prodTableModel->relationModel(4)->fieldIndex("label"));
 
-    //    QStringList productCategories;
-    //    for (int i = 0; i < categoryCombo->count(); i++)
-    //    {
-    //        productCategories.append( categoryCombo->itemText(i) );
-    //    }
-
-    connect(upcEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(nameEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(abcCodeEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(priceEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(volumeEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
-    connect(densityEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(enableButtons()));
+    connect(upcEdit, SIGNAL(editingFinished()),
+            this, SLOT(updateButtons()));
+    connect(nameEdit, SIGNAL(editingFinished()),
+            this, SLOT(updateButtons()));
+    connect(abcCodeEdit, SIGNAL(editingFinished()),
+            this, SLOT(updateButtons()));
+    connect(priceEdit, SIGNAL(editingFinished()),
+            this, SLOT(updateButtons()));
+    connect(volumeEdit, SIGNAL(editingFinished()),
+            this, SLOT(updateButtons()));
+    connect(densityEdit, SIGNAL(editingFinished()),
+            this, SLOT(updateButtons()));
     connect(categoryCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(enableButtons()));
+            this, SLOT(updateButtons()));
 
     QFormLayout *productLayout = new QFormLayout;
     productLayout->addRow(upcLabel, upcEdit);
@@ -131,12 +129,15 @@ void Catalog::createLayout()
     productLayout->addRow(densityLabel, densityEdit);
 
     // These 5 buttons control actions for the catalog page
-    newButton = new QPushButton(tr("&New"));
-    cancelButton = new QPushButton(tr("&Cancel"));
-    saveButton = new QPushButton(tr("&Save"));
-    deleteButton = new QPushButton(tr("&Delete"));
-    prevButton = new QPushButton(tr("&Previous"));
-    nextButton = new QPushButton(tr("Next"));
+    newButton = new QPushButton(tr("&New"),this);
+    cancelButton = new QPushButton(tr("&Cancel"),this);
+    cancelButton->setEnabled(FALSE);
+    saveButton = new QPushButton(tr("&Save"),this);
+    saveButton->setEnabled(FALSE);
+    deleteButton = new QPushButton(tr("&Delete"),this);
+    prevButton = new QPushButton(tr("&Previous"),this);
+    prevButton->setEnabled(FALSE);
+    nextButton = new QPushButton(tr("Next"),this);
 
     connect (newButton, SIGNAL(clicked()), this, SLOT(newitem()));
     connect (saveButton, SIGNAL(clicked()), this, SLOT(submit()));
@@ -176,7 +177,7 @@ void Catalog::newitem()
     categoryCombo->setCurrentIndex(0);
     upcEdit->setFocus();
     isNew = true;
-    enableButtons(false);
+    updateButtons(false);
 }
 
 void Catalog::submit()
@@ -252,27 +253,27 @@ void Catalog::submit()
     } else {
         mapper->setCurrentIndex(spot);
     }
-    enableButtons(false);
+    updateButtons(false);
 }
 
 void Catalog::cancel()
 {
     mapper->setCurrentIndex(spot);
-    enableButtons(false);
+    mapper->revert();
+    mapper->submit();
+    updateButtons(false);
 }
 
 void Catalog::previous()
 {
     mapper->toPrevious();
     spot = mapper->currentIndex();
-    enableButtons(false);
 }
 
 void Catalog::next()
 {
     mapper->toNext();
     spot = mapper->currentIndex();
-    enableButtons(false);
 }
 
 void Catalog::remove()
@@ -303,13 +304,20 @@ void Catalog::remove()
         mapper->toFirst();
         spot = mapper->currentIndex();
     }
-    enableButtons(false);
+    updateButtons(false);
 }
 
-void Catalog::enableButtons(const bool st)
+void Catalog::updateButtons(const bool st)
 {
     saveButton->setEnabled(st);
     cancelButton->setEnabled(st);
+    newButton->setEnabled(!st);
+}
+
+void Catalog::updateNextPrev(int row)
+{
+    prevButton->setEnabled(row > 0);
+    nextButton->setEnabled(row < prodTableModel->rowCount() - 1);
 }
 
 void Catalog::showError(const QSqlError &err)
