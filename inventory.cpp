@@ -72,6 +72,7 @@ void Inventory::createLayout()
     buttonLayout->addWidget(addButton);
     buttonLayout->addWidget(saveButton);
     buttonLayout->addWidget(cancelButton);
+    buttonLayout->addStretch(5);
 
     connect (addButton, SIGNAL(clicked(bool)), this, SLOT(additem()));
     connect (saveButton, SIGNAL(clicked(bool)), this, SLOT(submit()));

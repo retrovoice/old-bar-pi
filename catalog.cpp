@@ -79,6 +79,7 @@ void Catalog::createLayout()
     buttonLayout->addWidget(saveButton);
     buttonLayout->addWidget(cancelButton);
     buttonLayout->addWidget(deleteButton);
+    buttonLayout->addStretch(5);
 
     QGridLayout* prodLayout = new QGridLayout;
     prodLayout->addLayout(buttonLayout, 0, 0);
