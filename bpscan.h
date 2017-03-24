@@ -1,18 +1,22 @@
 #ifndef BPSCAN_H
 #define BPSCAN_H
 
-#include <QWidget>
+#include <QThread>
 
-class BPScan : public QWidget
+class BPScan : public QThread
 {
     Q_OBJECT
 public:
-    explicit BPScan(QWidget *parent = 0);
+    explicit BPScan(QObject *parent);
+    ~BPScan();
 
 signals:
+    void barcodeRead();
 
-public slots:
+protected:
+    void run();
 
+private:
 };
 
 #endif // BPSCAN_H
