@@ -80,6 +80,10 @@ MainWindow::MainWindow(QString configFile,
     createTabs();
     this->setCentralWidget(tabs);
 
+    connect(&scanner, SIGNAL(barcodeRead(QString)),
+            this, SLOT(acceptBarcode(QString)));
+    scanner.start();
+
 }
 
 void MainWindow::createTabs()
@@ -203,4 +207,9 @@ void MainWindow::createdefaultconfig(const QString filename)
         output.flush();
         conf.close();
     }
+}
+
+void MainWindow::acceptBarcode(const QString &barcode)
+{
+    QMessageBox::information(this, tr("BPScan Read"), barcode);
 }

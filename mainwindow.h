@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "bpscan.h"
 
 QT_BEGIN_NAMESPACE
 class QStackedLayout;
@@ -29,9 +30,13 @@ public:
 
     const QString dbname() { return *dbName; }
 
-private slots:
+protected slots:
+
+    void acceptBarcode(const QString& barcode);
 
 private:
+
+    BPScan scanner;
 
     QString *dbName;
     QString *connection;
