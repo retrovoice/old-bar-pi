@@ -15,6 +15,7 @@ salesDict = {}
 # by category.  The item name is prefixed with the top-level
 # category and separated with a colon.
 alcoholDict = {}
+cocktailDict = {}
 foodDict = {}
 wineDict = {}
 beerDict = {}
@@ -66,11 +67,51 @@ def processMenu(csvFile):
                     wineDict[line[0]] = (saleQty - voidQty, saleAmt - voidAmt)
 
                 elif line[1] == "Alcohol":
+                    cleanName = line[0].rstrip()
+                    if cleanName.startswith('$5 '):
+                        baseName = cleanName[3:]
+                    else:
+                        baseName = cleanName
                     saleAmt = locale.atof(line[6].lstrip('-$'))
                     voidAmt = locale.atof(line[5].lstrip('-$'))
                     saleQty     = locale.atof(line[3])
                     voidQty     = locale.atof(line[4])
-                    alcoholDict[line[0]] = (saleQty - voidQty, saleAmt - voidAmt)
+                    if baseName == 'Raspberry Limoncello Prosecco':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Al Capone':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'The Little Italy':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Lucky Luciano':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Southern Italian Tea':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Long Insland':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Bellini':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Tawny Port':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Cafe Toledo':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Country Boy Mimosa':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Blberry JD Collins':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Hendricks Mule':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Italian Margarita':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Apple Bourbon Cool Toddy':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Bloody Mary':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Irish Coffee':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Mimosa':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    else:
+                        alcoholDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
 
                 elif line[1] == "Food":
                     saleAmt = locale.atof(line[6].lstrip('-$'))
@@ -87,8 +128,8 @@ def processMenu(csvFile):
 #            avgp = '${:.2f}'.format(alcoholDict[bev][1]/alcoholDict[bev][0])
 #        print ( bev, ': sold', alcoholDict[bev][0], ', at average price of', avgp)
 
-    # For Wine and Liquor sales, need to consolidate variants of the same
-    # product into one total quantity, e.g. wine glass, bottle, and 9oz pour
+    # Consolidate wine variants of the same product into
+    # one total quantity, e.g. wine glass, bottle, and 9oz pour
     consolidatewine = {}
     for menuitem in wineDict:
         # make sure there's no trailing white space
@@ -138,11 +179,106 @@ def processMenu(csvFile):
         else:
             bottles = consolidatewine[wine][0] / 750.
             pbottles = '{:.2f}'.format(bottles)
-            avgp = '${:.2f}'.format(consolidatewine[wine][1] / bottles)
+            avgp = '{:.2f}'.format(consolidatewine[wine][1] / bottles)
             outline = wine + ',' + pbottles + ',' + avgp + '\n'
         wineSales.write(outline)
 
-    #    print ('SALES FOR BEER')
+    # Consolidate liquor variants of the same product into
+    # one total quantity, e.g. regular (no suffix), 2oz, Up pour
+    consolidateliquor = {}
+    # Need a separate dictionary for named cocktails
+    for menuitem in alcoholDict:
+        # make sure there's no trailing white space
+        item = menuitem.rstrip()
+        # determine the volume based on regular shot, 2oz or Up
+        volume = 0
+        sales = 0
+        root = ''
+        if (item[-4:] == ' 2oz'):
+            root = item[:-4]
+            volume = alcoholDict[menuitem][0] * 59.1471
+            sales = alcoholDict[menuitem][1]
+        elif (item[-3:] == ' Up'):
+            root = item[:-3]
+            volume = alcoholDict[menuitem][0] * 88.7206
+            sales = alcoholDict[menuitem][1]
+        else:
+            root = item
+            if root == 'Martini':
+                root = 'Vodka'
+                volume = alcoholDict[menuitem][0] * 88.7206
+                sales = alcoholDict[menuitem][1]
+            elif root == 'Bloody Mary':
+                root = 'Vodka'
+                volume = alcoholDict[menuitem][0] * 59.1471
+                sales = alcoholDict[menuitem][1]
+            elif root[-9:] == 'Margarita':
+                root = 'Tequila'
+                volume = alcoholDict[menuitem][0] * 36.96691
+                sales = alcoholDict[menuitem][1]
+            elif root == 'Hendricks Mule':
+                root = 'Hendricks Gin'
+                volume = alcoholDict[menuitem][0] * 59.1471
+                sales = alcoholDict[menuitem][1]
+            elif root == 'Apple Bourbon Cool Toddy':
+                root = 'Coopers Craft'
+                volume = alcoholDict[menuitem][0] * 59.1471
+                sales = alcoholDict[menuitem][1]
+            elif root == 'Irish Coffee':
+                root = 'Bushmills'
+                volume = alcoholDict[menuitem][0] * 36.96691
+                sales = alcoholDict[menuitem][1]
+            else:
+                volume = alcoholDict[menuitem][0] * 36.96691
+                sales = alcoholDict[menuitem][1]
+
+        if (root not in consolidateliquor and root != ''):
+            consolidateliquor[root] = (volume, sales)
+        elif (root != ''):
+            currentVolume = consolidateliquor[root][0]
+            newVolume = currentVolume + volume
+            currentSales = consolidateliquor[root][1]
+            newSales = currentSales + sales
+            consolidateliquor[root] = (newVolume, newSales)
+
+    # Create file for liquor sales and output data.
+    nameLiquor = startEndDate + '_liquorSales.csv'
+    liquorSales = open(nameLiquor,'w')
+    liquorSales.write('CONSOLIDATED LIQUOR SALES,' + startEndDate + '\n')
+    liquorSales.write('Liquor, Liters, Shots, Avg price/shot\n')
+    for liquor in consolidateliquor:
+        ml = 0
+        if consolidateliquor[liquor][0] == 0:
+            avgp = 0
+            pml = '0'
+            pshots = '0'
+            outline = liquor + ',0,0,0\n'
+        else:
+            ml = consolidateliquor[liquor][0]
+            shots = ml/36.96691
+            pml = '{:.2f}'.format(ml)
+            pshots = '{:.2f}'.format(shots)
+            avgp = '{:.2f}'.format(consolidateliquor[liquor][1] / shots)
+            outline = liquor + ',' + pml + ',' + pshots + ','+ avgp + '\n'
+        liquorSales.write(outline)
+
+    # Write out cocktail sales to the same file for liquor sales
+    liquorSales.write('\nCOCKTAIL SALES,' + startEndDate + '\n')
+    liquorSales.write('Cocktail, Sold, Avg price\n')
+    for cocktail in cocktailDict:
+        if cocktailDict[cocktail][0] == 0:
+            avgp = 0
+            pcount = '0'
+            outline = cocktail + ',0,0\n'
+        else:
+            count = cocktailDict[cocktail][0]
+            pcount = '{:.2f}'.format(count)
+            avgp = '{:.2f}'.format(cocktailDict[cocktail][1] / count)
+            outline = cocktail + ',' + pcount + ',' + avgp + '\n'
+        liquorSales.write(outline)
+
+
+        #    print ('SALES FOR BEER')
 #    for bottle in beerDict:
 #        if beerDict[bottle][0] == 0:
 #            avgp = 0
