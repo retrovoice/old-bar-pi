@@ -165,7 +165,7 @@ def processMenu(csvFile):
     # Create file for wine sales and output data.
     nameWine = startEndDate + '_wineSales.csv'
     wineSales = open(nameWine,'w')
-    wineSales.write('CONSOLIDATED WINE SALES\n')
+    wineSales.write('CONSOLIDATED WINE SALES,' + startEndDate + '\n\n')
     wineSales.write('Wine,Bottles Sold,Avg. Price per Bottle\n')
     for wine in consolidatewine:
         bottles = 0
@@ -282,7 +282,7 @@ def processMenu(csvFile):
         else:
             count = beerDict[bottle][0]
             pcount = '{:.2f}'.format(count)
-            avgp = '${:.2f}'.format(beerDict[bottle][1] / count)
+            avgp = '{:.2f}'.format(beerDict[bottle][1] / count)
             outline = bottle + ',' + pcount + ','  + avgp + '\n'
         lcbSales.write(outline)
 
