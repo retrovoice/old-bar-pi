@@ -6,24 +6,20 @@ import dutil
 import sys
 import sqlite3
 
-# Declare these dictionaries so they have global scope
-# Item count indexed by item name
-countDict = {}
-# Item total sales indexed by item name
-salesDict = {}
-# The next four dictionaries are for breaking down sales
-# by category.  The item name is prefixed with the top-level
-# category and separated with a colon.
+# These dictionaries are for breaking down sales
+# by category.  Alcohol sales has an additional
+# dictionary, cocktailDict, for tracking specific
+# cocktail sales.
 alcoholDict = {}
 cocktailDict = {}
+beerDict = {}
 foodDict = {}
 wineDict = {}
-beerDict = {}
 
 locale.setlocale(locale.LC_ALL, '')
 
 def processMenu(csvFile):
-    startEndDate = ""
+    startEndDate = ''
     with open(csvFile) as f:
 
         reader = csv.reader(f)
@@ -33,9 +29,9 @@ def processMenu(csvFile):
         pieces = line1[0].split('-',2)
         # Save the start-end string for use in naming the output files
         startEndDate = pieces[-1]
-        print(startEndDate)
+        print('Processing data for period ' + startEndDate)
 
-        # Discard the next line, which is the column headings
+        # Read and discard the next line, which is the column headings
         next(reader)
 
         # Iterate over lines in the CSV file
@@ -165,7 +161,7 @@ def processMenu(csvFile):
     # Create file for wine sales and output data.
     nameWine = startEndDate + '_wineSales.csv'
     wineSales = open(nameWine,'w')
-    wineSales.write('CONSOLIDATED WINE SALES,' + startEndDate + '\n\n')
+    wineSales.write('CONSOLIDATED WINE SALES,,' + startEndDate + '\n\n')
     wineSales.write('Wine,Bottles Sold,Avg. Price per Bottle\n')
     for wine in consolidatewine:
         bottles = 0
