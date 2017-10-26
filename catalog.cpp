@@ -64,9 +64,9 @@ void Catalog::createLayout()
     // These 5 buttons control actions for the catalog page
     newButton = new QPushButton(tr("&New"),this);
     cancelButton = new QPushButton(tr("&Cancel"),this);
-    cancelButton->setEnabled(FALSE);
+    cancelButton->setEnabled(false);
     saveButton = new QPushButton(tr("&Save"),this);
-    saveButton->setEnabled(FALSE);
+    saveButton->setEnabled(false);
     deleteButton = new QPushButton(tr("&Delete"),this);
 
     connect (newButton, SIGNAL(clicked()), this, SLOT(newitem()));
@@ -102,7 +102,7 @@ void Catalog::newitem()
         this->cancel();
     }
 
-    updateButtons(TRUE);
+    updateButtons(true);
 }
 
 void Catalog::submit()

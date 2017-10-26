@@ -10,6 +10,7 @@ class DatabaseDialog;
 class Catalog;
 class Inventory;
 class DatabaseDialog;
+class StockManager;
 class QPushButton;
 class QString;
 class QTabWidget;
@@ -41,6 +42,7 @@ private:
     QString *password;
     Catalog *prodCatalog;
     Inventory *prodInventory;
+    StockManager *stockMgr;
     DatabaseDialog *dbDialog;
 
 

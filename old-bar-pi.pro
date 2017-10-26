@@ -18,11 +18,13 @@ SOURCES += main.cpp\
     databasedialog.cpp \
     catalog.cpp \
     inventory.cpp \
-    bpscan.cpp
+    bpscan.cpp \
+    stockmanager.cpp
 
 HEADERS  += mainwindow.h \
     commandlineparser.h \
     databasedialog.h \
     catalog.h \
     inventory.h \
-    bpscan.h
+    bpscan.h \
+    stockmanager.h

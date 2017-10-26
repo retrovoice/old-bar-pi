@@ -129,7 +129,7 @@ void Inventory::submit()
 void Inventory::cancel()
 {
     invTableModel->revertAll();
-    enableButtons(TRUE);
+    enableButtons(true);
 }
 
 void Inventory::enableButtons(const bool st)

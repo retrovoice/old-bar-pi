@@ -24,7 +24,7 @@ private slots:
     void submit();
     void cancel();
     void remove();
-    void updateButtons(const bool st = TRUE);
+    void updateButtons(const bool st = true);
 
 private:
 
