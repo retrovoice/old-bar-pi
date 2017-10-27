@@ -29,6 +29,7 @@ private:
     QStringList scanList;
 
     bool inCatalog(QString barcode);
+
     void createLayout();
 
     QLabel*      addtostockLabel;

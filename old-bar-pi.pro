@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     catalog.cpp \
     inventory.cpp \
     bpscan.cpp \
-    stockmanager.cpp
+    stockmanager.cpp \
+    scannerdialog.cpp
 
 HEADERS  += mainwindow.h \
     commandlineparser.h \
@@ -27,4 +28,5 @@ HEADERS  += mainwindow.h \
     catalog.h \
     inventory.h \
     bpscan.h \
-    stockmanager.h
+    stockmanager.h \
+    scannerdialog.h

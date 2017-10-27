@@ -1,15 +1,15 @@
 #include "stockmanager.h"
+#include "scannerdialog.h"
 
 #include <QMessageBox>
 #include <QLabel>
 #include <QPushButton>
 #include <QString>
 #include <QStringList>
-#include <QGridLayout>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 
-StockManager::StockManager(QWidget *parent) : QWidget(parent)
+StockManager::StockManager(QWidget *parent) :
+    QWidget(parent)
 {
     this->createLayout();
 }
@@ -36,13 +36,18 @@ void StockManager::createLayout()
 
 void StockManager::addtostock()
 {
-
-
+    ScannerDialog* addtoDialog = new ScannerDialog;
+    addtoDialog->show();
+    addtoDialog->raise();
+    addtoDialog->activateWindow();
 }
 
 void StockManager::countstock()
 {
-
+    ScannerDialog* countDialog = new ScannerDialog;
+    countDialog->show();
+    countDialog->raise();
+    countDialog->activateWindow();
 }
 
 bool StockManager::inCatalog(QString barcode)
