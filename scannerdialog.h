@@ -27,12 +27,16 @@ public slots:
 
 private slots:
     void startscanning();
+    void grabBarcode();
 
 private:
 
     void createLayout();
+    bool checkDB(QString barcode);
 
     int scanCount;
+
+    QStringList* scanList;
     QLCDNumber* scanCounter;
     QLineEdit*  scanValue;
 
