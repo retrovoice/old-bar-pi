@@ -30,6 +30,9 @@ MainWindow::MainWindow(QString configFile,
                        Qt::WindowFlags flags):
     QMainWindow(parent, flags)
 {
+    // Size the window so that tables are readable
+    this->resize(1024,576);
+
     paramvalues = new paramMap();
     readconfigfile(configFile,paramvalues);
 
@@ -112,8 +115,8 @@ void MainWindow::createTabs()
 
     tabs->addTab(prodCatalog,tr("Catalog"));
     tabs->addTab(prodInventory,tr("Inventory"));
-    tabs->addTab(dbDialog,tr("Database"));
     tabs->addTab(stockMgr,tr("Stock Manager"));
+    tabs->addTab(dbDialog,tr("Database"));
 
 }
 

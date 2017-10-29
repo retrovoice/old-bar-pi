@@ -28,6 +28,7 @@ Catalog::Catalog(QWidget *parent) :
     this->initModel();
     prodTableView = this->createView("Barpi Catalog", prodTableModel);
     this->createLayout();
+    prodTableView->resizeColumnsToContents();
     prodTableView->show();
     //updateButtons(false);
 }

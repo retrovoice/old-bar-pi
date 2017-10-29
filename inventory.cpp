@@ -30,6 +30,7 @@ Inventory::Inventory(QWidget *parent) :
     this->initModel();
     invTableView = this->createView("Barpi Inventory", invTableModel);
     createLayout();
+    invTableView->resizeColumnsToContents();
     invTableView->show();
 }
 

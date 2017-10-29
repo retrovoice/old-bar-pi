@@ -62,7 +62,7 @@ void ScannerDialog::grabBarcode()
         }
     } else {
         // Dialog to add product to catalog
-        QMessageBox::question(this, tr("New UPC"),tr("UPC not in Catalog. Add?"));
+        QMessageBox::warning(this, tr("UPC NOt Found"),tr("UPC not in Catalog. Please Add."));
     }
     scanValue->clear();
 }
