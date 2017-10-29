@@ -8,6 +8,12 @@ class QLabel;
 class QPushButton;
 class QString;
 class QStringList;
+class QLCDNumber;
+class QLineEdit;
+class QVBoxLayout;
+class QSqlRelationalTableModel;
+class QSqlError;
+class QTableView;
 QT_END_NAMESPACE
 
 class StockManager : public QWidget
@@ -23,20 +29,39 @@ public slots:
 private slots:
     void addtostock();
     void countstock();
+    void startscanning();
+    void grabBarcode();
 
 private:
 
-    QStringList scanList;
-
-    bool inCatalog(QString barcode);
-
     void createLayout();
+    void createScanLayout();
+    int scanCount;
+    QVBoxLayout* scanLayout;
+    QStringList scanList;
+    QLCDNumber* scanCounter;
+    QLineEdit*  scanValue;
+    bool checkDB(QString barcode);
 
-    QLabel*      addtostockLabel;
-    QLabel*      countstockLabel;
+    void createCatTableLayout();
+    void initCatModel();
+    QTableView* createCatView(const QString &title, QSqlRelationalTableModel *model);
+    // Relational database classes
+    QSqlRelationalTableModel *catTableModel;
+    QTableView* catTableView;
 
+    void createInvTableLayout();
+    // Relational database classes
+    QSqlRelationalTableModel *invTableModel;
+    QTableView* invTableView;
+
+    QLabel*      stockLabel;
     QPushButton* addtostockButton;
     QPushButton* countstockButton;
+    QPushButton* delstockButton;
+    QPushButton* reportCount;
+    QPushButton* reportInv;
+
 };
 
 #endif // STOCKMANAGER_H
