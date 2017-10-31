@@ -39,15 +39,11 @@ void Inventory::initModel()
     invTableModel->setTable("inventory");
     invTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
     invTableModel->setRelation(1, QSqlRelation("products", "upccode", "label"));
-    invTableModel->setRelation(3, QSqlRelation("yesno", "id", "label"));
-    invTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+    invTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Arrival"));
     invTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Name"));
-    invTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Barcode"));
-    invTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Retired?"));
-    invTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("Gross"));
-    invTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("Tare"));
-    invTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("Arrival"));
-    invTableModel->setHeaderData(7, Qt::Horizontal, QObject::tr("Departure"));
+    invTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Departure"));
+    invTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Gross"));
+    invTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("Tare"));
     // Synchronize model with database
     if (!invTableModel->select()) {
         showError(invTableModel->lastError());
@@ -104,11 +100,11 @@ void Inventory::additem()
         this->cancel();
     }
 
-    if (!invTableModel->setData(invTableModel->index(iRow, 6),datetimeInt)) {
+    if (!invTableModel->setData(invTableModel->index(iRow, 0),datetimeInt)) {
         QMessageBox::warning( this,"Inventory::additem", msg );
         this->cancel();
     }
-    if (!invTableModel->setData(invTableModel->index(iRow, 3),0)) {
+    if (!invTableModel->setData(invTableModel->index(iRow, 2),0)) {
         QMessageBox::warning( this,"Inventory::additem", msg );
         this->cancel();
     }

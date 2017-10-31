@@ -118,7 +118,6 @@ void DatabaseDialog::initdb()
 {
     QSqlQuery query;
     query.exec("create table categories (id integer primary key, label varchar(15))");
-    query.exec("create table yesno (id integer primary key, label varchar(3))");
     query.exec("create table products ("
                "upccode varchar(15) primary key,"
                "label varchar(30),"
@@ -128,43 +127,37 @@ void DatabaseDialog::initdb()
                "volume real,"
                "density real)");
     query.exec("create table inventory ("
-               "id integer primary key autoincrement,"
+               "arrival integer primary key,"
                "upc varchar(15) references products(upccode),"
-               "barcode varchar(30) unique,"
-               "retired integer references truefalse(id),"
+               "departure integer,"
                "gross real,"
-               "tare  real,"
-               "arrival integer,"
-               "departure integer )");
+               "tare  real)");
     query.exec("create table readings ("
                "id integer primary key autoincrement,"
                "item varchar(30),"
                "stamp integer,"
-               "weight real )");
+               "weight real)");
 
-    query.exec("insert into categories values (1,'bourbon')");
-    query.exec("insert into categories values (2,'brandy')");
-    query.exec("insert into categories values (3,'cognac')");
-    query.exec("insert into categories values (4,'gin')");
-    query.exec("insert into categories values (5,'liqueur')");
-    query.exec("insert into categories values (6,'rum')");
-    query.exec("insert into categories values (7,'scotch')");
-    query.exec("insert into categories values (8,'tequila')");
-    query.exec("insert into categories values (9,'vodka')");
-    query.exec("insert into categories values (10,'whiskey')");
-
-    query.exec("insert into yesno values (0,'No')");
-    query.exec("insert into yesno values (1,'Yes')");
+    query.exec("insert into categories values (1,'red')");
+    query.exec("insert into categories values (2,'white')");
+    query.exec("insert into categories values (3,'rose')");
+    query.exec("insert into categories values (4,'sparkling')");
+    query.exec("insert into categories values (5,'beer')");
+    query.exec("insert into categories values (6,'gin-vodka')");
+    query.exec("insert into categories values (7,'whiskey')");
+    query.exec("insert into categories values (8,'rum-tequila')");
+    query.exec("insert into categories values (9,'scotch-cognac')");
+    query.exec("insert into categories values (10,'liqueur')");
 
     query.exec("insert into products values ("
                "'0082184090008', 'Jack Daniels No. 7',"
-               "'E305', 31.49, 10, 1.0, 0.916)");
+               "'E305', 31.49, 7, 1.0, 0.916)");
     query.exec("insert into products values ("
                "'0830895501098', 'Grey Goose',"
-               "'E1400', 39.99, 9, 1.0, 0.916)");
+               "'E1400', 39.99, 6, 1.0, 0.916)");
     query.exec("insert into products values ("
                "'0083664868780', 'Hendricks',"
-               "'A723',35.99, 4, 0.75, 0.9076)");
+               "'A723',35.99, 6, 0.75, 0.9076)");
 
     enableInit(false);
 }

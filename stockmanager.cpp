@@ -71,7 +71,8 @@ QLayout *StockManager::createScanLayout()
     scanCounter = new QLCDNumber;
     QLabel* bcLabel = new QLabel("Barcode");
     bcLabel->setAlignment(Qt::AlignCenter);
-    scanValue   = new QLineEdit("SCAN ITEM");
+    scanValue   = new QLineEdit("---");
+    scanValue->setAlignment(Qt::AlignHCenter);
 
     connect (scanValue, SIGNAL(returnPressed()), this, SLOT(grabBarcode()));
 
