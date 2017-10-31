@@ -41,9 +41,6 @@ void StockManager::createLayout()
     QPushButton* countstockButton = new QPushButton(tr("Count Stock"),this);
     countstockButton->setCheckable(true);
 
-    connect (addtostockButton, SIGNAL(clicked()), this, SLOT(addtostock()));
-    connect (countstockButton, SIGNAL(clicked()), this, SLOT(countstock()));
-
     QLabel* stockLabel = new QLabel(tr("Manage Stock"),this);
     stockLabel->setAlignment(Qt::AlignHCenter);
 
@@ -203,10 +200,14 @@ void StockManager::finish()
         filename.append("Received_");
     }
 
+
     // Date/Time stamp for file
     QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
     itemList->append(currentDateTime.toString());
     filename.append(currentDateTime.toString());
+    filename.append(".csv");
+    // Date time string contains colons, which Windows doesn't like
+    QString winfilename = filename.replace(':','-');
 
     // Number of rows of data
     int r = tallyTable->rowCount();
@@ -221,7 +222,7 @@ void StockManager::finish()
         itemList->append(tempStr);
         tempStr.clear();
     }
-    QFile results(filename);
+    QFile results(winfilename);
     if (!results.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox::warning(this,
                              "File Write Error",

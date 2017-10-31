@@ -113,9 +113,9 @@ void MainWindow::createTabs()
     // The interface for managing stock
     stockMgr = new StockManager(this);
 
+    tabs->addTab(stockMgr,tr("Stock Manager"));
     tabs->addTab(prodCatalog,tr("Catalog"));
     tabs->addTab(prodInventory,tr("Inventory"));
-    tabs->addTab(stockMgr,tr("Stock Manager"));
     tabs->addTab(dbDialog,tr("Database"));
 
 }
