@@ -1,5 +1,4 @@
 #include "stockmanager.h"
-#include "scannerdialog.h"
 
 #include <QMessageBox>
 #include <QLabel>
@@ -17,6 +16,9 @@
 #include <QSqlQuery>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QDateTime>
+#include <QFile>
+#include <QByteArray>
 
 StockManager::StockManager(QWidget *parent) :
     QWidget(parent),
@@ -43,46 +45,57 @@ void StockManager::createLayout()
     connect (countstockButton, SIGNAL(clicked()), this, SLOT(countstock()));
 
     QLabel* stockLabel = new QLabel(tr("Manage Stock"),this);
+    stockLabel->setAlignment(Qt::AlignHCenter);
 
-    QButtonGroup* buttonGroup = new QButtonGroup;
-    buttonGroup->addButton(addtostockButton);
-    buttonGroup->setId(addtostockButton,0);
-    buttonGroup->addButton(countstockButton);
-    buttonGroup->setId(countstockButton,1);
+    actionGroup = new QButtonGroup;
+    actionGroup->addButton(addtostockButton);
+    actionGroup->setId(addtostockButton,0);
+    actionGroup->addButton(countstockButton);
+    actionGroup->setId(countstockButton,1);
+
+    QLabel* directions = new QLabel(tr("Select operation above "
+                                       "then click:\n\"Start\" "
+                                       "to begin "
+                                       "scanning barcodes.\n"
+                                       "\"Finish\" when done.\n"
+                                       "\"Cancel\" to abort.\n"),this);
+    directions->setWordWrap(true);
 
     QVBoxLayout* buttonLayout = new QVBoxLayout;
     buttonLayout->addWidget(stockLabel);
     buttonLayout->addWidget(addtostockButton);
     buttonLayout->addWidget(countstockButton);
-    buttonLayout->addStretch(4);
+    buttonLayout->addWidget(directions);
+    buttonLayout->addSpacing(3);
 
-    QHBoxLayout* smLayout = new QHBoxLayout;
-    smLayout->addLayout(buttonLayout);
-    smLayout->addLayout(this->createScanLayout());
-    smLayout->addWidget(tallyTable);
-    smLayout->addStretch(1);
+    QGridLayout* smLayout = new QGridLayout;
+    smLayout->addLayout(buttonLayout, 0, 0);
+    smLayout->addLayout(this->createScanLayout(), 1, 0);
+    smLayout->addWidget(tallyTable, 0, 1, 2, 1);
+    smLayout->setColumnStretch(1,3);
     this->setLayout(smLayout);
 }
 
 QLayout *StockManager::createScanLayout()
 {
-    QLabel* lcdLabel = new QLabel("Scan Counter");
+    QLabel* lcdLabel = new QLabel("Scan Counter\n(counts successful scans)");
     lcdLabel->setAlignment(Qt::AlignCenter);
     scanCounter = new QLCDNumber;
     QLabel* bcLabel = new QLabel("Barcode");
     bcLabel->setAlignment(Qt::AlignCenter);
     scanValue   = new QLineEdit("---");
     scanValue->setAlignment(Qt::AlignHCenter);
+    scanValue->setReadOnly(true);
 
     connect (scanValue, SIGNAL(returnPressed()), this, SLOT(grabBarcode()));
 
     QPushButton* startButton  = new QPushButton(tr("Start"));
     QPushButton* finishButton = new QPushButton(tr("Finish"));
-    QPushButton* cancelButton = new QPushButton(tr("Cancel"));
+    QPushButton* clearButton = new QPushButton(tr("Clear"));
 
     connect (startButton,  SIGNAL(clicked(bool)), this, SLOT(startscanning()));
-    //    connect (finishButton, SIGNAL(clicked(bool)), this, SLOT(accept()));
-    //    connect (cancelButton, SIGNAL(clicked(bool)), this, SLOT(reject()));
+    connect (finishButton, SIGNAL(clicked(bool)), this, SLOT(finish()));
+    connect (clearButton, SIGNAL(clicked(bool)), this, SLOT(cleartable()));
 
     QVBoxLayout* scanLayout = new QVBoxLayout;
 
@@ -92,32 +105,17 @@ QLayout *StockManager::createScanLayout()
     scanLayout->addWidget(scanValue);
     scanLayout->addWidget(startButton);
     scanLayout->addWidget(finishButton);
-    scanLayout->addWidget(cancelButton);
+    scanLayout->addWidget(clearButton);
     scanLayout->addStretch(2);
 
     return scanLayout;
-}
-
-void StockManager::addtostock()
-{
-    ScannerDialog* addtoDialog = new ScannerDialog;
-    addtoDialog->show();
-    addtoDialog->raise();
-    addtoDialog->activateWindow();
-}
-
-void StockManager::countstock()
-{
-    ScannerDialog* countDialog = new ScannerDialog;
-    countDialog->show();
-    countDialog->raise();
-    countDialog->activateWindow();
 }
 
 void StockManager::startscanning()
 {
     scanValue->setFocus();
     scanValue->clear();
+    scanValue->setReadOnly(false);
 }
 
 void StockManager::grabBarcode()
@@ -174,6 +172,74 @@ void StockManager::grabBarcode()
         QMessageBox::warning(this, tr("UPC NOt Found"),tr("UPC not in Catalog. Please Add."));
     }
     scanValue->clear();
+}
+
+void StockManager::cleartable()
+{
+    int r = tallyTable->rowCount();
+    for (r--; r >= 0; r--) {
+        tallyTable->removeRow(r);
+    }
+    scanCount = 0;
+    scanCounter->display(scanCount);
+    scanValue->setText("---");
+    scanValue->setReadOnly(true);
+}
+
+void StockManager::finish()
+{
+    QStringList* itemList = new QStringList;
+    QString tempStr;
+    QString filename;
+    QTableWidgetItem* count = new QTableWidgetItem;
+    QTableWidgetItem* product = new QTableWidgetItem;
+
+    // Label for file based on operation selected
+    if (actionGroup->checkedId()) {
+        itemList->append("Stock Count");
+        filename.append("Inventory_");
+    } else {
+        itemList->append("Stock Received");
+        filename.append("Received_");
+    }
+
+    // Date/Time stamp for file
+    QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
+    itemList->append(currentDateTime.toString());
+    filename.append(currentDateTime.toString());
+
+    // Number of rows of data
+    int r = tallyTable->rowCount();
+
+    // Loop through table, adding data to list
+    for (int i = 0; i < r; i++) {
+        count = tallyTable->item(i,0);
+        product = tallyTable->item(i,1);
+        tempStr.append(count->text());
+        tempStr.append(",");
+        tempStr.append(product->text());
+        itemList->append(tempStr);
+        tempStr.clear();
+    }
+    QFile results(filename);
+    if (!results.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this,
+                             "File Write Error",
+                             "Could not open file to write results");
+    } else {
+        QStringList::ConstIterator constItr;
+        QByteArray aline;
+        for (constItr = itemList->constBegin();
+             constItr != itemList->constEnd();
+             constItr++)
+        {
+            aline.append(*constItr);
+            aline.append("\n");
+            results.write(aline);
+            aline.clear();
+        }
+    }
+    this->cleartable();
 }
 
 bool StockManager::checkDB(QString barcode)

@@ -9,6 +9,7 @@ class QString;
 class QLayout;
 class QLineEdit;
 class QLCDNumber;
+class QButtonGroup;
 class QTableWidget;
 class QTableWidgetItem;
 QT_END_NAMESPACE
@@ -24,10 +25,10 @@ signals:
 public slots:
 
 private slots:
-    void addtostock();
-    void countstock();
     void startscanning();
     void grabBarcode();
+    void cleartable();
+    void finish();
 
 private:
 
@@ -38,6 +39,7 @@ private:
     QLineEdit* scanValue;
     QMap<QString,int> scanTally;
     QLCDNumber* scanCounter;
+    QButtonGroup* actionGroup;
     QTableWidget* tallyTable;
     QMap<QString,QTableWidgetItem*> itemMap;
 

@@ -84,7 +84,6 @@ void Inventory::createLayout()
 
 void Inventory::additem()
 {
-    //SqlRecord newRecord;
     QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
     int datetimeInt = currentDateTime.toTime_t();
 
