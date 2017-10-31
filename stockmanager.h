@@ -2,13 +2,15 @@
 #define STOCKMANAGER_H
 
 #include <QWidget>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 class QString;
 class QLayout;
 class QLineEdit;
-class QStringList;
 class QLCDNumber;
+class QTableWidget;
+class QTableWidgetItem;
 QT_END_NAMESPACE
 
 class StockManager : public QWidget
@@ -34,9 +36,13 @@ private:
 
     int scanCount;
     QLineEdit* scanValue;
-    QStringList* scanList;
+    QMap<QString,int> scanTally;
     QLCDNumber* scanCounter;
+    QTableWidget* tallyTable;
+    QMap<QString,QTableWidgetItem*> itemMap;
+
     bool checkDB(QString barcode);
+    QString getProductLabel(QString barcode);
 
 };
 

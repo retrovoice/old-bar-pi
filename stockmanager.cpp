@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QString>
 #include <QStringList>
+#include <QMap>
 #include <QLayout>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -14,13 +15,19 @@
 #include <QLCDNumber>
 #include <QLineEdit>
 #include <QSqlQuery>
+#include <QTableWidget>
+#include <QTableWidgetItem>
 
 StockManager::StockManager(QWidget *parent) :
     QWidget(parent),
     scanCount(0)
 {
+    tallyTable = new QTableWidget(0, 2, this);
+    QStringList labels;
+    labels << "Count" << "Item";
+    tallyTable->setHorizontalHeaderLabels(labels);
+    tallyTable->setMinimumWidth(480);
     this->createLayout();
-    scanList = new QStringList;
 }
 
 void StockManager::createLayout()
@@ -52,7 +59,8 @@ void StockManager::createLayout()
     QHBoxLayout* smLayout = new QHBoxLayout;
     smLayout->addLayout(buttonLayout);
     smLayout->addLayout(this->createScanLayout());
-    smLayout->addStretch(5);
+    smLayout->addWidget(tallyTable);
+    smLayout->addStretch(1);
     this->setLayout(smLayout);
 }
 
@@ -72,8 +80,8 @@ QLayout *StockManager::createScanLayout()
     QPushButton* cancelButton = new QPushButton(tr("Cancel"));
 
     connect (startButton,  SIGNAL(clicked(bool)), this, SLOT(startscanning()));
-//    connect (finishButton, SIGNAL(clicked(bool)), this, SLOT(accept()));
-//    connect (cancelButton, SIGNAL(clicked(bool)), this, SLOT(reject()));
+    //    connect (finishButton, SIGNAL(clicked(bool)), this, SLOT(accept()));
+    //    connect (cancelButton, SIGNAL(clicked(bool)), this, SLOT(reject()));
 
     QVBoxLayout* scanLayout = new QVBoxLayout;
 
@@ -84,7 +92,7 @@ QLayout *StockManager::createScanLayout()
     scanLayout->addWidget(startButton);
     scanLayout->addWidget(finishButton);
     scanLayout->addWidget(cancelButton);
-    scanLayout->addStretch(4);
+    scanLayout->addStretch(2);
 
     return scanLayout;
 }
@@ -114,8 +122,48 @@ void StockManager::startscanning()
 void StockManager::grabBarcode()
 {
     QString barcode = scanValue->text();
+
     if (this->checkDB(barcode)) {
-        scanList->append(scanValue->text());
+
+        QString itemLabel = this->getProductLabel(barcode);
+
+        // Check the QMap to see if this product has
+        // already been scanned.  If so, increment the count.
+        if (scanTally.contains(barcode)) {
+
+            scanTally[barcode] = scanTally.value(barcode) + 1;
+
+            // This item is already in the table, so need the row
+            // number of the table displayed in the GUI in order
+            // to increment the count.  Use the itemMap to
+            // retreive the previously created QTableWidgetItem
+            // to locate the correct row in the table.
+            int i = tallyTable->row(itemMap.value(barcode));
+            QTableWidgetItem *newCount =
+                    new QTableWidgetItem(tr("%1").arg(scanTally.value(barcode)));
+            tallyTable->setItem(i,0,newCount);
+
+        } else {
+
+            // First scan of this product so create an instance
+            // in the scan tally map.
+
+            scanTally[barcode] = 1;
+
+            // Insert a new row at the top of the table for the
+            // first instance of this product being scanned
+            tallyTable->insertRow(0);
+
+            // Create a table item based on the query result
+            QTableWidgetItem *product = new QTableWidgetItem(itemLabel);
+            QTableWidgetItem *newCount = new QTableWidgetItem(tr("%1").arg(1));
+            tallyTable->setItem(0,0,newCount);
+            tallyTable->setItem(0,1,product);
+
+            // Map the product widget item for lookup when incrementing count
+            itemMap[barcode] = product;
+        }
+
         scanCount += 1;
         if (!scanCounter->checkOverflow(scanCount)) {
             scanCounter->display(scanCount);
@@ -147,4 +195,24 @@ bool StockManager::checkDB(QString barcode)
     return found;
 }
 
+QString StockManager::getProductLabel(QString barcode)
+{
+    QString result("");
 
+    // The barcode is in the products table so use
+    // it to lookup the name of the product.
+    /// NOTE: double quotes are needed around barcode string
+    ///
+
+    QString q1("SELECT label FROM products WHERE upccode = \"");
+    q1.append(barcode);
+    q1.append("\";");
+    QSqlQuery labelQuery(q1);
+
+    if (labelQuery.first()) {
+        // Query result is QVariant. Conver to QString
+        // and store in result
+        result.append(labelQuery.value(0).toString());
+    }
+    return result;
+}
