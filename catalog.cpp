@@ -103,7 +103,7 @@ void Catalog::newitem()
         this->cancel();
     }
 
-    updateButtons(true);
+    saveButton->setEnabled(true);
 }
 
 void Catalog::submit()
@@ -143,9 +143,9 @@ void Catalog::remove()
 
 void Catalog::updateButtons(const bool st)
 {
-    saveButton->setEnabled(st);
-    cancelButton->setEnabled(st);
-    newButton->setEnabled(!st);
+    saveButton->setEnabled(!st);
+    cancelButton->setEnabled(!st);
+    newButton->setEnabled(st);
 }
 
 void Catalog::showError(const QSqlError &err)
