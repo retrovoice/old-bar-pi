@@ -10,15 +10,19 @@ class QLayout;
 class QLineEdit;
 class QLCDNumber;
 class QButtonGroup;
+class QTabWidget;
 class QTableWidget;
 class QTableWidgetItem;
+class Catalog;
 QT_END_NAMESPACE
 
 class StockManager : public QWidget
 {
     Q_OBJECT
 public:
-    explicit StockManager(QWidget *parent = 0);
+    explicit StockManager(QTabWidget* tabW,
+                          Catalog* catalog,
+                          QWidget *parent = 0);
 
 signals:
 
@@ -45,6 +49,9 @@ private:
 
     bool checkDB(QString barcode);
     QString getProductLabel(QString barcode);
+
+    Catalog* pCat;
+    QTabWidget* tW;
 
 };
 

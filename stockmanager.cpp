@@ -14,16 +14,23 @@
 #include <QLCDNumber>
 #include <QLineEdit>
 #include <QSqlQuery>
+#include <QTabWidget>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QDateTime>
 #include <QFile>
 #include <QByteArray>
+#include "catalog.h"
 
-StockManager::StockManager(QWidget *parent) :
+StockManager::StockManager(QTabWidget *tabW,
+                           Catalog *catalog,
+                           QWidget *parent) :
     QWidget(parent),
     scanCount(0)
 {
+    pCat = catalog;
+    tW = tabW;
+    this->setParent(parent);
     tallyTable = new QTableWidget(0, 2, this);
     QStringList labels;
     labels << "Count" << "Item";
@@ -166,7 +173,22 @@ void StockManager::grabBarcode()
         }
     } else {
         // Dialog to add product to catalog
-        QMessageBox::warning(this, tr("UPC NOt Found"),tr("UPC not in Catalog. Please Add."));
+        QMessageBox dBox;
+        dBox.setText("UPC not in Catalog.");
+        dBox.setInformativeText("Add this Item to the Catalog?");
+        dBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        dBox.setDefaultButton(QMessageBox::Ok);
+        int ret = dBox.exec();
+        switch (ret) {
+        case QMessageBox::Ok:
+            tW->setCurrentIndex(1);
+            pCat->addItem(barcode);
+            break;
+        case QMessageBox::Cancel:
+            break;
+        default:
+            break;
+        }
     }
     scanValue->clear();
 }

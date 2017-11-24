@@ -9,6 +9,7 @@ class QPushButton;
 class QSqlRelationalTableModel;
 class QSqlError;
 class QTableView;
+class QString;
 QT_END_NAMESPACE
 
 class Catalog : public QWidget
@@ -16,15 +17,16 @@ class Catalog : public QWidget
     Q_OBJECT
 public:
     explicit Catalog(QWidget *parent = 0);
-
-signals:
+    void addItem(const QString& barcode);
 
 private slots:
     void newitem();
     void submit();
     void cancel();
     void remove();
-    void updateButtons(const bool st = true);
+    void setButtons(const bool st = true);
+    void dataChanged(const bool st = true);
+
 
 private:
 

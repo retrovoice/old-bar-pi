@@ -62,7 +62,7 @@ QTableView* Catalog::createView(const QString &title, QSqlRelationalTableModel *
 
 void Catalog::createLayout()
 {
-    // These 5 buttons control actions for the catalog page
+    // These buttons control actions for the catalog page
     newButton = new QPushButton(tr("&New"),this);
     cancelButton = new QPushButton(tr("&Cancel"),this);
     cancelButton->setEnabled(false);
@@ -74,6 +74,9 @@ void Catalog::createLayout()
     connect (saveButton, SIGNAL(clicked()), this, SLOT(submit()));
     connect (cancelButton, SIGNAL(clicked()),this, SLOT(cancel()));
     connect (deleteButton, SIGNAL(clicked()), this, SLOT(remove()));
+
+    connect (prodTableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+             this, SLOT(dataChanged()));
 
     QHBoxLayout* buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(newButton);
@@ -102,8 +105,6 @@ void Catalog::newitem()
         QMessageBox::warning( this,"Inventory::additem", msg );
         this->cancel();
     }
-
-    saveButton->setEnabled(true);
 }
 
 void Catalog::submit()
@@ -115,13 +116,13 @@ void Catalog::submit()
         this->cancel();
         return;
     }
-    updateButtons();
+    setButtons();
 }
 
 void Catalog::cancel()
 {
     prodTableModel->revertAll();
-    updateButtons(false);
+    setButtons();
 }
 
 void Catalog::remove()
@@ -138,14 +139,46 @@ void Catalog::remove()
 
     // Submit the change to the database
     this->submit();
-    updateButtons(false);
+    setButtons();
 }
 
-void Catalog::updateButtons(const bool st)
+void Catalog::addItem(const QString &barcode)
+{
+    QVariant row = prodTableModel->rowCount();
+    QString msg = "Row Index [";
+    msg.append( row.toString());
+    msg.append("] out of bounds.");
+
+    int iRow = row.toInt();
+
+    if (!prodTableModel->insertRows(iRow, 1)) {
+        QMessageBox::warning( this,"Inventory::additem", msg );
+        this->cancel();
+    }
+
+    int col = prodTableModel->fieldIndex("upccode");
+    QModelIndex mIndex = prodTableModel->index(iRow,col);
+    if (!prodTableModel->setData(mIndex,QVariant(barcode))) {
+        QSqlError err = prodTableModel->lastError();
+        QMessageBox::warning(this, "Error - Remove Row",
+                             "Reported Error: " + err.text());
+        this->cancel();
+    }
+    this->dataChanged();
+}
+
+void Catalog::setButtons(const bool st)
 {
     saveButton->setEnabled(!st);
     cancelButton->setEnabled(!st);
     newButton->setEnabled(st);
+    deleteButton->setEnabled(st);
+}
+
+void Catalog::dataChanged(const bool st)
+{
+    cancelButton->setEnabled(st);
+    saveButton->setEnabled(st);
 }
 
 void Catalog::showError(const QSqlError &err)

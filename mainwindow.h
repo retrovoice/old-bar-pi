@@ -30,7 +30,12 @@ public:
 
     const QString dbname() { return *dbName; }
 
-private slots:
+protected:
+
+    Catalog *prodCatalog;
+    Inventory *prodInventory;
+    StockManager *stockMgr;
+    DatabaseDialog *dbDialog;
 
 private:
 
@@ -40,10 +45,6 @@ private:
     QString *hostname;
     QString *username;
     QString *password;
-    Catalog *prodCatalog;
-    Inventory *prodInventory;
-    StockManager *stockMgr;
-    DatabaseDialog *dbDialog;
 
 
     void createTabs();

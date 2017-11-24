@@ -111,13 +111,12 @@ void MainWindow::createTabs()
     prodInventory = new Inventory(this);
 
     // The interface for managing stock
-    stockMgr = new StockManager(this);
+    stockMgr = new StockManager(tabs, prodCatalog, this);
 
     tabs->addTab(stockMgr,tr("Stock Manager"));
     tabs->addTab(prodCatalog,tr("Catalog"));
     tabs->addTab(prodInventory,tr("Inventory"));
     tabs->addTab(dbDialog,tr("Database"));
-
 }
 
 void MainWindow::readconfigfile(const QString filename, paramMap *params)
