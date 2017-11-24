@@ -30,10 +30,9 @@ StockManager::StockManager(QTabWidget *tabW,
 {
     pCat = catalog;
     tW = tabW;
-    this->setParent(parent);
-    tallyTable = new QTableWidget(0, 2, this);
+    tallyTable = new QTableWidget(0, 3, this);
     QStringList labels;
-    labels << "Count" << "Item";
+    labels << "Count" << "Code" << "Item";
     tallyTable->setHorizontalHeaderLabels(labels);
     tallyTable->setMinimumWidth(480);
     this->createLayout();
@@ -128,7 +127,7 @@ void StockManager::grabBarcode()
 
     if (this->checkDB(barcode)) {
 
-        QString itemLabel = this->getProductLabel(barcode);
+        QString itemLabel = this->getDBField(barcode, "label");
 
         // Check the QMap to see if this product has
         // already been scanned.  If so, increment the count.
@@ -159,9 +158,11 @@ void StockManager::grabBarcode()
 
             // Create a table item based on the query result
             QTableWidgetItem *product = new QTableWidgetItem(itemLabel);
+            QTableWidgetItem *abccode = new QTableWidgetItem(this->getDBField(barcode,"abccode"));
             QTableWidgetItem *newCount = new QTableWidgetItem(tr("%1").arg(1));
             tallyTable->setItem(0,0,newCount);
-            tallyTable->setItem(0,1,product);
+            tallyTable->setItem(0,1,abccode);
+            tallyTable->setItem(0,2,product);
 
             // Map the product widget item for lookup when incrementing count
             itemMap[barcode] = product;
@@ -210,7 +211,8 @@ void StockManager::finish()
     QStringList* itemList = new QStringList;
     QString tempStr;
     QString filename;
-    QTableWidgetItem* count = new QTableWidgetItem;
+    QTableWidgetItem* count   = new QTableWidgetItem;
+    QTableWidgetItem* code    = new QTableWidgetItem;
     QTableWidgetItem* product = new QTableWidgetItem;
 
     // Label for file based on operation selected
@@ -222,29 +224,39 @@ void StockManager::finish()
         filename.append("Received_");
     }
 
-
     // Date/Time stamp for file
     QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
-    itemList->append(currentDateTime.toString());
-    filename.append(currentDateTime.toString());
+
+    // Format string for how date/time will be written for the file
+    QString format = "MM/dd/yyyy,hh:mm:ss ";
+    itemList->append(currentDateTime.toString(format));
+
+    // Format string for how date/time will be written for the filename
+    format.clear();
+    format.append("MM-dd-yyyy_hh-mm-ss ");
+    filename.append(currentDateTime.toString(format));
     filename.append(".csv");
-    // Date time string contains colons, which Windows doesn't like
-    QString winfilename = filename.replace(':','-');
 
     // Number of rows of data
     int r = tallyTable->rowCount();
 
+    // Add column headings
+    itemList->append("Count,Code,Description");
+
     // Loop through table, adding data to list
     for (int i = 0; i < r; i++) {
         count = tallyTable->item(i,0);
-        product = tallyTable->item(i,1);
+        code    = tallyTable->item(i,1);
+        product = tallyTable->item(i,2);
         tempStr.append(count->text());
+        tempStr.append(",");
+        tempStr.append(code->text());
         tempStr.append(",");
         tempStr.append(product->text());
         itemList->append(tempStr);
         tempStr.clear();
     }
-    QFile results(winfilename);
+    QFile results(filename);
     if (!results.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox::warning(this,
                              "File Write Error",
@@ -285,7 +297,7 @@ bool StockManager::checkDB(QString barcode)
     return found;
 }
 
-QString StockManager::getProductLabel(QString barcode)
+QString StockManager::getDBField(QString barcode, QString field)
 {
     QString result("");
 
@@ -294,7 +306,9 @@ QString StockManager::getProductLabel(QString barcode)
     /// NOTE: double quotes are needed around barcode string
     ///
 
-    QString q1("SELECT label FROM products WHERE upccode = \"");
+    QString q1("SELECT ");
+    q1.append(field);
+    q1.append(" label FROM products WHERE upccode = \"");
     q1.append(barcode);
     q1.append("\";");
     QSqlQuery labelQuery(q1);

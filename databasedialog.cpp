@@ -150,7 +150,7 @@ void DatabaseDialog::initdb()
     query.exec("insert into categories values (10,'liqueur')");
 
     query.exec("insert into products values ("
-               "'0082184090008', 'Jack Daniels No. 7',"
+               "'082184090008', 'Jack Daniels No. 7',"
                "'E305', 31.49, 7, 1.0, 0.916)");
     query.exec("insert into products values ("
                "'0830895501098', 'Grey Goose',"

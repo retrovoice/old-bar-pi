@@ -48,7 +48,7 @@ private:
     QMap<QString,QTableWidgetItem*> itemMap;
 
     bool checkDB(QString barcode);
-    QString getProductLabel(QString barcode);
+    QString getDBField(QString barcode, QString field);
 
     Catalog* pCat;
     QTabWidget* tW;
