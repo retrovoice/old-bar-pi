@@ -30,9 +30,9 @@ StockManager::StockManager(QTabWidget *tabW,
 {
     pCat = catalog;
     tW = tabW;
-    tallyTable = new QTableWidget(0, 3, this);
+    tallyTable = new QTableWidget(0, 5, this);
     QStringList labels;
-    labels << "Count" << "Code" << "Item";
+    labels << "Count" << "Code" << "Item" << "Category" << "Volume";
     tallyTable->setHorizontalHeaderLabels(labels);
     tallyTable->setMinimumWidth(480);
     this->createLayout();
@@ -157,12 +157,16 @@ void StockManager::grabBarcode()
             tallyTable->insertRow(0);
 
             // Create a table item based on the query result
-            QTableWidgetItem *product = new QTableWidgetItem(itemLabel);
-            QTableWidgetItem *abccode = new QTableWidgetItem(this->getDBField(barcode,"abccode"));
+            QTableWidgetItem *product  = new QTableWidgetItem(itemLabel);
+            QTableWidgetItem *abccode  = new QTableWidgetItem(this->getDBField(barcode,"abccode"));
+            QTableWidgetItem *category = new QTableWidgetItem(this->getDBField(barcode,"category"));
+            QTableWidgetItem *volume   = new QTableWidgetItem(this->getDBField(barcode,"volume"));
             QTableWidgetItem *newCount = new QTableWidgetItem(tr("%1").arg(1));
             tallyTable->setItem(0,0,newCount);
             tallyTable->setItem(0,1,abccode);
             tallyTable->setItem(0,2,product);
+            tallyTable->setItem(0,3,category);
+            tallyTable->setItem(0,4,volume);
 
             // Map the product widget item for lookup when incrementing count
             itemMap[barcode] = product;
@@ -211,9 +215,11 @@ void StockManager::finish()
     QStringList* itemList = new QStringList;
     QString tempStr;
     QString filename;
-    QTableWidgetItem* count   = new QTableWidgetItem;
-    QTableWidgetItem* code    = new QTableWidgetItem;
-    QTableWidgetItem* product = new QTableWidgetItem;
+    QTableWidgetItem* count    = new QTableWidgetItem;
+    QTableWidgetItem* code     = new QTableWidgetItem;
+    QTableWidgetItem* product  = new QTableWidgetItem;
+    QTableWidgetItem* category = new QTableWidgetItem;
+    QTableWidgetItem* volume   = new QTableWidgetItem;
 
     // Label for file based on operation selected
     if (actionGroup->checkedId()) {
@@ -241,18 +247,24 @@ void StockManager::finish()
     int r = tallyTable->rowCount();
 
     // Add column headings
-    itemList->append("Count,Code,Description");
+    itemList->append("Count,Code,Description,Category,Volume");
 
     // Loop through table, adding data to list
     for (int i = 0; i < r; i++) {
-        count = tallyTable->item(i,0);
-        code    = tallyTable->item(i,1);
-        product = tallyTable->item(i,2);
+        count    = tallyTable->item(i,0);
+        code     = tallyTable->item(i,1);
+        product  = tallyTable->item(i,2);
+        category = tallyTable->item(i,3);
+        volume   = tallyTable->item(i,4);
         tempStr.append(count->text());
         tempStr.append(",");
         tempStr.append(code->text());
         tempStr.append(",");
         tempStr.append(product->text());
+        tempStr.append(",");
+        tempStr.append(category->text());
+        tempStr.append(",");
+        tempStr.append(volume->text());
         itemList->append(tempStr);
         tempStr.clear();
     }

@@ -92,7 +92,7 @@ void MainWindow::createTabs()
     // If not, then the database hasn't yet been initialized.
 
     // The database setting widget.  Create here so that
-    // the database can be created and
+    // the database gets attached to.
     dbDialog = new DatabaseDialog(this);
 
     QSqlTableModel checkModel;
@@ -108,15 +108,15 @@ void MainWindow::createTabs()
     prodCatalog = new Catalog(this);
 
     // The interface to the product inventory
-    prodInventory = new Inventory(this);
+    // prodInventory = new Inventory(this);
 
     // The interface for managing stock
     stockMgr = new StockManager(tabs, prodCatalog, this);
 
     tabs->addTab(stockMgr,tr("Stock Manager"));
     tabs->addTab(prodCatalog,tr("Catalog"));
-    tabs->addTab(prodInventory,tr("Inventory"));
-    tabs->addTab(dbDialog,tr("Database"));
+    // tabs->addTab(prodInventory,tr("Inventory"));
+    // tabs->addTab(dbDialog,tr("Database"));
 }
 
 void MainWindow::readconfigfile(const QString filename, paramMap *params)
