@@ -95,10 +95,12 @@ QLayout *StockManager::createScanLayout()
     QPushButton* startButton  = new QPushButton(tr("Start"));
     QPushButton* finishButton = new QPushButton(tr("Finish"));
     QPushButton* clearButton = new QPushButton(tr("Clear"));
+    QPushButton* decrementButton = new QPushButton(tr("Decrement"));
 
     connect (startButton,  SIGNAL(clicked(bool)), this, SLOT(startscanning()));
     connect (finishButton, SIGNAL(clicked(bool)), this, SLOT(finish()));
     connect (clearButton, SIGNAL(clicked(bool)), this, SLOT(cleartable()));
+    connect (decrementButton, SIGNAL(clicked(bool)), this, SLOT(decrement()));
 
     QVBoxLayout* scanLayout = new QVBoxLayout;
 
@@ -109,6 +111,7 @@ QLayout *StockManager::createScanLayout()
     scanLayout->addWidget(startButton);
     scanLayout->addWidget(finishButton);
     scanLayout->addWidget(clearButton);
+    scanLayout->addWidget(decrementButton);
     scanLayout->addStretch(2);
 
     return scanLayout;
@@ -208,6 +211,8 @@ void StockManager::cleartable()
     scanCounter->display(scanCount);
     scanValue->setText("---");
     scanValue->setReadOnly(true);
+    scanTally.clear();
+    itemMap.clear();
 }
 
 void StockManager::finish()
@@ -289,6 +294,34 @@ void StockManager::finish()
     this->cleartable();
 }
 
+void StockManager::decrement()
+{
+    int rows = tallyTable->rowCount();
+    int i = tallyTable->currentRow();
+
+    if (i < 0 || i > rows - 1) {
+        // invalid row selected
+        return;
+    }
+
+    QTableWidgetItem* item = new QTableWidgetItem;
+    item = tallyTable->item(i,2);
+    QString itemLabel = item->text();
+    QString barcode = this->getUPC(itemLabel);
+
+    // Check that the item count doesn't go below zero
+    if (scanTally.value(barcode) <= 0) {
+        return;
+    } else {
+        scanTally[barcode] = scanTally.value(barcode) - 1;
+    }
+
+    QTableWidgetItem *newCount = new QTableWidgetItem(tr("%1").arg(scanTally.value(barcode)));
+    tallyTable->setItem(i,0,newCount);
+    scanCount -= 1;
+    scanCounter->display(scanCount);
+}
+
 bool StockManager::checkDB(QString barcode)
 {
     bool found(false);
@@ -320,8 +353,30 @@ QString StockManager::getDBField(QString barcode, QString field)
 
     QString q1("SELECT ");
     q1.append(field);
-    q1.append(" label FROM products WHERE upccode = \"");
+    q1.append(" FROM products WHERE upccode = \"");
     q1.append(barcode);
+    q1.append("\";");
+    QSqlQuery labelQuery(q1);
+
+    if (labelQuery.first()) {
+        // Query result is QVariant. Conver to QString
+        // and store in result
+        result.append(labelQuery.value(0).toString());
+    }
+    return result;
+}
+
+QString StockManager::getUPC(QString label)
+{
+    QString result("");
+
+    // The barcode is in the products table so use
+    // it to lookup the name of the product.
+    /// NOTE: double quotes are needed around label string???
+    ///
+
+    QString q1("SELECT upccode FROM products WHERE label = \"");
+    q1.append(label);
     q1.append("\";");
     QSqlQuery labelQuery(q1);
 

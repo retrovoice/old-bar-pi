@@ -33,6 +33,7 @@ private slots:
     void grabBarcode();
     void cleartable();
     void finish();
+    void decrement();
 
 private:
 
@@ -49,6 +50,7 @@ private:
 
     bool checkDB(QString barcode);
     QString getDBField(QString barcode, QString field);
+    QString getUPC(QString label);
 
     Catalog* pCat;
     QTabWidget* tW;
