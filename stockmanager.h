@@ -13,6 +13,7 @@ class QButtonGroup;
 class QTabWidget;
 class QTableWidget;
 class QTableWidgetItem;
+class QHeaderView;
 class Catalog;
 QT_END_NAMESPACE
 
@@ -34,6 +35,7 @@ private slots:
     void cleartable();
     void finish();
     void decrement();
+    void refocus();
 
 private:
 
@@ -46,6 +48,7 @@ private:
     QLCDNumber* scanCounter;
     QButtonGroup* actionGroup;
     QTableWidget* tallyTable;
+    QHeaderView*  tallyHeader;
     QMap<QString,QTableWidgetItem*> itemMap;
 
     bool checkDB(QString barcode);

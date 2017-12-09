@@ -17,6 +17,7 @@
 #include <QTabWidget>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QHeaderView>
 #include <QDateTime>
 #include <QFile>
 #include <QByteArray>
@@ -35,6 +36,7 @@ StockManager::StockManager(QTabWidget *tabW,
     labels << "Count" << "Code" << "Item" << "Category" << "Volume";
     tallyTable->setHorizontalHeaderLabels(labels);
     tallyTable->setMinimumWidth(480);
+    tallyHeader = tallyTable->horizontalHeader();
     this->createLayout();
 }
 
@@ -91,6 +93,7 @@ QLayout *StockManager::createScanLayout()
     scanValue->setReadOnly(true);
 
     connect (scanValue, SIGNAL(returnPressed()), this, SLOT(grabBarcode()));
+    connect (tallyHeader, SIGNAL(sectionResized(int,int,int)), this, SLOT(refocus()));
 
     QPushButton* startButton  = new QPushButton(tr("Start"));
     QPushButton* finishButton = new QPushButton(tr("Finish"));
@@ -320,6 +323,11 @@ void StockManager::decrement()
     tallyTable->setItem(i,0,newCount);
     scanCount -= 1;
     scanCounter->display(scanCount);
+}
+
+void StockManager::refocus()
+{
+    scanValue->setFocus();
 }
 
 bool StockManager::checkDB(QString barcode)
