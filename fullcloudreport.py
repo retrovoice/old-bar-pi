@@ -41,28 +41,34 @@ def processMenu(csvFile):
             # line[0] Item Name
             # line[1] Sales Category
             # line[2] Menu Category
-            # line[3] Quantity
-            # line[4] Sales
-            # line[5] Voids
+            # line[3] Void Qty
+            # line[4] Voids
+            # line[5] Menu Qty
+            # line[6] Gross Sales
+            # line[7] Discounts
+            # line[8] Net Sales
+            # line[9] Sales Percentage
 
             # Skip over any remaining lines that have less than two cells.
             if len(line) >= 2:
                 if line[1] == "Beer":
-                    saleAmt = locale.atof(line[6].lstrip('-$'))
-                    voidAmt = locale.atof(line[5].lstrip('-$'))
-                    saleQty     = locale.atof(line[3])
-                    voidQty     = locale.atof(line[4])
+                    saleAmt = locale.atof(line[8].lstrip('-$'))
+                    #voidAmt = locale.atof(line[5].lstrip('-$'))
+                    saleQty     = locale.atof(line[5])
+                    #voidQty     = locale.atof(line[4])
                     name = line[0].strip()
-                    beerDict[name] = (saleQty - voidQty, saleAmt - voidAmt)
+                    #beerDict[name] = (saleQty - voidQty, saleAmt - voidAmt)
+                    beerDict[name] = (saleQty, saleAmt)
 
                 elif line[1] == "Wine":
 
-                    saleAmt = locale.atof(line[6].lstrip('-$'))
-                    voidAmt = locale.atof(line[5].lstrip('-$'))
-                    saleQty     = locale.atof(line[3])
-                    voidQty     = locale.atof(line[4])
+                    saleAmt = locale.atof(line[8].lstrip('-$'))
+                    #voidAmt = locale.atof(line[5].lstrip('-$'))
+                    saleQty     = locale.atof(line[5])
+                    #voidQty     = locale.atof(line[4])
                     name = line[0].strip()
-                    wineDict[name] = (saleQty - voidQty, saleAmt - voidAmt)
+                    #wineDict[name] = (saleQty - voidQty, saleAmt - voidAmt)
+                    wineDict[name] = (saleQty, saleAmt)
 
                 elif line[1] == "Alcohol":
                     cleanName = line[0].strip()
@@ -70,10 +76,12 @@ def processMenu(csvFile):
                         baseName = cleanName[3:]
                     else:
                         baseName = cleanName
-                    saleAmt = locale.atof(line[6].lstrip('-$'))
-                    voidAmt = locale.atof(line[5].lstrip('-$'))
-                    saleQty     = locale.atof(line[3])
-                    voidQty     = locale.atof(line[4])
+                    saleAmt = locale.atof(line[8].lstrip('-$'))
+                    #voidAmt = locale.atof(line[5].lstrip('-$'))
+                    voidAmt = 0
+                    saleQty     = locale.atof(line[5])
+                    #voidQty     = locale.atof(line[4])
+                    voidQty = 0
                     if baseName == 'Raspberry Limoncello Prosecco':
                         cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
                     elif baseName == 'Al Capone':
@@ -115,11 +123,12 @@ def processMenu(csvFile):
                     category = line[2].strip()
                     itemname = line[0].strip()
                     name = category + '::' + itemname
-                    saleAmt = locale.atof(line[6].lstrip('-$'))
-                    voidAmt = locale.atof(line[5].lstrip('-$'))
-                    saleQty     = locale.atof(line[3])
-                    voidQty     = locale.atof(line[4])
-                    foodDict[name] = (saleQty - voidQty, saleAmt - voidAmt)
+                    saleAmt = locale.atof(line[8].lstrip('-$'))
+                    #voidAmt = locale.atof(line[5].lstrip('-$'))
+                    saleQty     = locale.atof(line[5])
+                    #voidQty     = locale.atof(line[4])
+                    #foodDict[name] = (saleQty - voidQty, saleAmt - voidAmt)
+                    foodDict[name] = (saleQty, saleAmt)
 
     # Consolidate wine variants of the same product into
     # one total quantity, e.g. wine glass, bottle, and 9oz pour
