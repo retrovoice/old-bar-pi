@@ -123,7 +123,7 @@ def processMenu(csvFile):
                     category = line[2].strip()
                     itemname = line[0].strip()
                     name = category + '::' + itemname
-                    saleAmt = locale.atof(line[8].lstrip('-$'))
+                    saleAmt = locale.atof(line[8].lstrip('-$').replace(',',''))
                     #voidAmt = locale.atof(line[5].lstrip('-$'))
                     saleQty     = locale.atof(line[5])
                     #voidQty     = locale.atof(line[4])
