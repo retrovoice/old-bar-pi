@@ -82,7 +82,7 @@ def processMenu(csvFile):
                     saleQty     = locale.atof(line[5])
                     #voidQty     = locale.atof(line[4])
                     voidQty = 0
-                    if baseName == 'Raspberry Limoncello Prosecco':
+                    if baseName == 'Limoncello Prosecco':
                         cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
                     elif baseName == 'Al Capone':
                         cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
@@ -115,6 +115,20 @@ def processMenu(csvFile):
                     elif baseName == 'Irish Coffee':
                         cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
                     elif baseName == 'Mimosa':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Grapefruit Spritz':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Straw Basil Lemonade':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Watermelon Basil':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Kamikaze':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Blushing Lady':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Caribbean Martini':
+                        cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
+                    elif baseName == 'Green Ruby':
                         cocktailDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
                     else:
                         alcoholDict[baseName] = (saleQty - voidQty, saleAmt - voidAmt)
