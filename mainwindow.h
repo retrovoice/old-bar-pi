@@ -4,7 +4,6 @@
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
-class QStackedLayout;
 class QButtonGroup;
 class DatabaseDialog;
 class Catalog;

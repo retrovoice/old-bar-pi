@@ -12,7 +12,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QButtonGroup>
-#include <QStackedLayout>
 #include <QFileDialog>
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -23,7 +22,6 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QVariant>
-#include <QDialog>
 
 MainWindow::MainWindow(QString configFile,
                        QWidget* parent,
