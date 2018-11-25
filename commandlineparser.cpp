@@ -69,3 +69,20 @@ QString CommandLineParser::optionValue(QString opt)
       return tokenDict->operator[](opt);
    return "";
 }
+
+/*
+ * 1 6   bj
+ * 2 112 rng d
+ * 3 54  rng d 2
+ * 4 43  bj
+ * 5 37  bjf
+ * 6 cp  1
+ * 7 112 bng d
+ * 8 10  noth
+ * 9 48  bj
+ * 10 lg rng d 3
+ * 11 lg vbj
+ * 12 cp 5
+ * 13 lg vbj 2
+ * 14 lg bng
+ * */
