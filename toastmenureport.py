@@ -14,7 +14,8 @@ alcoholDict = {}
 cocktailDict = {}
 beerDict = {}
 foodDict = {}
-wineDict = {}
+whiteWineDict = {}
+redWineDict = {}
 
 # This is a master dictionary for reading in Toast Item data.
 masterDict = {}
@@ -50,7 +51,11 @@ def processMenu(csvFile):
 
             if line[0]:
                 # Convert Master ID text value to integer for use as dictionary key
-                int_key = locale.atoi(line[0])
+                # Use only the characters from index 10 to the end, as the numbers
+                # seem to all have 40000000000 as a prefix
+                shortID = line[0].lstrip('40')
+                #shortID = longID
+                int_key = locale.atoi(shortID)
 
                 # This is a new key, so simply add it to the dictionary
                 if int_key not in masterDict and int_key > 0:
@@ -93,11 +98,32 @@ def consolidateWine():
 
     #print(masterDict["400000000005280263"][8] + ", " + masterDict["400000000005280373"][8])
 
-    wineDict["Promesso"] = masterDict[400000000005280263][7]*.177441\
-                           + masterDict[400000000005280373][7]*.750
-    wineDict["Tangley Oaks"] = masterDict[400000000005280170][7]*.177441\
-                               + masterDict[400000000005280233][7]*.750
-    print (wineDict)
+    whiteWineDict["Promesso"] = masterDict[5280263][7] * .177441 \
+                                + masterDict[5280373][7] * .750
+    redWineDict["Tangley Oaks"] = masterDict[5280170][7] * .177441 \
+                                  + masterDict[5280233][7] * .750
+    redWineDict["Val Beylie"] = masterDict[5280172][7] * .177441 \
+                                + masterDict[5280235][7] * .750
+    redWineDict["Campolieti"] = masterDict[5280174][7] * .177441 \
+                                + masterDict[5280237][7] * .750
+    redWineDict["Vina Amalia Reserva Malbec"] = masterDict[5280176][7] * .177441 \
+                                                + masterDict[5280239][7] * .750
+    redWineDict["Querceto Chianti"] = masterDict[5280178][7] * .177441 \
+                                      + masterDict[5280241][7] * .750
+    redWineDict["Villa Barbi Rosso"] = masterDict[5280180][7] * .177441 \
+                                       + masterDict[5280247][7] * .750
+    redWineDict["Belleruche CDR"] = masterDict[5280184][7] * .177441 \
+                        + masterDict[5280301][7] * .750
+    redWineDict["Lyric Pinot Noir"] = masterDict[5280186][7] * .177441 \
+                        + masterDict[5280305][7] * .750
+    redWineDict["Tamari Cab"] = masterDict[5280188][7] * .177441 \
+                        + masterDict[5280309][7] * .750
+    redWineDict["Joel Gott Cab"] = masterDict[5280190][7] * .177441 \
+                        + masterDict[5280311][7] * .750
+    redWineDict["Oberon Cab"] = masterDict[5280192][7] * .177441 \
+                        + masterDict[5280313][7] * .750
+    print (whiteWineDict)
+    print (redWineDict)
 
     # # Create file for wine sales and output data.
     # nameWine = startEndDate + '_wineSales.csv'
