@@ -1,0 +1,5 @@
+.idea
+*.csv
+*.user
+__pycache__
+.~*
