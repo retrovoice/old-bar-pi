@@ -2,7 +2,6 @@ __author__ = 'mcconnelldj'
 
 import csv
 import locale
-import dutil
 import sys
 import sqlite3
 
@@ -55,7 +54,8 @@ def processMenu(csvFile):
                 # seem to all have 40000000000 as a prefix
                 longID = line[0].lstrip('4')
                 shortID = longID.lstrip('0')
-                int_key = locale.atoi(shortID)
+                if shortID:
+                    int_key = locale.atoi(shortID)
 
                 # This is a new key, so simply add it to the dictionary
                 if int_key not in masterDict and int_key > 0:
@@ -120,7 +120,7 @@ def consolidateWine():
                                         + masterDict[5280389][7]
     whiteWineDict["Luminus Chardonnay"] = masterDict[5280273][7] * toBottle \
                                           + masterDict[5280391][7]
-    whiteWineDict["Colduldrum"] = masterDict[113382578][7] * toBottle \
+    whiteWineDict["Conumdrum"] = masterDict[113382578][7] * toBottle \
                                   + masterDict[113386926][7]
 
     redWineDict["Tangley Oaks"] = masterDict[5280170][7] * toBottle \
