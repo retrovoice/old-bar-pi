@@ -37,14 +37,17 @@ void Catalog::initModel()
 {
     prodTableModel->setTable("products");
     prodTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    prodTableModel->setRelation(4, QSqlRelation("categories", "id", "label"));
+    prodTableModel->setRelation(6, QSqlRelation("categories", "id", "label"));
     prodTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("UPC Code"));
     prodTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Product"));
-    prodTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("ABC Code"));
-    prodTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Price"));
-    prodTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("Category"));
-    prodTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("Volume"));
-    prodTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("Density"));
+    prodTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Vendor"));
+    prodTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Par"));
+    prodTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("List Order"));
+    prodTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("Zone"));
+    prodTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("Price"));
+    prodTableModel->setHeaderData(7, Qt::Horizontal, QObject::tr("Category"));
+    prodTableModel->setHeaderData(8, Qt::Horizontal, QObject::tr("Volume"));
+    prodTableModel->setHeaderData(9, Qt::Horizontal, QObject::tr("Density"));
     // Synchronize model with database
     if (!prodTableModel->select()) {
         showError(prodTableModel->lastError());

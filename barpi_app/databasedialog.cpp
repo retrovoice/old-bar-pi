@@ -121,7 +121,10 @@ void DatabaseDialog::initdb()
     query.exec("create table products ("
                "upccode varchar(15) primary key,"
                "label varchar(30),"
-               "abccode varchar(8),"
+               "vendor varchar(8),"
+               "par real,"
+	       "listindex integer,"
+	       "zone integer,"
                "price real,"
                "category integer references categories(id),"
                "volume real,"
@@ -142,22 +145,24 @@ void DatabaseDialog::initdb()
     query.exec("insert into categories values (2,'white')");
     query.exec("insert into categories values (3,'rose')");
     query.exec("insert into categories values (4,'sparkling')");
-    query.exec("insert into categories values (5,'beer')");
+    query.exec("insert into categories values (5,'cooking')");
     query.exec("insert into categories values (6,'gin-vodka')");
     query.exec("insert into categories values (7,'whiskey')");
     query.exec("insert into categories values (8,'rum-tequila')");
     query.exec("insert into categories values (9,'scotch-cognac')");
     query.exec("insert into categories values (10,'liqueur')");
+    query.exec("insert into categories values (11,'beer')");
+    query.exec("insert into categories values (12,'mixer')");
 
     query.exec("insert into products values ("
                "'082184090008', 'Jack Daniels No. 7',"
-               "'E305', 31.49, 7, 1.0, 0.916)");
+               "'ABC', 1.5, 1, 3, 31.49, 7, 1.0, 0.916)");
     query.exec("insert into products values ("
                "'0830895501098', 'Grey Goose',"
-               "'E1400', 39.99, 6, 1.0, 0.916)");
+               "'ABC', 2.0, 2, 3, 39.99, 6, 1.0, 0.916)");
     query.exec("insert into products values ("
                "'0083664868780', 'Hendricks',"
-               "'A723',35.99, 6, 0.75, 0.9076)");
+               "'ABC', 1.5, 3, 3, 35.99, 6, 0.75, 0.9076)");
 
     enableInit(false);
 }
