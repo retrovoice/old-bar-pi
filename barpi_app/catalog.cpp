@@ -37,7 +37,7 @@ void Catalog::initModel()
 {
     prodTableModel->setTable("products");
     prodTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    prodTableModel->setRelation(6, QSqlRelation("categories", "id", "label"));
+    prodTableModel->setRelation(7, QSqlRelation("categories", "id", "label"));
     prodTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("UPC Code"));
     prodTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Product"));
     prodTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Vendor"));
