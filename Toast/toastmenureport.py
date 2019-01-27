@@ -50,8 +50,9 @@ def processMenu(csvFile):
 
             if line[0]:
                 # Convert Master ID text value to integer for use as dictionary key
-                # Use only the characters from index 10 to the end, as the numbers
-                # seem to all have 40000000000 as a prefix
+                # Strip off the leading 4 and all 0s that follow.  This gets rid of
+                # the '4000000..' that all the IDs have, and leaves the numbers that
+                # form a unique ID for the item.
                 longID = line[0].lstrip('4')
                 shortID = longID.lstrip('0')
                 if shortID:
@@ -98,7 +99,6 @@ def consolidateWine():
 
     # Factor for glasses per bottle
     toBottle = 177.441/750.
-    #print(masterDict["400000000005280263"][8] + ", " + masterDict["400000000005280373"][8])
 
     whiteWineDict["Promesso"] = masterDict[5280263][7] * toBottle \
                                 + masterDict[5280373][7]
@@ -133,10 +133,6 @@ def consolidateWine():
                                                 + masterDict[5280239][7]
     redWineDict["Querceto Chianti"] = masterDict[5280178][7] * toBottle \
                                       + masterDict[5280241][7]
-    redWineDict["Villa Barbi Rosso"] = masterDict[5280180][7] * toBottle \
-                                       + masterDict[5280247][7]
-    redWineDict["Belleruche CDR"] = masterDict[5280184][7] * toBottle \
-                                    + masterDict[5280301][7]
     redWineDict["Lyric Pinot Noir"] = masterDict[5280186][7] * toBottle \
                                       + masterDict[5280305][7]
     redWineDict["Tamari Cab"] = masterDict[5280188][7] * toBottle \
@@ -149,14 +145,43 @@ def consolidateWine():
                                           + masterDict[20376740][7]
     redWineDict["Sangue Di Guida"] = masterDict[20378199][7] * toBottle \
                                      + masterDict[20376746][7]
-    redWineDict["Beaujolais"] = masterDict[20378301][7] * toBottle \
+    redWineDict["Velvet Devil"] = masterDict[37305962][7] * toBottle \
+                                  + masterDict[33865502][7]
+    redWineDict["Durigutti Cab Sauv"] = masterDict[161440162][7] * toBottle \
+                                        + masterDict[209716179][7]
+    redWineDict["Hahn SLH Pinot Noir"] = masterDict[198321005][7] * toBottle \
+                                         + masterDict[198328854][7]
+    redWineDict["La Loyane CDR"] = masterDict[311425010][7] * toBottle \
+                                   + masterDict[311412437][7]
+    redWineDict["Belleruche CDR"] = masterDict[5280184][7] * toBottle \
+                                    + masterDict[5280301][7]
+    redWineDict["Beaujolais Nouveau"] = masterDict[20378301][7] * toBottle \
                                 + masterDict[20376736][7]
     redWineDict["Durigutti Cabernet Franc"] = masterDict[21944774][7] * toBottle \
                                               + masterDict[21941608][7]
+    redWineDict["Villa Barbi Rosso"] = masterDict[5280180][7] * toBottle \
+                                       + masterDict[5280247][7]
     redWineDict["Dos Fincas Cab Sauv Malbec"] = masterDict[21944776][7] * toBottle \
                                                 + masterDict[21941610][7]
-    redWineDict["Velvet Devil"] = masterDict[37305962][7] * toBottle \
-                                  + masterDict[33865502][7]
+    redWineDict["Chateaumar CDR"] = masterDict[311950262][7]
+    redWineDict["Tenuta di Arceno"] = masterDict[5280243][7]
+    redWineDict["Bodegas San Pedro"] = masterDict[311945004][7]
+    redWineDict["Stags Leap Petite Syrah"] = masterDict[169324410][7]
+    redWineDict["Knights Valley Cab"] = masterDict[5280315][7]
+    redWineDict["Chateau Briot"] = masterDict[5280303][7]
+    redWineDict["Modus"] = masterDict[5280245][7]
+    redWineDict["Lucente Della Vite"] = masterDict[311967555][7]
+    redWineDict["Chateau Vignot"] = masterDict[5280323][7]
+    redWineDict["Emerish Pinot Noir"] = masterDict[5280307][7]
+    redWineDict["Levendi Pinot Noir"] = masterDict[5280329][7]
+    redWineDict["Hartford Zin"] = masterDict[5280317][7]
+    redWineDict["Luigi Righetti Amarone"] = masterDict[20376742][7]
+    redWineDict["Canti Barolo"] = masterDict[311593394][7]
+    redWineDict["Quantum"] = masterDict[5280327][7]
+    redWineDict["Emblem Cab"] = masterDict[5280331][7]
+    redWineDict["Villa Antinori Chianti"] = masterDict[5280325][7]
+    redWineDict["Veglio Michelino Barolo"] = masterDict[5280321][7]
+
     print (whiteWineDict)
     print (redWineDict)
 
