@@ -100,16 +100,12 @@ def consolidateWine():
     # Factor for glasses per bottle
     toBottle = 177.441/750.
 
-    whiteWineDict["Promesso"] = masterDict[5280263][7] * toBottle \
-                                + masterDict[5280373][7]
     whiteWineDict["Montevina White Zin"] = masterDict[20379824][7] * toBottle \
                                            + masterDict[20379189][7]
     whiteWineDict["Cuvee Van Gogh"] = masterDict[5280259][7] * toBottle \
                                       + masterDict[5280369][7]
-    whiteWineDict["Selbach Incline"] = masterDict[5280261][7] * toBottle \
-                                       + masterDict[5280371][7]
-    whiteWineDict["Torrontes La Yunta"] = masterDict[5280265][7] * toBottle \
-                                          + masterDict[5280377][7]
+    whiteWineDict["Promesso"] = masterDict[5280263][7] * toBottle \
+                                + masterDict[5280373][7]
     whiteWineDict["Soave DOP"] = masterDict[5280267][7] * toBottle \
                                  + masterDict[5280379][7]
     whiteWineDict["Whitehaven"] = masterDict[5280269][7] * toBottle \
@@ -120,8 +116,31 @@ def consolidateWine():
                                         + masterDict[5280389][7]
     whiteWineDict["Luminus Chardonnay"] = masterDict[5280273][7] * toBottle \
                                           + masterDict[5280391][7]
+    whiteWineDict["Foxglove Chard"] = masterDict[198315560][7] * toBottle \
+        + masterDict[198324707][7]
+    whiteWineDict["North by Northwest"] = masterDict[209729654][7] * toBottle \
+        + masterDict[161452342][7]
+    whiteWineDict["Dr L Reisling"] = masterDict[209729656][7] * toBottle \
+        + masterDict[161452344][7]
+    whiteWineDict["Laguna Chard"] = masterDict[209729658][7] * toBottle \
+        + masterDict[161452340][7]
+    whiteWineDict["Kung Fu Girl"] = masterDict[161457745][7] * toBottle \
+        + masterDict[161452338][7]
+    whiteWineDict["Selbach Incline"] = masterDict[5280261][7] * toBottle
+    whiteWineDict["Torrontes La Yunta"] = masterDict[5280265][7] * toBottle \
+                                          + masterDict[5280377][7]
     whiteWineDict["Conumdrum"] = masterDict[113382578][7] * toBottle \
                                   + masterDict[113386926][7]
+    whiteWineDict["Terlato PG"] = masterDict[5280375][7]
+    whiteWineDict["Reverdy Sancerre"] = masterDict[5280385][7]
+    whiteWineDict["Nino Franco Rustico"] = masterDict[5280589][7] * toBottle \
+        + masterDict[5280646][7]
+    whiteWineDict["Luccio Moscato"] = masterDict[5280591][7] * toBottle \
+        + masterDict[5280642][7]
+    whiteWineDict["Wycliff"] = masterDict[5280593][7] * toBottle \
+        + masterDict[5280640][7]
+    whiteWineDict["Villa Sandi"] = masterDict[5280638][7]
+    whiteWineDict["Veuve Clicquot"] = masterDict[5280648][7]
 
     redWineDict["Tangley Oaks"] = masterDict[5280170][7] * toBottle \
                                   + masterDict[5280233][7]
@@ -159,8 +178,7 @@ def consolidateWine():
                                 + masterDict[20376736][7]
     redWineDict["Durigutti Cabernet Franc"] = masterDict[21944774][7] * toBottle \
                                               + masterDict[21941608][7]
-    redWineDict["Villa Barbi Rosso"] = masterDict[5280180][7] * toBottle \
-                                       + masterDict[5280247][7]
+    redWineDict["Villa Barbi Rosso"] = masterDict[5280180][7] * toBottle
     redWineDict["Dos Fincas Cab Sauv Malbec"] = masterDict[21944776][7] * toBottle \
                                                 + masterDict[21941610][7]
     redWineDict["Chateaumar CDR"] = masterDict[311950262][7]
