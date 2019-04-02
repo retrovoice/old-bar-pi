@@ -31,9 +31,10 @@ StockManager::StockManager(QTabWidget *tabW,
 {
     pCat = catalog;
     tW = tabW;
-    tallyTable = new QTableWidget(0, 7, this);
+    tallyTable = new QTableWidget(0, 6, this);
     QStringList labels;
-    labels << "Count" << "Vendor" << "Item" << "Index" << "Category" << "Zone" << "UPC";
+    //labels << "Count" << "Vendor" << "Item" << "Index" << "Category" << "Zone" << "UPC";
+    labels << "Count" << "Vendor" << "Item" << "Index" << "Category" << "Price";
     tallyTable->setHorizontalHeaderLabels(labels);
     tallyTable->setMinimumWidth(480);
     tallyHeader = tallyTable->horizontalHeader();
@@ -168,15 +169,15 @@ void StockManager::grabBarcode()
             QTableWidgetItem *vendor   = new QTableWidgetItem(this->getDBField(barcode,"vendor"));
             QTableWidgetItem *category = new QTableWidgetItem(this->getDBField(barcode,"category"));
             QTableWidgetItem *index    = new QTableWidgetItem(this->getDBField(barcode,"listindex"));
-            QTableWidgetItem *zone     = new QTableWidgetItem(this->getDBField(barcode,"zone"));
-            QTableWidgetItem *upc      = new QTableWidgetItem(this->getDBField(barcode,"upccode"));
+            QTableWidgetItem *price     = new QTableWidgetItem(this->getDBField(barcode,"price"));
+            //QTableWidgetItem *upc      = new QTableWidgetItem(this->getDBField(barcode,"upccode"));
             tallyTable->setItem(0,0,newCount);
             tallyTable->setItem(0,1,vendor);
             tallyTable->setItem(0,2,product);
             tallyTable->setItem(0,3,index);
             tallyTable->setItem(0,4,category);
-            tallyTable->setItem(0,5,zone);
-            tallyTable->setItem(0,6,upc);
+            tallyTable->setItem(0,5,price);
+            //tallyTable->setItem(0,6,upc);
 
             // Map the product widget item for lookup when incrementing count
             itemMap[barcode] = product;
@@ -232,8 +233,8 @@ void StockManager::finish()
     QTableWidgetItem* product  = new QTableWidgetItem;
     QTableWidgetItem* index    = new QTableWidgetItem;
     QTableWidgetItem* category = new QTableWidgetItem;
-    QTableWidgetItem* zone     = new QTableWidgetItem;
-    QTableWidgetItem* upc      = new QTableWidgetItem;
+    QTableWidgetItem* price    = new QTableWidgetItem;
+    //QTableWidgetItem* upc      = new QTableWidgetItem;
 
     // Label for file based on operation selected
     if (actionGroup->checkedId()) {
@@ -261,7 +262,7 @@ void StockManager::finish()
     int r = tallyTable->rowCount();
 
     // Add column headings
-    itemList->append("Count,Vendor,Description,Index,Category,Zone");
+    itemList->append("Count,Vendor,Description,Index,Category,Price");
 
     // Loop through table, adding data to list
     for (int i = 0; i < r; i++) {
@@ -270,8 +271,8 @@ void StockManager::finish()
         product  = tallyTable->item(i,2);
         index   = tallyTable->item(i,3);
         category = tallyTable->item(i,4);
-        zone = tallyTable->item(i,5);
-	upc  = tallyTable->item(i,6);
+        price = tallyTable->item(i,5);
+	//upc  = tallyTable->item(i,6);
         tempStr.append(count->text());
         tempStr.append(",");
         tempStr.append(vendor->text());
@@ -282,9 +283,9 @@ void StockManager::finish()
         tempStr.append(",");
         tempStr.append(category->text());
         tempStr.append(",");
-        tempStr.append(zone->text());
-        tempStr.append(",");
-        tempStr.append(upc->text());
+        tempStr.append(price->text());
+        //tempStr.append(",");
+        //tempStr.append(upc->text());
         itemList->append(tempStr);
         tempStr.clear();
     }
