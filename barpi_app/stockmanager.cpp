@@ -262,8 +262,9 @@ void StockManager::finish()
     int r = tallyTable->rowCount();
 
     // Add column headings
-    itemList->append("Count,Vendor,Description,Index,Category,Price");
+    itemList->append("Count,Vendor,Description,Index,Category,Price,Value");
 
+    float invTotal = 0.;
     // Loop through table, adding data to list
     for (int i = 0; i < r; i++) {
         count    = tallyTable->item(i,0);
@@ -272,6 +273,10 @@ void StockManager::finish()
         index   = tallyTable->item(i,3);
         category = tallyTable->item(i,4);
         price = tallyTable->item(i,5);
+	float stockvalue = count->text().toFloat() * price->text().toFloat();
+	invTotal += stockvalue;
+	QString valuetext;
+	valuetext.setNum(stockvalue);
 	//upc  = tallyTable->item(i,6);
         tempStr.append(count->text());
         tempStr.append(",");
@@ -284,11 +289,17 @@ void StockManager::finish()
         tempStr.append(category->text());
         tempStr.append(",");
         tempStr.append(price->text());
+        tempStr.append(",");
+	tempStr.append(valuetext);
         //tempStr.append(",");
         //tempStr.append(upc->text());
         itemList->append(tempStr);
         tempStr.clear();
     }
+    QString sixcommas(",,,,,,");
+    QString valueTotal;
+    valueTotal.setNum(invTotal);
+    itemList->append(sixcommas + valueTotal);
     QFile results(filename);
     if (!results.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox::warning(this,
