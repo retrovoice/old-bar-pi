@@ -37,6 +37,7 @@ StockManager::StockManager(QTabWidget *tabW,
     labels << "Count" << "Vendor" << "Item" << "Index" << "Category" << "Price";
     tallyTable->setHorizontalHeaderLabels(labels);
     tallyTable->setMinimumWidth(480);
+    tallyTable->setSortingEnabled(true);
     tallyHeader = tallyTable->horizontalHeader();
     this->createLayout();
 }
