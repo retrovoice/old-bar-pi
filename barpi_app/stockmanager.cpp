@@ -99,12 +99,12 @@ QLayout *StockManager::createScanLayout()
 
     QPushButton* startButton  = new QPushButton(tr("Start"));
     QPushButton* finishButton = new QPushButton(tr("Finish"));
-    QPushButton* clearButton = new QPushButton(tr("Clear"));
+    QPushButton* cancelButton = new QPushButton(tr("Cancel"));
     QPushButton* decrementButton = new QPushButton(tr("Decrement"));
 
     connect (startButton,  SIGNAL(clicked(bool)), this, SLOT(startscanning()));
     connect (finishButton, SIGNAL(clicked(bool)), this, SLOT(finish()));
-    connect (clearButton, SIGNAL(clicked(bool)), this, SLOT(cleartable()));
+    connect (cancelButton, SIGNAL(clicked(bool)), this, SLOT(cleartable()));
     connect (decrementButton, SIGNAL(clicked(bool)), this, SLOT(decrement()));
 
     QVBoxLayout* scanLayout = new QVBoxLayout;
@@ -115,7 +115,7 @@ QLayout *StockManager::createScanLayout()
     scanLayout->addWidget(scanValue);
     scanLayout->addWidget(startButton);
     scanLayout->addWidget(finishButton);
-    scanLayout->addWidget(clearButton);
+    scanLayout->addWidget(cancelButton);
     scanLayout->addWidget(decrementButton);
     scanLayout->addStretch(2);
 
@@ -132,6 +132,7 @@ void StockManager::startscanning()
 void StockManager::grabBarcode()
 {
     QString barcode = scanValue->text();
+    tallyTable->setSortingEnabled(false);
 
     if (this->checkDB(barcode)) {
 
@@ -208,10 +209,12 @@ void StockManager::grabBarcode()
         }
     }
     scanValue->clear();
+    tallyTable->setSortingEnabled(true);
 }
 
 void StockManager::cleartable()
 {
+    tallyTable->setSortingEnabled(false);
     int r = tallyTable->rowCount();
     for (r--; r >= 0; r--) {
         tallyTable->removeRow(r);
@@ -222,10 +225,13 @@ void StockManager::cleartable()
     scanValue->setReadOnly(true);
     scanTally.clear();
     itemMap.clear();
+    tallyTable->setSortingEnabled(true);
 }
 
 void StockManager::finish()
 {
+    tallyTable->setSortingEnabled(false);
+
     QStringList* itemList = new QStringList;
     QString tempStr;
     QString filename;
@@ -250,12 +256,12 @@ void StockManager::finish()
     QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
 
     // Format string for how date/time will be written for the file
-    QString format = "MM/dd/yyyy,hh:mm:ss ";
+    QString format = "MM/dd/yyyy,hh:mm:ss";
     itemList->append(currentDateTime.toString(format));
 
     // Format string for how date/time will be written for the filename
     format.clear();
-    format.append("MM-dd-yyyy_hh-mm-ss ");
+    format.append("MM-dd-yyyy_hh-mm-ss");
     filename.append(currentDateTime.toString(format));
     filename.append(".csv");
 
@@ -263,7 +269,8 @@ void StockManager::finish()
     int r = tallyTable->rowCount();
 
     // Add column headings
-    itemList->append("Count,Vendor,Description,Index,Category,Price,Value");
+    //itemList->append("Count,Vendor,Description,Index,Category,Price,Value");
+    itemList->append("Count,Vendor,Description,Index,Price,Value");
 
     float invTotal = 0.;
     // Loop through table, adding data to list
@@ -272,7 +279,7 @@ void StockManager::finish()
         vendor     = tallyTable->item(i,1);
         product  = tallyTable->item(i,2);
         index   = tallyTable->item(i,3);
-        category = tallyTable->item(i,4);
+        //category = tallyTable->item(i,4);
         price = tallyTable->item(i,5);
 	float stockvalue = count->text().toFloat() * price->text().toFloat();
 	invTotal += stockvalue;
@@ -287,8 +294,8 @@ void StockManager::finish()
         tempStr.append(",");
         tempStr.append(index->text());
         tempStr.append(",");
-        tempStr.append(category->text());
-        tempStr.append(",");
+        //tempStr.append(category->text());
+        //tempStr.append(",");
         tempStr.append(price->text());
         tempStr.append(",");
 	tempStr.append(valuetext);
@@ -297,10 +304,10 @@ void StockManager::finish()
         itemList->append(tempStr);
         tempStr.clear();
     }
-    QString sixcommas(",,,,,,");
+    QString fivecommas(",,,,,");
     QString valueTotal;
     valueTotal.setNum(invTotal);
-    itemList->append(sixcommas + valueTotal);
+    itemList->append(fivecommas + valueTotal);
     QFile results(filename);
     if (!results.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox::warning(this,
@@ -320,10 +327,12 @@ void StockManager::finish()
         }
     }
     this->cleartable();
+    tallyTable->setSortingEnabled(true);
 }
 
 void StockManager::decrement()
 {
+    tallyTable->setSortingEnabled(false);
     int rows = tallyTable->rowCount();
     int i = tallyTable->currentRow();
 
@@ -348,6 +357,7 @@ void StockManager::decrement()
     tallyTable->setItem(i,0,newCount);
     scanCount -= 1;
     scanCounter->display(scanCount);
+    tallyTable->setSortingEnabled(true);
 }
 
 void StockManager::refocus()

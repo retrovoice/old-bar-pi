@@ -29,6 +29,7 @@ Catalog::Catalog(QWidget *parent) :
     prodTableView = this->createView("Barpi Catalog", prodTableModel);
     this->createLayout();
     prodTableView->resizeColumnsToContents();
+    prodTableView->setSortingEnabled(true);
     prodTableView->show();
     //updateButtons(false);
 }
@@ -97,6 +98,7 @@ void Catalog::createLayout()
 
 void Catalog::newitem()
 {
+    prodTableView->setSortingEnabled(false);
     QVariant row = prodTableModel->rowCount();
     QString msg = "Row Index [";
     msg.append( row.toString());
@@ -108,6 +110,7 @@ void Catalog::newitem()
         QMessageBox::warning( this,"Inventory::additem", msg );
         this->cancel();
     }
+    prodTableView->setSortingEnabled(true);
 }
 
 void Catalog::submit()
@@ -124,12 +127,15 @@ void Catalog::submit()
 
 void Catalog::cancel()
 {
+    prodTableView->setSortingEnabled(false);
     prodTableModel->revertAll();
     setButtons();
+    prodTableView->setSortingEnabled(true);
 }
 
 void Catalog::remove()
 {
+    prodTableView->setSortingEnabled(false);
     // Capture the current index of the record being removed
     QModelIndex spot = prodTableView->currentIndex();
 
@@ -143,10 +149,12 @@ void Catalog::remove()
     // Submit the change to the database
     this->submit();
     setButtons();
+    prodTableView->setSortingEnabled(true);
 }
 
 void Catalog::addItem(const QString &barcode)
 {
+    prodTableView->setSortingEnabled(false);
     QVariant row = prodTableModel->rowCount();
     QString msg = "Row Index [";
     msg.append( row.toString());
@@ -168,6 +176,7 @@ void Catalog::addItem(const QString &barcode)
         this->cancel();
     }
     this->dataChanged();
+    prodTableView->setSortingEnabled(true);
 }
 
 void Catalog::setButtons(const bool st)
