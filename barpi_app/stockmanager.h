@@ -44,9 +44,10 @@ private:
 
     int scanCount;
     QLineEdit* scanValue;
-    QMap<QString,int> scanTally;
+    QMap<QString,float> scanTally;
     QLCDNumber* scanCounter;
     QButtonGroup* actionGroup;
+    QButtonGroup* volumeGroup;
     QTableWidget* tallyTable;
     QHeaderView*  tallyHeader;
     QMap<QString,QTableWidgetItem*> itemMap;

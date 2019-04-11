@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QLabel>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QString>
 #include <QStringList>
 #include <QMap>
@@ -75,12 +76,45 @@ void StockManager::createLayout()
     buttonLayout->addWidget(directions);
     buttonLayout->addSpacing(3);
 
+    QLabel* volumeLabel = new QLabel(tr("Volume"),this);
+    volumeLabel->setAlignment(Qt::AlignHCenter);
+
+    volumeGroup = new QButtonGroup;
+    QRadioButton* fullBottle         = new QRadioButton;
+    QRadioButton* threequarterBottle = new QRadioButton;
+    QRadioButton* halfBottle         = new QRadioButton;
+    QRadioButton* onequarterBottle   = new QRadioButton;
+    
+    fullBottle->setText(tr("Full"));
+    threequarterBottle->setText(tr("3/4"));
+    halfBottle->setText(tr("1/2"));
+    onequarterBottle->setText(tr("1/4"));
+    volumeGroup->addButton(fullBottle);
+    volumeGroup->setId(fullBottle,0);
+    volumeGroup->addButton(threequarterBottle);
+    volumeGroup->setId(threequarterBottle,1);
+    volumeGroup->addButton(halfBottle);
+    volumeGroup->setId(halfBottle,2);
+    volumeGroup->addButton(onequarterBottle);
+    volumeGroup->setId(onequarterBottle,3);
+    volumeGroup->setExclusive(true);
+    fullBottle->setChecked(true);
+    
+    QVBoxLayout* bottleLayout = new QVBoxLayout;
+    bottleLayout->addWidget(volumeLabel);
+    bottleLayout->addWidget(fullBottle);
+    bottleLayout->addWidget(threequarterBottle);
+    bottleLayout->addWidget(halfBottle);
+    bottleLayout->addWidget(onequarterBottle);
+    
     QGridLayout* smLayout = new QGridLayout;
     smLayout->addLayout(buttonLayout, 0, 0);
     smLayout->addLayout(this->createScanLayout(), 1, 0);
-    smLayout->addWidget(tallyTable, 0, 1, 2, 1);
+    smLayout->addLayout(bottleLayout,2,0);
+    smLayout->addWidget(tallyTable, 0, 1, 3, 1);
     smLayout->setColumnStretch(1,3);
     this->setLayout(smLayout);
+    
 }
 
 QLayout *StockManager::createScanLayout()
@@ -133,16 +167,23 @@ void StockManager::grabBarcode()
 {
     QString barcode = scanValue->text();
     tallyTable->setSortingEnabled(false);
+    
+    
 
     if (this->checkDB(barcode)) {
 
         QString itemLabel = this->getDBField(barcode, "label");
+	
+	// Check the volume radio button to determine
+	// full or partial bottle to add to count
+	int vol = volumeGroup->checkedId();
 
         // Check the QMap to see if this product has
         // already been scanned.  If so, increment the count.
         if (scanTally.contains(barcode)) {
 
-            scanTally[barcode] = scanTally.value(barcode) + 1;
+	    float qty = 1. - vol * 0.25;
+            scanTally[barcode] = scanTally.value(barcode) + qty;
 
             // This item is already in the table, so need the row
             // number of the table displayed in the GUI in order
@@ -159,14 +200,15 @@ void StockManager::grabBarcode()
             // First scan of this product so create an instance
             // in the scan tally map.
 
-            scanTally[barcode] = 1;
+	    float qty = 1. - vol * 0.25;
+            scanTally[barcode] = qty;
 
             // Insert a new row at the top of the table for the
             // first instance of this product being scanned
             tallyTable->insertRow(0);
 
             // Create a table item based on the query result
-            QTableWidgetItem *newCount = new QTableWidgetItem(tr("%1").arg(1));
+            QTableWidgetItem *newCount = new QTableWidgetItem(tr("%1").arg(qty));
             QTableWidgetItem *product  = new QTableWidgetItem(itemLabel);
             QTableWidgetItem *vendor   = new QTableWidgetItem(this->getDBField(barcode,"vendor"));
             QTableWidgetItem *category = new QTableWidgetItem(this->getDBField(barcode,"category"));
