@@ -1,4 +1,5 @@
 #include "catalog.h"
+#include <iostream>
 
 #include <QMessageBox>
 #include <QLabel>
@@ -38,17 +39,20 @@ void Catalog::initModel()
 {
     prodTableModel->setTable("products");
     prodTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    prodTableModel->setRelation(7, QSqlRelation("categories", "id", "label"));
+    prodTableModel->setRelation(2, QSqlRelation("vendors", "id", "vendorcode"));
+    prodTableModel->setRelation(4, QSqlRelation("categories", "id", "label"));
+    prodTableModel->setRelation(8, QSqlRelation("units", "id", "unit"));
     prodTableModel->setHeaderData(0, Qt::Horizontal, QObject::tr("UPC Code"));
     prodTableModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Product"));
     prodTableModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Vendor"));
-    prodTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Par"));
-    prodTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("List Order"));
-    prodTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("Zone"));
+    prodTableModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Subs For"));
+    prodTableModel->setHeaderData(4, Qt::Horizontal, QObject::tr("Category"));
+    prodTableModel->setHeaderData(5, Qt::Horizontal, QObject::tr("Par"));
     prodTableModel->setHeaderData(6, Qt::Horizontal, QObject::tr("Price"));
-    prodTableModel->setHeaderData(7, Qt::Horizontal, QObject::tr("Category"));
-    prodTableModel->setHeaderData(8, Qt::Horizontal, QObject::tr("Volume"));
-    prodTableModel->setHeaderData(9, Qt::Horizontal, QObject::tr("Density"));
+    prodTableModel->setHeaderData(7, Qt::Horizontal, QObject::tr("Size"));
+    prodTableModel->setHeaderData(8, Qt::Horizontal, QObject::tr("Units"));
+    prodTableModel->setHeaderData(9, Qt::Horizontal, QObject::tr("Menu Order"));
+    prodTableModel->setHeaderData(10, Qt::Horizontal, QObject::tr("Density"));
     // Synchronize model with database
     if (!prodTableModel->select()) {
         showError(prodTableModel->lastError());
@@ -115,6 +119,7 @@ void Catalog::newitem()
 
 void Catalog::submit()
 {
+    prodTableView->setSortingEnabled(false);
     // Update the mapping between the database and the
     // QDataWidgetMapper
     if (!prodTableModel->submitAll()) {
@@ -122,6 +127,7 @@ void Catalog::submit()
         this->cancel();
         return;
     }
+    prodTableView->setSortingEnabled(true);
     setButtons();
 }
 
@@ -135,21 +141,26 @@ void Catalog::cancel()
 
 void Catalog::remove()
 {
-    prodTableView->setSortingEnabled(false);
-    // Capture the current index of the record being removed
-    QModelIndex spot = prodTableView->currentIndex();
+    // Don't try to remove a row if none exist
+    if (prodTableModel->rowCount())
+    {
+      prodTableView->setSortingEnabled(false);
 
-    // Remove the row and check result for error.
-    if (!prodTableModel->removeRow(spot.row())) {
-        QSqlError err = prodTableModel->lastError();
-        QMessageBox::warning(this, "Error - Remove Row",
+      // Capture the current index of the record being removed
+      QModelIndex spot = prodTableView->currentIndex();
+
+      // Remove the row and check result for error.
+      if (!prodTableModel->removeRow(spot.row())) {
+	  QSqlError err = prodTableModel->lastError();
+	  QMessageBox::warning(this, "Error - Remove Row",
                              "Reported Error: " + err.text());
-    }
+      }
 
-    // Submit the change to the database
-    this->submit();
-    setButtons();
+      // Submit the change to the database
+      this->submit();
+      setButtons();
     prodTableView->setSortingEnabled(true);
+    }
 }
 
 void Catalog::addItem(const QString &barcode)
