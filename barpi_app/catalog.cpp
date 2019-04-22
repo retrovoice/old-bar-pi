@@ -102,19 +102,14 @@ void Catalog::createLayout()
 
 void Catalog::newitem()
 {
-    prodTableView->setSortingEnabled(false);
-    QVariant row = prodTableModel->rowCount();
-    QString msg = "Row Index [";
-    msg.append( row.toString());
-    msg.append("] out of bounds.");
-
-    int iRow = row.toInt();
-
-    if (!prodTableModel->insertRows(iRow, 1)) {
-        QMessageBox::warning( this,"Inventory::additem", msg );
+    if (!prodTableModel->insertRows(0, 1)) {
+        QMessageBox::warning( this,"Inventory::additem", 
+			      "insertRows operation failed." );
         this->cancel();
+	return;
     }
-    prodTableView->setSortingEnabled(true);
+    prodTableView->selectRow(0);
+    this->dataChanged();
 }
 
 void Catalog::submit()
@@ -133,10 +128,8 @@ void Catalog::submit()
 
 void Catalog::cancel()
 {
-    prodTableView->setSortingEnabled(false);
     prodTableModel->revertAll();
     setButtons();
-    prodTableView->setSortingEnabled(true);
 }
 
 void Catalog::remove()
@@ -144,8 +137,6 @@ void Catalog::remove()
     // Don't try to remove a row if none exist
     if (prodTableModel->rowCount())
     {
-      prodTableView->setSortingEnabled(false);
-
       // Capture the current index of the record being removed
       QModelIndex spot = prodTableView->currentIndex();
 
@@ -159,23 +150,18 @@ void Catalog::remove()
       // Submit the change to the database
       this->submit();
       setButtons();
-    prodTableView->setSortingEnabled(true);
     }
 }
 
 void Catalog::addItem(const QString &barcode)
 {
-    prodTableView->setSortingEnabled(false);
-    QVariant row = prodTableModel->rowCount();
-    QString msg = "Row Index [";
-    msg.append( row.toString());
-    msg.append("] out of bounds.");
-
-    int iRow = row.toInt();
+    int iRow = 0;
 
     if (!prodTableModel->insertRows(iRow, 1)) {
-        QMessageBox::warning( this,"Inventory::additem", msg );
+        QMessageBox::warning( this,"Inventory::additem",
+			      "insertRows failed.");
         this->cancel();
+	return;
     }
 
     int col = prodTableModel->fieldIndex("upccode");
@@ -185,9 +171,10 @@ void Catalog::addItem(const QString &barcode)
         QMessageBox::warning(this, "Error - Remove Row",
                              "Reported Error: " + err.text());
         this->cancel();
+	return;
     }
+    prodTableView->selectRow(iRow);
     this->dataChanged();
-    prodTableView->setSortingEnabled(true);
 }
 
 void Catalog::setButtons(const bool st)
