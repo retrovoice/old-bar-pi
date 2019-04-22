@@ -1,4 +1,5 @@
 #include "stockmanager.h"
+#include "catalog.h"
 
 #include <QMessageBox>
 #include <QLabel>
@@ -22,7 +23,9 @@
 #include <QDateTime>
 #include <QFile>
 #include <QByteArray>
-#include "catalog.h"
+#include <QDateTime>
+#include <QVariant>
+#include <iostream>
 
 StockManager::StockManager(QTabWidget *tabW,
                            Catalog *catalog,
@@ -32,10 +35,9 @@ StockManager::StockManager(QTabWidget *tabW,
 {
     pCat = catalog;
     tW = tabW;
-    tallyTable = new QTableWidget(0, 6, this);
+    tallyTable = new QTableWidget(0, 7, this);
     QStringList labels;
-    //labels << "Count" << "Vendor" << "Item" << "Index" << "Category" << "Zone" << "UPC";
-    labels << "Count" << "Vendor" << "Item" << "Menu Order" << "Category" << "Price";
+    labels << "Count" << "Vendor" << "Item" << "Menu Order" << "Category" << "Price" << "UPC";
     tallyTable->setHorizontalHeaderLabels(labels);
     tallyTable->setMinimumWidth(480);
     tallyTable->setSortingEnabled(true);
@@ -214,14 +216,14 @@ void StockManager::grabBarcode()
             QTableWidgetItem *category = new QTableWidgetItem(this->getDBField(barcode,"category"));
             QTableWidgetItem *menuorder = new QTableWidgetItem(this->getDBField(barcode,"menuorder"));
             QTableWidgetItem *price     = new QTableWidgetItem(this->getDBField(barcode,"price"));
-            //QTableWidgetItem *upc      = new QTableWidgetItem(this->getDBField(barcode,"upccode"));
+            QTableWidgetItem *upc      = new QTableWidgetItem(this->getDBField(barcode,"upccode"));
             tallyTable->setItem(0,0,newCount);
             tallyTable->setItem(0,1,vendor);
             tallyTable->setItem(0,2,product);
             tallyTable->setItem(0,3,menuorder);
             tallyTable->setItem(0,4,category);
             tallyTable->setItem(0,5,price);
-            //tallyTable->setItem(0,6,upc);
+            tallyTable->setItem(0,6,upc);
 
             // Map the product widget item for lookup when incrementing count
             itemMap[barcode] = product;
@@ -276,6 +278,7 @@ void StockManager::finish()
 
     QStringList* itemList = new QStringList;
     QString tempStr;
+    QString tableStr;
     QString filename;
     QTableWidgetItem* count     = new QTableWidgetItem;
     QTableWidgetItem* vendor    = new QTableWidgetItem;
@@ -283,19 +286,32 @@ void StockManager::finish()
     QTableWidgetItem* menuorder = new QTableWidgetItem;
     QTableWidgetItem* category  = new QTableWidgetItem;
     QTableWidgetItem* price     = new QTableWidgetItem;
-    //QTableWidgetItem* upc      = new QTableWidgetItem;
+    QTableWidgetItem* upc      = new QTableWidgetItem;
 
     // Label for file based on operation selected
     if (actionGroup->checkedId()) {
         itemList->append("Stock Count");
         filename.append("Inventory_");
+	tableStr.append(" inventory ");
     } else {
         itemList->append("Stock Received");
         filename.append("Received_");
+	tableStr.append(" invoicedetails ");
     }
 
     // Date/Time stamp for file
     QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
+
+    // Integer value of date/time used for database record.
+    QVariant datetimeInt = currentDateTime.toTime_t();
+    
+    // Create a query used to write records to the database.
+    QSqlQuery query;
+    QString querytext;
+    // Set query command string for appropriate table
+    // Will later append lines for each record
+    querytext.append("INSERT INTO" + tableStr + "VALUES ");
+
 
     // Format string for how date/time will be written for the file
     QString format = "MM/dd/yyyy,hh:mm:ss";
@@ -303,7 +319,7 @@ void StockManager::finish()
 
     // Format string for how date/time will be written for the filename
     format.clear();
-    format.append("MM-dd-yyyy_hh-mm-ss");
+    format.append("yyyy-MM-dd_hh-mm-ss");
     filename.append(currentDateTime.toString(format));
     filename.append(".csv");
 
@@ -327,7 +343,9 @@ void StockManager::finish()
 	invTotal += stockvalue;
 	QString valuetext;
 	valuetext.setNum(stockvalue);
-	//upc  = tallyTable->item(i,6);
+	upc  = tallyTable->item(i,6);
+	
+	// build the string that will be written to the CSV file
         tempStr.append(count->text());
         tempStr.append(",");
         tempStr.append(vendor->text());
@@ -345,7 +363,18 @@ void StockManager::finish()
         //tempStr.append(upc->text());
         itemList->append(tempStr);
         tempStr.clear();
+	
+	// Build line of query for the current record
+	querytext.append("(" + datetimeInt.toString() + ",'" + upc->text() + "'," + count->text() + "),");
     }
+    // The trailing comma of the querystring needs to be removed
+    int stLength = querytext.length();
+    querytext.resize(stLength - 1);
+    std::cout << "StockManager::finish - SQL String is:\n";
+    std::cout << "\t" << querytext.toStdString() << std::endl; 
+    // Execute the query
+    query.exec(querytext);
+
     QString fivecommas(",,,,,");
     QString valueTotal;
     valueTotal.setNum(invTotal);

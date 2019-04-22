@@ -155,7 +155,7 @@ void DatabaseDialog::initdb()
   "density real)");
   
   query.exec("create table inventory ("
-  "date integer primary key,"
+  "date integer,"
   "upccode varchar(15) references products(upccode),"
   "quantity real)");
   
