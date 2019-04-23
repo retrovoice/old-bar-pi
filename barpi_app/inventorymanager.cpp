@@ -380,7 +380,7 @@ void InventoryManager::report()
             aline.clear();
         }
     }
-    //this->cleartable();
+    reportButton->setEnabled(false);
     tallyTable->setSortingEnabled(true);
 }
 
