@@ -1,5 +1,5 @@
-#ifndef STOCKMANAGER_H
-#define STOCKMANAGER_H
+#ifndef INVENTORYMANAGER_H
+#define INVENTORYMANAGER_H
 
 #include <QWidget>
 #include <QMap>
@@ -10,6 +10,7 @@ class QLayout;
 class QLineEdit;
 class QLCDNumber;
 class QButtonGroup;
+class QPushButton;
 class QTabWidget;
 class QTableWidget;
 class QTableWidgetItem;
@@ -17,11 +18,11 @@ class QHeaderView;
 class Catalog;
 QT_END_NAMESPACE
 
-class StockManager : public QWidget
+class InventoryManager : public QWidget
 {
     Q_OBJECT
 public:
-    explicit StockManager(QTabWidget* tabW,
+    explicit InventoryManager(QTabWidget* tabW,
                           Catalog* catalog,
                           QWidget *parent = 0);
 
@@ -33,7 +34,8 @@ private slots:
     void startscanning();
     void grabBarcode();
     void cleartable();
-    void finish();
+    void commit();
+    void report();
     void decrement();
     void refocus();
 
@@ -41,6 +43,7 @@ private:
 
     void createLayout();
     QLayout* createScanLayout();
+    void enableButtons(bool st);
 
     int scanCount;
     QLineEdit* scanValue;
@@ -51,6 +54,11 @@ private:
     QTableWidget* tallyTable;
     QHeaderView*  tallyHeader;
     QMap<QString,QTableWidgetItem*> itemMap;
+    
+    QPushButton* startButton;
+    QPushButton* commitButton;
+    QPushButton* reportButton;
+    QPushButton* resetButton;
 
     bool checkDB(QString barcode);
     QString getDBField(QString barcode, QString field);
@@ -61,4 +69,4 @@ private:
 
 };
 
-#endif // STOCKMANAGER_H
+#endif // INVENTORYMANAGER_H

@@ -2,7 +2,7 @@
 #include "catalog.h"
 #include "inventory.h"
 #include "databasedialog.h"
-#include "stockmanager.h"
+#include "inventorymanager.h"
 
 #include <QGridLayout>
 #include <QTabWidget>
@@ -109,9 +109,9 @@ void MainWindow::createTabs()
     // prodInventory = new Inventory(this);
 
     // The interface for managing stock
-    stockMgr = new StockManager(tabs, prodCatalog, this);
+    inventoryMgr = new InventoryManager(tabs, prodCatalog, this);
 
-    tabs->addTab(stockMgr,tr("Stock Manager"));
+    tabs->addTab(inventoryMgr,tr("Inventory Manager"));
     tabs->addTab(prodCatalog,tr("Catalog"));
     // tabs->addTab(prodInventory,tr("Inventory"));
     // tabs->addTab(dbDialog,tr("Database"));

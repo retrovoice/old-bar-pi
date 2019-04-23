@@ -9,7 +9,7 @@ class DatabaseDialog;
 class Catalog;
 class Inventory;
 class DatabaseDialog;
-class StockManager;
+class InventoryManager;
 class QPushButton;
 class QString;
 class QTabWidget;
@@ -33,7 +33,7 @@ protected:
 
     Catalog *prodCatalog;
     Inventory *prodInventory;
-    StockManager *stockMgr;
+    InventoryManager *inventoryMgr;
     DatabaseDialog *dbDialog;
 
 private:

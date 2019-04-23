@@ -1,4 +1,4 @@
-#include "stockmanager.h"
+#include "inventorymanager.h"
 #include "catalog.h"
 
 #include <QMessageBox>
@@ -27,7 +27,7 @@
 #include <QVariant>
 #include <iostream>
 
-StockManager::StockManager(QTabWidget *tabW,
+InventoryManager::InventoryManager(QTabWidget *tabW,
                            Catalog *catalog,
                            QWidget *parent) :
     QWidget(parent),
@@ -45,36 +45,42 @@ StockManager::StockManager(QTabWidget *tabW,
     this->createLayout();
 }
 
-void StockManager::createLayout()
+void InventoryManager::createLayout()
 {
-    QPushButton* addtostockButton = new QPushButton(tr("Add to Stock"),this);
-    addtostockButton->setCheckable(true);
-    addtostockButton->setChecked(true);
+//     QPushButton* addtostockButton = new QPushButton(tr("Add to Stock"),this);
+//     addtostockButton->setCheckable(true);
+//     addtostockButton->setChecked(true);
+// 
+//     QPushButton* countstockButton = new QPushButton(tr("Count Stock"),this);
+//     countstockButton->setCheckable(true);
+// 
+     QLabel* stockLabel = new QLabel(tr("Inventory Stock"),this);
+     stockLabel->setAlignment(Qt::AlignHCenter);
+// 
+//     actionGroup = new QButtonGroup;
+//     actionGroup->addButton(addtostockButton);
+//     actionGroup->setId(addtostockButton,0);
+//     actionGroup->addButton(countstockButton);
+//     actionGroup->setId(countstockButton,1);
 
-    QPushButton* countstockButton = new QPushButton(tr("Count Stock"),this);
-    countstockButton->setCheckable(true);
-
-    QLabel* stockLabel = new QLabel(tr("Manage Stock"),this);
-    stockLabel->setAlignment(Qt::AlignHCenter);
-
-    actionGroup = new QButtonGroup;
-    actionGroup->addButton(addtostockButton);
-    actionGroup->setId(addtostockButton,0);
-    actionGroup->addButton(countstockButton);
-    actionGroup->setId(countstockButton,1);
-
-    QLabel* directions = new QLabel(tr("Select operation above "
-                                       "then click:\n\"Start\" "
+//     QLabel* directions = new QLabel(tr("Select operation above "
+//                                        "then click:\n\"Start\" "
+//                                        "to begin "
+//                                        "scanning barcodes.\n"
+//                                        "\"Finish\" when done.\n"
+//                                        "\"Cancel\" to abort.\n"),this);
+    QLabel* directions = new QLabel(tr("Click:\"Start\" "
                                        "to begin "
                                        "scanning barcodes.\n"
-                                       "\"Finish\" when done.\n"
+                                       "When done, click \"Commit\" to store in database.\n"
+                                       "Click \"Report\" to write to CSV file.\n"
                                        "\"Cancel\" to abort.\n"),this);
     directions->setWordWrap(true);
 
     QVBoxLayout* buttonLayout = new QVBoxLayout;
     buttonLayout->addWidget(stockLabel);
-    buttonLayout->addWidget(addtostockButton);
-    buttonLayout->addWidget(countstockButton);
+//    buttonLayout->addWidget(addtostockButton);
+//    buttonLayout->addWidget(countstockButton);
     buttonLayout->addWidget(directions);
     buttonLayout->addSpacing(3);
 
@@ -115,11 +121,10 @@ void StockManager::createLayout()
     smLayout->addLayout(bottleLayout,2,0);
     smLayout->addWidget(tallyTable, 0, 1, 3, 1);
     smLayout->setColumnStretch(1,3);
-    this->setLayout(smLayout);
-    
+    this->setLayout(smLayout);    
 }
 
-QLayout *StockManager::createScanLayout()
+QLayout *InventoryManager::createScanLayout()
 {
     QLabel* lcdLabel = new QLabel("Scan Counter\n(counts successful scans)");
     lcdLabel->setAlignment(Qt::AlignCenter);
@@ -133,14 +138,16 @@ QLayout *StockManager::createScanLayout()
     connect (scanValue, SIGNAL(returnPressed()), this, SLOT(grabBarcode()));
     connect (tallyHeader, SIGNAL(sectionResized(int,int,int)), this, SLOT(refocus()));
 
-    QPushButton* startButton  = new QPushButton(tr("Start"));
-    QPushButton* finishButton = new QPushButton(tr("Finish"));
-    QPushButton* cancelButton = new QPushButton(tr("Cancel"));
+    startButton  = new QPushButton(tr("Start"));
+    commitButton = new QPushButton(tr("Commit"));
+    reportButton = new QPushButton(tr("Report"));
+    resetButton = new QPushButton(tr("Reset"));
     QPushButton* decrementButton = new QPushButton(tr("Decrement"));
 
     connect (startButton,  SIGNAL(clicked(bool)), this, SLOT(startscanning()));
-    connect (finishButton, SIGNAL(clicked(bool)), this, SLOT(finish()));
-    connect (cancelButton, SIGNAL(clicked(bool)), this, SLOT(cleartable()));
+    connect (commitButton, SIGNAL(clicked(bool)), this, SLOT(commit()));
+    connect (reportButton, SIGNAL(clicked(bool)), this, SLOT(report()));
+    connect (resetButton, SIGNAL(clicked(bool)), this, SLOT(cleartable()));
     connect (decrementButton, SIGNAL(clicked(bool)), this, SLOT(decrement()));
 
     QVBoxLayout* scanLayout = new QVBoxLayout;
@@ -150,22 +157,24 @@ QLayout *StockManager::createScanLayout()
     scanLayout->addWidget(bcLabel);
     scanLayout->addWidget(scanValue);
     scanLayout->addWidget(startButton);
-    scanLayout->addWidget(finishButton);
-    scanLayout->addWidget(cancelButton);
+    scanLayout->addWidget(commitButton);
+    scanLayout->addWidget(reportButton);
+    scanLayout->addWidget(resetButton);
     scanLayout->addWidget(decrementButton);
     scanLayout->addStretch(2);
 
     return scanLayout;
 }
 
-void StockManager::startscanning()
+void InventoryManager::startscanning()
 {
     scanValue->setFocus();
     scanValue->clear();
     scanValue->setReadOnly(false);
+    startButton->setEnabled(false);
 }
 
-void StockManager::grabBarcode()
+void InventoryManager::grabBarcode()
 {
     QString barcode = scanValue->text();
     tallyTable->setSortingEnabled(false);
@@ -256,7 +265,7 @@ void StockManager::grabBarcode()
     tallyTable->setSortingEnabled(true);
 }
 
-void StockManager::cleartable()
+void InventoryManager::cleartable()
 {
     tallyTable->setSortingEnabled(false);
     int r = tallyTable->rowCount();
@@ -269,10 +278,11 @@ void StockManager::cleartable()
     scanValue->setReadOnly(true);
     scanTally.clear();
     itemMap.clear();
+    this->enableButtons(true);
     tallyTable->setSortingEnabled(true);
 }
 
-void StockManager::finish()
+void InventoryManager::report()
 {
     tallyTable->setSortingEnabled(false);
 
@@ -289,29 +299,12 @@ void StockManager::finish()
     QTableWidgetItem* upc      = new QTableWidgetItem;
 
     // Label for file based on operation selected
-    if (actionGroup->checkedId()) {
-        itemList->append("Stock Count");
-        filename.append("Inventory_");
-	tableStr.append(" inventory ");
-    } else {
-        itemList->append("Stock Received");
-        filename.append("Received_");
-	tableStr.append(" invoicedetails ");
-    }
+    itemList->append("Stock Count");
+    filename.append("Inventory_");
+    tableStr.append(" inventory ");
 
     // Date/Time stamp for file
     QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
-
-    // Integer value of date/time used for database record.
-    QVariant datetimeInt = currentDateTime.toTime_t();
-    
-    // Create a query used to write records to the database.
-    QSqlQuery query;
-    QString querytext;
-    // Set query command string for appropriate table
-    // Will later append lines for each record
-    querytext.append("INSERT INTO" + tableStr + "VALUES ");
-
 
     // Format string for how date/time will be written for the file
     QString format = "MM/dd/yyyy,hh:mm:ss";
@@ -363,17 +356,7 @@ void StockManager::finish()
         //tempStr.append(upc->text());
         itemList->append(tempStr);
         tempStr.clear();
-	
-	// Build line of query for the current record
-	querytext.append("(" + datetimeInt.toString() + ",'" + upc->text() + "'," + count->text() + "),");
     }
-    // The trailing comma of the querystring needs to be removed
-    int stLength = querytext.length();
-    querytext.resize(stLength - 1);
-    std::cout << "StockManager::finish - SQL String is:\n";
-    std::cout << "\t" << querytext.toStdString() << std::endl; 
-    // Execute the query
-    query.exec(querytext);
 
     QString fivecommas(",,,,,");
     QString valueTotal;
@@ -397,11 +380,52 @@ void StockManager::finish()
             aline.clear();
         }
     }
-    this->cleartable();
+    //this->cleartable();
     tallyTable->setSortingEnabled(true);
 }
 
-void StockManager::decrement()
+void InventoryManager::commit()
+{
+    tallyTable->setSortingEnabled(false);
+
+    QTableWidgetItem* count     = new QTableWidgetItem;
+    QTableWidgetItem* upc      = new QTableWidgetItem;
+
+    // Date/Time value for Date field in DB
+    QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
+
+    // Integer value of date/time used for database record.
+    QVariant datetimeInt = currentDateTime.toTime_t();
+    
+    // Create a query used to write records to the database.
+    QSqlQuery query;
+    QString querytext;
+    // Set query command string for appropriate table
+    // Will later append lines for each record
+    querytext.append("INSERT INTO inventory VALUES ");
+
+    // Loop through table, adding data to list
+    for (int i = 0; i < tallyTable->rowCount(); i++) {
+        count    = tallyTable->item(i,0);
+	upc  = tallyTable->item(i,6);
+	// Build line of query for the current record
+	querytext.append("(" + datetimeInt.toString() + ",'" + upc->text() + "'," + count->text() + "),");
+    }
+    // The trailing comma of the querystring needs to be removed
+    int stLength = querytext.length();
+    querytext.resize(stLength - 1);
+    std::cout << "StockManager::finish - SQL String is:\n";
+    std::cout << "\t" << querytext.toStdString() << std::endl; 
+    // Execute the query, storing inventory counts in database
+    query.exec(querytext);
+    
+    commitButton->setEnabled(false);
+
+    tallyTable->setSortingEnabled(true);
+
+}
+
+void InventoryManager::decrement()
 {
     tallyTable->setSortingEnabled(false);
     int rows = tallyTable->rowCount();
@@ -431,12 +455,12 @@ void StockManager::decrement()
     tallyTable->setSortingEnabled(true);
 }
 
-void StockManager::refocus()
+void InventoryManager::refocus()
 {
     scanValue->setFocus();
 }
 
-bool StockManager::checkDB(QString barcode)
+bool InventoryManager::checkDB(QString barcode)
 {
     bool found(false);
     QSqlQuery query("SELECT upccode FROM products;");
@@ -456,7 +480,7 @@ bool StockManager::checkDB(QString barcode)
     return found;
 }
 
-QString StockManager::getDBField(QString barcode, QString field)
+QString InventoryManager::getDBField(QString barcode, QString field)
 {
     QString result("");
 
@@ -480,7 +504,7 @@ QString StockManager::getDBField(QString barcode, QString field)
     return result;
 }
 
-QString StockManager::getUPC(QString label)
+QString InventoryManager::getUPC(QString label)
 {
     QString result("");
 
@@ -500,4 +524,12 @@ QString StockManager::getUPC(QString label)
         result.append(labelQuery.value(0).toString());
     }
     return result;
+}
+
+void InventoryManager::enableButtons(bool st)
+{
+  startButton->setEnabled(st);
+  commitButton->setEnabled(st);
+  startButton->setEnabled(st);
+  reportButton->setEnabled(st);
 }

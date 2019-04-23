@@ -112,7 +112,15 @@ set ( OUTPUT_NAME barpi )
 
 file ( GLOB SOURCES *.cpp )
 
-set (Q_OBJECT_HEADERS mainwindow.h catalog.h databasedialog.h inventory.h stockmanager.h bpscan.h scannerdialog.h)
+set (Q_OBJECT_HEADERS
+  mainwindow.h
+  catalog.h
+  databasedialog.h
+  inventory.h
+  inventorymanager.h
+  invoicemanager.h
+  bpscan.h
+  scannerdialog.h)
 #set (Q_OBJECT_HEADERS catalogue.h )
 
 qt4_wrap_cpp( MOCD_FILES ${Q_OBJECT_HEADERS} )
