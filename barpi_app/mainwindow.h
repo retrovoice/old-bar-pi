@@ -10,6 +10,7 @@ class Catalog;
 class Inventory;
 class DatabaseDialog;
 class InventoryManager;
+class InvoiceManager;
 class QPushButton;
 class QString;
 class QTabWidget;
@@ -32,8 +33,9 @@ public:
 protected:
 
     Catalog *prodCatalog;
-    Inventory *prodInventory;
+    //Inventory *prodInventory;
     InventoryManager *inventoryMgr;
+    InvoiceManager   *invoiceMgr;
     DatabaseDialog *dbDialog;
 
 private:

@@ -4,17 +4,20 @@
 #include <QWidget>
 #include <QMap>
 
+#include "catalog.h"
+
 QT_BEGIN_NAMESPACE
 class QString;
+class QLabel;
 class QLayout;
 class QLineEdit;
-class QLCDNumber;
-class QButtonGroup;
+class QComboBox;
+class QPushButton;
+class QDateTimeEdit;
 class QTabWidget;
 class QTableWidget;
 class QTableWidgetItem;
 class QHeaderView;
-class Catalog;
 QT_END_NAMESPACE
 
 class InvoiceManager : public QWidget
@@ -30,34 +33,32 @@ signals:
 public slots:
 
 private slots:
-    void startscanning();
-    void grabBarcode();
-    void cleartable();
-    void finish();
-    void decrement();
+    void newinvoice();
+    void reset();
+    void enterinvoice();
     void refocus();
 
 private:
 
     void createLayout();
-    QLayout* createScanLayout();
 
-    int scanCount;
-    QLineEdit* scanValue;
-    QMap<QString,float> scanTally;
-    QLCDNumber* scanCounter;
-    QButtonGroup* actionGroup;
-    QButtonGroup* volumeGroup;
-    QTableWidget* tallyTable;
-    QHeaderView*  tallyHeader;
+    QPushButton*   addInvoiceButton;
+    QPushButton*   commitButton;
+    QPushButton*   recallButton;
+    QDateTimeEdit* dateEditBox;
+    QComboBox*     vendorBox;
+    QLineEdit*     invoiceNumberEdit;
+    QLineEdit*     invoiceCost;
+    QLabel*        vendorLabel;
+    QLabel*        invoiceNumLabel;
+    QLabel*        invoiceCostLabel;
+    QTableWidget*  invoiceDetailsTable;
+    QHeaderView*   invoiceDetailsHeader;
     QMap<QString,QTableWidgetItem*> itemMap;
-
+    
     bool checkDB(QString barcode);
     QString getDBField(QString barcode, QString field);
     QString getUPC(QString label);
-
-    Catalog* pCat;
-    QTabWidget* tW;
 
 };
 

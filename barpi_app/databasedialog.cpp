@@ -168,10 +168,11 @@ void DatabaseDialog::initdb()
   "id integer primary key,"
   "invoice integer references invoice(invoicenumber),"
   "product varchar(30) references products(upccode),"
+  "quantity real,"
   "price real,"
   "discount real,"
-  "netprice real,"
-  "quantity real)");
+  "netprice real)"
+  );
   
   query.exec("create table sales ("
   "id integer primary key,"

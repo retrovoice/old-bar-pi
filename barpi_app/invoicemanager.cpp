@@ -12,269 +12,123 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
-#include <QButtonGroup>
-#include <QLCDNumber>
 #include <QLineEdit>
 #include <QSqlQuery>
 #include <QTabWidget>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QHeaderView>
-#include <QDateTime>
+#include <QDate>
+#include <QDateTimeEdit>
+#include <QComboBox>
 #include <QFile>
 #include <QByteArray>
 #include <QDateTime>
 #include <QVariant>
+#include <QCalendarWidget>
 #include <iostream>
 
 InvoiceManager::InvoiceManager(QTabWidget *tabW,
                            Catalog *catalog,
                            QWidget *parent) :
-    QWidget(parent),
-    scanCount(0)
+    QWidget(parent)
 {
-    pCat = catalog;
-    tW = tabW;
-    tallyTable = new QTableWidget(0, 7, this);
+    invoiceDetailsTable = new QTableWidget(0, 5, this);
     QStringList labels;
-    labels << "Count" << "Vendor" << "Item" << "Menu Order" << "Category" << "Price" << "UPC";
-    tallyTable->setHorizontalHeaderLabels(labels);
-    tallyTable->setMinimumWidth(480);
-    tallyTable->setSortingEnabled(true);
-    tallyHeader = tallyTable->horizontalHeader();
+    labels << "Item" << "Qty" << "Price" << "Disc" << "Net";
+    invoiceDetailsTable->setHorizontalHeaderLabels(labels);
+    invoiceDetailsTable->setMinimumWidth(480);
+    invoiceDetailsTable->setSortingEnabled(true);
+    invoiceDetailsHeader = invoiceDetailsTable->horizontalHeader();
     this->createLayout();
 }
 
 void InvoiceManager::createLayout()
 {
-    QPushButton* addtostockButton = new QPushButton(tr("Add to Stock"),this);
-    addtostockButton->setCheckable(true);
-    addtostockButton->setChecked(true);
+    addInvoiceButton = new QPushButton(tr("New Invoice"),this);
+    commitButton = new QPushButton(tr("Commit"),this);
+    recallButton = new QPushButton(tr("Recall"),this);
+    dateEditBox = new QDateTimeEdit;
+    
+    // Format string for how date/time will be appear in dateEditBox
+    QString format = "MM/dd/yyyy";
+    dateEditBox->setDisplayFormat(format);
+    QDate currentDate(QDate::currentDate());
+    dateEditBox->setDate(currentDate);
+    dateEditBox->setCalendarPopup(true);
+    QCalendarWidget* calendar = new QCalendarWidget;
+    dateEditBox->setCalendarWidget(calendar);
+    
+    vendorBox = new QComboBox;
+    vendorLabel = new QLabel(tr("Vendor"));
+    vendorLabel->setBuddy(vendorBox);
+    
+    invoiceNumberEdit = new QLineEdit;
+    invoiceNumLabel = new QLabel(tr("Invoice No."));
+    invoiceNumLabel->setBuddy(invoiceNumberEdit);
+    
+    invoiceCost = new QLineEdit;
+    invoiceCostLabel = new QLabel(tr("Cost"));
+    invoiceCostLabel->setBuddy(invoiceCost);
+    
+    addInvoiceButton->setEnabled(true);
+    commitButton->setEnabled(false);
 
-    QPushButton* countstockButton = new QPushButton(tr("Count Stock"),this);
-    countstockButton->setCheckable(true);
-
-    QLabel* stockLabel = new QLabel(tr("Manage Stock"),this);
+    QLabel* stockLabel = new QLabel(tr("Invoice Management"),this);
     stockLabel->setAlignment(Qt::AlignHCenter);
 
-    actionGroup = new QButtonGroup;
-    actionGroup->addButton(addtostockButton);
-    actionGroup->setId(addtostockButton,0);
-    actionGroup->addButton(countstockButton);
-    actionGroup->setId(countstockButton,1);
-
-    QLabel* directions = new QLabel(tr("Select operation above "
-                                       "then click:\n\"Start\" "
-                                       "to begin "
-                                       "scanning barcodes.\n"
-                                       "\"Finish\" when done.\n"
-                                       "\"Cancel\" to abort.\n"),this);
-    directions->setWordWrap(true);
-
-    QVBoxLayout* buttonLayout = new QVBoxLayout;
-    buttonLayout->addWidget(stockLabel);
-    buttonLayout->addWidget(addtostockButton);
-    buttonLayout->addWidget(countstockButton);
-    buttonLayout->addWidget(directions);
-    buttonLayout->addSpacing(3);
-
-    QLabel* volumeLabel = new QLabel(tr("Volume"),this);
-    volumeLabel->setAlignment(Qt::AlignHCenter);
-
-    volumeGroup = new QButtonGroup;
-    QRadioButton* fullBottle         = new QRadioButton;
-    QRadioButton* threequarterBottle = new QRadioButton;
-    QRadioButton* halfBottle         = new QRadioButton;
-    QRadioButton* onequarterBottle   = new QRadioButton;
+    QHBoxLayout* buttonRowOneLayout = new QHBoxLayout;
+    buttonRowOneLayout->addWidget(addInvoiceButton);
+    buttonRowOneLayout->addWidget(commitButton);
+    buttonRowOneLayout->addWidget(recallButton);
     
-    fullBottle->setText(tr("Full"));
-    threequarterBottle->setText(tr("3/4"));
-    halfBottle->setText(tr("1/2"));
-    onequarterBottle->setText(tr("1/4"));
-    volumeGroup->addButton(fullBottle);
-    volumeGroup->setId(fullBottle,0);
-    volumeGroup->addButton(threequarterBottle);
-    volumeGroup->setId(threequarterBottle,1);
-    volumeGroup->addButton(halfBottle);
-    volumeGroup->setId(halfBottle,2);
-    volumeGroup->addButton(onequarterBottle);
-    volumeGroup->setId(onequarterBottle,3);
-    volumeGroup->setExclusive(true);
-    fullBottle->setChecked(true);
+    QHBoxLayout* rowTwoLabelLayout = new QHBoxLayout;
+    rowTwoLabelLayout->addWidget(vendorLabel);
+    rowTwoLabelLayout->addWidget(invoiceNumLabel);
+    rowTwoLabelLayout->addWidget(invoiceCostLabel);
     
-    QVBoxLayout* bottleLayout = new QVBoxLayout;
-    bottleLayout->addWidget(volumeLabel);
-    bottleLayout->addWidget(fullBottle);
-    bottleLayout->addWidget(threequarterBottle);
-    bottleLayout->addWidget(halfBottle);
-    bottleLayout->addWidget(onequarterBottle);
+    QHBoxLayout* buttonRowTwoLayout = new QHBoxLayout;
+    buttonRowTwoLayout->addWidget(dateEditBox);
+    buttonRowTwoLayout->addWidget(vendorBox);
+    buttonRowTwoLayout->addWidget(invoiceNumberEdit);
+    buttonRowTwoLayout->addWidget(invoiceCost);
     
-    QGridLayout* smLayout = new QGridLayout;
-    smLayout->addLayout(buttonLayout, 0, 0);
-    smLayout->addLayout(this->createScanLayout(), 1, 0);
-    smLayout->addLayout(bottleLayout,2,0);
-    smLayout->addWidget(tallyTable, 0, 1, 3, 1);
-    smLayout->setColumnStretch(1,3);
-    this->setLayout(smLayout);
+
+    QVBoxLayout* mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(stockLabel);
+    mainLayout->addLayout(buttonRowOneLayout);
+    mainLayout->addLayout(rowTwoLabelLayout);
+    mainLayout->addLayout(buttonRowTwoLayout);
+    mainLayout->addWidget(invoiceDetailsTable);
+
+    this->setLayout(mainLayout);
     
 }
 
-QLayout *InvoiceManager::createScanLayout()
+
+void InvoiceManager::newinvoice()
 {
-    QLabel* lcdLabel = new QLabel("Scan Counter\n(counts successful scans)");
-    lcdLabel->setAlignment(Qt::AlignCenter);
-    scanCounter = new QLCDNumber;
-    QLabel* bcLabel = new QLabel("Barcode");
-    bcLabel->setAlignment(Qt::AlignCenter);
-    scanValue   = new QLineEdit("---");
-    scanValue->setAlignment(Qt::AlignHCenter);
-    scanValue->setReadOnly(true);
-
-    connect (scanValue, SIGNAL(returnPressed()), this, SLOT(grabBarcode()));
-    connect (tallyHeader, SIGNAL(sectionResized(int,int,int)), this, SLOT(refocus()));
-
-    QPushButton* startButton  = new QPushButton(tr("Start"));
-    QPushButton* finishButton = new QPushButton(tr("Finish"));
-    QPushButton* cancelButton = new QPushButton(tr("Cancel"));
-    QPushButton* decrementButton = new QPushButton(tr("Decrement"));
-
-    connect (startButton,  SIGNAL(clicked(bool)), this, SLOT(startscanning()));
-    connect (finishButton, SIGNAL(clicked(bool)), this, SLOT(finish()));
-    connect (cancelButton, SIGNAL(clicked(bool)), this, SLOT(cleartable()));
-    connect (decrementButton, SIGNAL(clicked(bool)), this, SLOT(decrement()));
-
-    QVBoxLayout* scanLayout = new QVBoxLayout;
-
-    scanLayout->addWidget(lcdLabel);
-    scanLayout->addWidget(scanCounter);
-    scanLayout->addWidget(bcLabel);
-    scanLayout->addWidget(scanValue);
-    scanLayout->addWidget(startButton);
-    scanLayout->addWidget(finishButton);
-    scanLayout->addWidget(cancelButton);
-    scanLayout->addWidget(decrementButton);
-    scanLayout->addStretch(2);
-
-    return scanLayout;
+    invoiceNumberEdit->setFocus();
+    invoiceNumberEdit->clear();
+    invoiceNumberEdit->setReadOnly(false);
 }
 
-void InvoiceManager::startscanning()
+void InvoiceManager::reset()
 {
-    scanValue->setFocus();
-    scanValue->clear();
-    scanValue->setReadOnly(false);
-}
-
-void InvoiceManager::grabBarcode()
-{
-    QString barcode = scanValue->text();
-    tallyTable->setSortingEnabled(false);
-    
-    
-
-    if (this->checkDB(barcode)) {
-
-        QString itemLabel = this->getDBField(barcode, "label");
-	
-	// Check the volume radio button to determine
-	// full or partial bottle to add to count
-	int vol = volumeGroup->checkedId();
-
-        // Check the QMap to see if this product has
-        // already been scanned.  If so, increment the count.
-        if (scanTally.contains(barcode)) {
-
-	    float qty = 1. - vol * 0.25;
-            scanTally[barcode] = scanTally.value(barcode) + qty;
-
-            // This item is already in the table, so need the row
-            // number of the table displayed in the GUI in order
-            // to increment the count.  Use the itemMap to
-            // retreive the previously created QTableWidgetItem
-            // to locate the correct row in the table.
-            int i = tallyTable->row(itemMap.value(barcode));
-            QTableWidgetItem *newCount =
-                    new QTableWidgetItem(tr("%1").arg(scanTally.value(barcode)));
-            tallyTable->setItem(i,0,newCount);
-
-        } else {
-
-            // First scan of this product so create an instance
-            // in the scan tally map.
-
-	    float qty = 1. - vol * 0.25;
-            scanTally[barcode] = qty;
-
-            // Insert a new row at the top of the table for the
-            // first instance of this product being scanned
-            tallyTable->insertRow(0);
-
-            // Create a table item based on the query result
-            QTableWidgetItem *newCount = new QTableWidgetItem(tr("%1").arg(qty));
-            QTableWidgetItem *product  = new QTableWidgetItem(itemLabel);
-            QTableWidgetItem *vendor   = new QTableWidgetItem(this->getDBField(barcode,"vendor"));
-            QTableWidgetItem *category = new QTableWidgetItem(this->getDBField(barcode,"category"));
-            QTableWidgetItem *menuorder = new QTableWidgetItem(this->getDBField(barcode,"menuorder"));
-            QTableWidgetItem *price     = new QTableWidgetItem(this->getDBField(barcode,"price"));
-            QTableWidgetItem *upc      = new QTableWidgetItem(this->getDBField(barcode,"upccode"));
-            tallyTable->setItem(0,0,newCount);
-            tallyTable->setItem(0,1,vendor);
-            tallyTable->setItem(0,2,product);
-            tallyTable->setItem(0,3,menuorder);
-            tallyTable->setItem(0,4,category);
-            tallyTable->setItem(0,5,price);
-            tallyTable->setItem(0,6,upc);
-
-            // Map the product widget item for lookup when incrementing count
-            itemMap[barcode] = product;
-        }
-
-        scanCount += 1;
-        if (!scanCounter->checkOverflow(scanCount)) {
-            scanCounter->display(scanCount);
-        }
-    } else {
-        // Dialog to add product to catalog
-        QMessageBox dBox;
-        dBox.setText("UPC not in Catalog.");
-        dBox.setInformativeText("Add this Item to the Catalog?");
-        dBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        dBox.setDefaultButton(QMessageBox::Ok);
-        int ret = dBox.exec();
-        switch (ret) {
-        case QMessageBox::Ok:
-            tW->setCurrentIndex(1);
-            pCat->addItem(barcode);
-            break;
-        case QMessageBox::Cancel:
-            break;
-        default:
-            break;
-        }
-    }
-    scanValue->clear();
-    tallyTable->setSortingEnabled(true);
-}
-
-void InvoiceManager::cleartable()
-{
-    tallyTable->setSortingEnabled(false);
-    int r = tallyTable->rowCount();
+    invoiceDetailsTable->setSortingEnabled(false);
+    int r = invoiceDetailsTable->rowCount();
     for (r--; r >= 0; r--) {
-        tallyTable->removeRow(r);
+        invoiceDetailsTable->removeRow(r);
     }
-    scanCount = 0;
-    scanCounter->display(scanCount);
-    scanValue->setText("---");
-    scanValue->setReadOnly(true);
-    scanTally.clear();
+    invoiceNumberEdit->setText("---");
+    invoiceNumberEdit->setReadOnly(true);
     itemMap.clear();
-    tallyTable->setSortingEnabled(true);
+    invoiceDetailsTable->setSortingEnabled(true);
 }
 
-void InvoiceManager::finish()
+void InvoiceManager::enterinvoice()
 {
-    tallyTable->setSortingEnabled(false);
+    invoiceDetailsTable->setSortingEnabled(false);
 
     QStringList* itemList = new QStringList;
     QString tempStr;
@@ -289,15 +143,9 @@ void InvoiceManager::finish()
     QTableWidgetItem* upc      = new QTableWidgetItem;
 
     // Label for file based on operation selected
-    if (actionGroup->checkedId()) {
-        itemList->append("Stock Count");
-        filename.append("Inventory_");
-	tableStr.append(" inventory ");
-    } else {
         itemList->append("Stock Received");
         filename.append("Received_");
 	tableStr.append(" invoicedetails ");
-    }
 
     // Date/Time stamp for file
     QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
@@ -324,7 +172,7 @@ void InvoiceManager::finish()
     filename.append(".csv");
 
     // Number of rows of data
-    int r = tallyTable->rowCount();
+    int r = invoiceDetailsTable->rowCount();
 
     // Add column headings
     //itemList->append("Count,Vendor,Description,Index,Category,Price,Value");
@@ -333,17 +181,17 @@ void InvoiceManager::finish()
     float invTotal = 0.;
     // Loop through table, adding data to list
     for (int i = 0; i < r; i++) {
-        count    = tallyTable->item(i,0);
-        vendor     = tallyTable->item(i,1);
-        product  = tallyTable->item(i,2);
-        menuorder   = tallyTable->item(i,3);
+        count    = invoiceDetailsTable->item(i,0);
+        vendor     = invoiceDetailsTable->item(i,1);
+        product  = invoiceDetailsTable->item(i,2);
+        menuorder   = invoiceDetailsTable->item(i,3);
         //category = tallyTable->item(i,4);
-        price = tallyTable->item(i,5);
+        price = invoiceDetailsTable->item(i,5);
 	float stockvalue = count->text().toFloat() * price->text().toFloat();
 	invTotal += stockvalue;
 	QString valuetext;
 	valuetext.setNum(stockvalue);
-	upc  = tallyTable->item(i,6);
+	upc  = invoiceDetailsTable->item(i,6);
 	
 	// build the string that will be written to the CSV file
         tempStr.append(count->text());
@@ -397,43 +245,13 @@ void InvoiceManager::finish()
             aline.clear();
         }
     }
-    this->cleartable();
-    tallyTable->setSortingEnabled(true);
-}
-
-void InvoiceManager::decrement()
-{
-    tallyTable->setSortingEnabled(false);
-    int rows = tallyTable->rowCount();
-    int i = tallyTable->currentRow();
-
-    if (i < 0 || i > rows - 1) {
-        // invalid row selected
-        return;
-    }
-
-    QTableWidgetItem* item = new QTableWidgetItem;
-    item = tallyTable->item(i,2);
-    QString itemLabel = item->text();
-    QString barcode = this->getUPC(itemLabel);
-
-    // Check that the item count doesn't go below zero
-    if (scanTally.value(barcode) <= 0) {
-        return;
-    } else {
-        scanTally[barcode] = scanTally.value(barcode) - 1;
-    }
-
-    QTableWidgetItem *newCount = new QTableWidgetItem(tr("%1").arg(scanTally.value(barcode)));
-    tallyTable->setItem(i,0,newCount);
-    scanCount -= 1;
-    scanCounter->display(scanCount);
-    tallyTable->setSortingEnabled(true);
+    this->reset();
+    invoiceDetailsTable->setSortingEnabled(true);
 }
 
 void InvoiceManager::refocus()
 {
-    scanValue->setFocus();
+    invoiceNumberEdit->setFocus();
 }
 
 bool InvoiceManager::checkDB(QString barcode)

@@ -3,6 +3,7 @@
 #include "inventory.h"
 #include "databasedialog.h"
 #include "inventorymanager.h"
+#include "invoicemanager.h"
 
 #include <QGridLayout>
 #include <QTabWidget>
@@ -108,12 +109,15 @@ void MainWindow::createTabs()
     // The interface to the product inventory
     // prodInventory = new Inventory(this);
 
-    // The interface for managing stock
+    // The interface for managing inventory
     inventoryMgr = new InventoryManager(tabs, prodCatalog, this);
 
+    // The interface for managing invoices
+    invoiceMgr = new InvoiceManager(tabs, prodCatalog, this);
+
     tabs->addTab(inventoryMgr,tr("Inventory Manager"));
+    tabs->addTab(invoiceMgr,tr("Invoice Manager"));
     tabs->addTab(prodCatalog,tr("Catalog"));
-    // tabs->addTab(prodInventory,tr("Inventory"));
     // tabs->addTab(dbDialog,tr("Database"));
 }
 
