@@ -8,6 +8,7 @@
 
 QT_BEGIN_NAMESPACE
 class QString;
+class QStringList;
 class QLabel;
 class QLayout;
 class QLineEdit;
@@ -41,17 +42,18 @@ private slots:
 private:
 
     void createLayout();
+    QStringList getVendors();
+    QStringList getInvoiceList(const QString& vendor);
+    void recallInvoice();
 
     QPushButton*   addInvoiceButton;
     QPushButton*   commitButton;
     QPushButton*   recallButton;
+    QPushButton*   cancelButton;
     QDateTimeEdit* dateEditBox;
     QComboBox*     vendorBox;
     QLineEdit*     invoiceNumberEdit;
     QLineEdit*     invoiceCost;
-    QLabel*        vendorLabel;
-    QLabel*        invoiceNumLabel;
-    QLabel*        invoiceCostLabel;
     QTableWidget*  invoiceDetailsTable;
     QHeaderView*   invoiceDetailsHeader;
     QMap<QString,QTableWidgetItem*> itemMap;

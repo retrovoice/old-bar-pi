@@ -35,7 +35,7 @@ InvoiceManager::InvoiceManager(QTabWidget *tabW,
 {
     invoiceDetailsTable = new QTableWidget(0, 5, this);
     QStringList labels;
-    labels << "Item" << "Qty" << "Price" << "Disc" << "Net";
+    labels << "Item" << "Qty" << "Price" << "Description" << "Net";
     invoiceDetailsTable->setHorizontalHeaderLabels(labels);
     invoiceDetailsTable->setMinimumWidth(480);
     invoiceDetailsTable->setSortingEnabled(true);
@@ -48,6 +48,7 @@ void InvoiceManager::createLayout()
     addInvoiceButton = new QPushButton(tr("New Invoice"),this);
     commitButton = new QPushButton(tr("Commit"),this);
     recallButton = new QPushButton(tr("Recall"),this);
+    cancelButton = new QPushButton(tr("Cancel"),this);
     dateEditBox = new QDateTimeEdit;
     
     // Format string for how date/time will be appear in dateEditBox
@@ -58,47 +59,61 @@ void InvoiceManager::createLayout()
     dateEditBox->setCalendarPopup(true);
     QCalendarWidget* calendar = new QCalendarWidget;
     dateEditBox->setCalendarWidget(calendar);
+    QLabel* dateLabel = new QLabel(tr("Date"));
     
     vendorBox = new QComboBox;
-    vendorLabel = new QLabel(tr("Vendor"));
+    QLabel* vendorLabel = new QLabel(tr("Vendor"));
     vendorLabel->setBuddy(vendorBox);
     
+    // Get the list of vendors from the database
+    // to populate the vendor combobox
+    QStringList vendors = this->getVendors();
+    QStringList::const_iterator constItr;
+    for (constItr = vendors.constBegin(); constItr != vendors.constEnd(); constItr++)
+    {
+      vendorBox->addItem(*constItr);
+    }
+    
     invoiceNumberEdit = new QLineEdit;
-    invoiceNumLabel = new QLabel(tr("Invoice No."));
+    QLabel* invoiceNumLabel = new QLabel(tr("Invoice No."));
     invoiceNumLabel->setBuddy(invoiceNumberEdit);
     
     invoiceCost = new QLineEdit;
-    invoiceCostLabel = new QLabel(tr("Cost"));
+    QLabel* invoiceCostLabel = new QLabel(tr("Cost"));
     invoiceCostLabel->setBuddy(invoiceCost);
     
     addInvoiceButton->setEnabled(true);
     commitButton->setEnabled(false);
 
-    QLabel* stockLabel = new QLabel(tr("Invoice Management"),this);
-    stockLabel->setAlignment(Qt::AlignHCenter);
+    QVBoxLayout* row2_0_Layout = new QVBoxLayout;
+    QVBoxLayout* row2_1_Layout = new QVBoxLayout;
+    QVBoxLayout* row2_2_Layout = new QVBoxLayout;
+    QVBoxLayout* row2_3_Layout = new QVBoxLayout;
+    
+    row2_0_Layout->addWidget(addInvoiceButton);
+    row2_0_Layout->addWidget(dateLabel);
+    row2_0_Layout->addWidget(dateEditBox);
+    
+    row2_1_Layout->addWidget(commitButton);
+    row2_1_Layout->addWidget(vendorLabel);
+    row2_1_Layout->addWidget(vendorBox);
+    
+    row2_2_Layout->addWidget(recallButton);
+    row2_2_Layout->addWidget(invoiceNumLabel);
+    row2_2_Layout->addWidget(invoiceNumberEdit);
+    
+    row2_3_Layout->addWidget(cancelButton);
+    row2_3_Layout->addWidget(invoiceCostLabel);
+    row2_3_Layout->addWidget(invoiceCost);
 
-    QHBoxLayout* buttonRowOneLayout = new QHBoxLayout;
-    buttonRowOneLayout->addWidget(addInvoiceButton);
-    buttonRowOneLayout->addWidget(commitButton);
-    buttonRowOneLayout->addWidget(recallButton);
+    QHBoxLayout* headerLayout = new QHBoxLayout;
+    headerLayout->addLayout(row2_0_Layout);
+    headerLayout->addLayout(row2_1_Layout);
+    headerLayout->addLayout(row2_2_Layout);
+    headerLayout->addLayout(row2_3_Layout);
     
-    QHBoxLayout* rowTwoLabelLayout = new QHBoxLayout;
-    rowTwoLabelLayout->addWidget(vendorLabel);
-    rowTwoLabelLayout->addWidget(invoiceNumLabel);
-    rowTwoLabelLayout->addWidget(invoiceCostLabel);
-    
-    QHBoxLayout* buttonRowTwoLayout = new QHBoxLayout;
-    buttonRowTwoLayout->addWidget(dateEditBox);
-    buttonRowTwoLayout->addWidget(vendorBox);
-    buttonRowTwoLayout->addWidget(invoiceNumberEdit);
-    buttonRowTwoLayout->addWidget(invoiceCost);
-    
-
     QVBoxLayout* mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(stockLabel);
-    mainLayout->addLayout(buttonRowOneLayout);
-    mainLayout->addLayout(rowTwoLabelLayout);
-    mainLayout->addLayout(buttonRowTwoLayout);
+    mainLayout->addLayout(headerLayout);
     mainLayout->addWidget(invoiceDetailsTable);
 
     this->setLayout(mainLayout);
@@ -318,4 +333,26 @@ QString InvoiceManager::getUPC(QString label)
         result.append(labelQuery.value(0).toString());
     }
     return result;
+}
+
+QStringList InvoiceManager::getInvoiceList(const QString& vendor)
+{
+  QStringList invoiceList;
+  return invoiceList;
+}
+
+QStringList InvoiceManager::getVendors()
+{
+  QStringList vendorList;
+  QSqlQuery query("SELECT vendorname FROM vendors");
+  while (query.next())
+  {
+    vendorList.append(query.value(0).toString());
+  }
+  return vendorList;
+}
+
+void InvoiceManager::recallInvoice()
+{
+
 }
