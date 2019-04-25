@@ -17,6 +17,11 @@
 #include <QTabWidget>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QSqlRelationalTableModel>
+#include <QSqlRelationalDelegate>
+#include <QSqlRelation>
+#include <QSqlError>
+#include <QTableView>
 #include <QHeaderView>
 #include <QDate>
 #include <QDateTimeEdit>
@@ -33,22 +38,103 @@ InvoiceManager::InvoiceManager(QTabWidget *tabW,
                            QWidget *parent) :
     QWidget(parent)
 {
-    invoiceDetailsTable = new QTableWidget(0, 5, this);
-    QStringList labels;
-    labels << "Item" << "Qty" << "Price" << "Description" << "Net";
-    invoiceDetailsTable->setHorizontalHeaderLabels(labels);
-    invoiceDetailsTable->setMinimumWidth(480);
-    invoiceDetailsTable->setSortingEnabled(true);
-    invoiceDetailsHeader = invoiceDetailsTable->horizontalHeader();
+    detailsModel = new QSqlRelationalTableModel;
+    detailsView  = new QTableView;
+    
+    invoiceModel = new QSqlRelationalTableModel;
+    invoiceView  = new QTableView;
+    
+    // These must be done in order due to initializaion
+    // of access types.
+    this->initModel();
+    invoiceView = this->createView("Invoices", invoiceModel);
+    detailsView  = this->createView("Invoice Details", detailsModel);
+    
     this->createLayout();
+    
+    
+    invoiceView->resizeColumnsToContents();
+    invoiceView->setSortingEnabled(true);
+    //invoiceView->show();
+    detailsView->resizeColumnsToContents();
+    detailsView->setSortingEnabled(true);
+    detailsView->hideColumn(0);
+    detailsView->hideColumn(1);
+    //invoiceDetailsView->show();
 }
+
+void InvoiceManager::initModel()
+{
+    invoiceModel->setTable("invoice");
+    invoiceModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    invoiceModel->setRelation(1, QSqlRelation("vendors","id","vendorname"));
+    invoiceModel->setHeaderData(0,Qt::Horizontal, QObject::tr("Invoice"));
+    invoiceModel->setHeaderData(1,Qt::Horizontal, QObject::tr("Vendor"));
+    invoiceModel->setHeaderData(2,Qt::Horizontal, QObject::tr("Date"));
+    // Synchronize model with database
+    if (invoiceModel->select())
+    {
+      showError(invoiceModel->lastError());
+    }
+    
+    detailsModel->setTable("invoicedetails");
+    detailsModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    detailsModel->setRelation(2, QSqlRelation("products", "upccode", "label"));
+    detailsModel->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+    detailsModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Invoice"));
+    detailsModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Product"));
+    detailsModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Qty"));
+    detailsModel->setHeaderData(4, Qt::Horizontal, QObject::tr("Price"));
+    detailsModel->setHeaderData(5, Qt::Horizontal, QObject::tr("Discount"));
+    detailsModel->setHeaderData(6, Qt::Horizontal, QObject::tr("Net Price"));
+    
+    // Synchronize model with database
+    if (detailsModel->select())
+    {
+      showError(detailsModel->lastError());
+    }
+}
+
+QTableView* InvoiceManager::createView(const QString &title, QSqlRelationalTableModel *model)
+{
+    QTableView *view = new QTableView;
+    view->setModel(model);
+    view->setItemDelegate(new QSqlRelationalDelegate(view));
+    view->setWindowTitle(title);
+    return view;
+}
+
 
 void InvoiceManager::createLayout()
 {
     addInvoiceButton = new QPushButton(tr("New Invoice"),this);
-    commitButton = new QPushButton(tr("Commit"),this);
-    recallButton = new QPushButton(tr("Recall"),this);
-    cancelButton = new QPushButton(tr("Cancel"),this);
+    addInvoiceButton->setEnabled(true);
+    saveInvoiceButton = new QPushButton(tr("Save"),this);
+    saveInvoiceButton->setEnabled(false);
+    cancelInvoiceButton = new QPushButton(tr("Cancel"),this);
+    cancelInvoiceButton->setEnabled(false);
+    deleteInvoiceButton = new QPushButton(tr("Delete"),this);
+    deleteInvoiceButton->setEnabled(true);
+    
+    connect (addInvoiceButton, SIGNAL(clicked()), this, SLOT(newInvoice()));
+    connect (saveInvoiceButton, SIGNAL(clicked()), this, SLOT(submitInvoice()));
+    connect (cancelInvoiceButton, SIGNAL(clicked()),this, SLOT(cancelInvoice()));
+    connect (deleteInvoiceButton, SIGNAL(clicked(bool)), this, SLOT(deleteInvoice()));
+        
+    addDetailButton = new QPushButton(tr("New Line"),this);
+    addDetailButton->setEnabled(true);
+    saveDetailsButton = new QPushButton(tr("Save"),this);
+    saveDetailsButton->setEnabled(false);
+    cancelDetailsButton = new QPushButton(tr("Cancel"),this);
+    cancelDetailsButton->setEnabled(false);
+    deleteDetailButton = new QPushButton(tr("Delete"),this);
+    deleteDetailButton->setEnabled(true);
+    
+    connect (addDetailButton, SIGNAL(clicked()), this, SLOT(newDetail()));
+    connect (saveDetailsButton, SIGNAL(clicked()), this, SLOT(submitDetails()));
+    connect (cancelDetailsButton, SIGNAL(clicked()),this, SLOT(cancelDetails()));
+    connect (deleteDetailButton, SIGNAL(clicked(bool)), this, SLOT(deleteDetail()));
+        
     dateEditBox = new QDateTimeEdit;
     
     // Format string for how date/time will be appear in dateEditBox
@@ -63,7 +149,6 @@ void InvoiceManager::createLayout()
     
     vendorBox = new QComboBox;
     QLabel* vendorLabel = new QLabel(tr("Vendor"));
-    vendorLabel->setBuddy(vendorBox);
     
     // Get the list of vendors from the database
     // to populate the vendor combobox
@@ -76,197 +161,168 @@ void InvoiceManager::createLayout()
     
     invoiceNumberEdit = new QLineEdit;
     QLabel* invoiceNumLabel = new QLabel(tr("Invoice No."));
-    invoiceNumLabel->setBuddy(invoiceNumberEdit);
     
     invoiceCost = new QLineEdit;
     QLabel* invoiceCostLabel = new QLabel(tr("Cost"));
-    invoiceCostLabel->setBuddy(invoiceCost);
     
-    addInvoiceButton->setEnabled(true);
-    commitButton->setEnabled(false);
 
     QVBoxLayout* row2_0_Layout = new QVBoxLayout;
     QVBoxLayout* row2_1_Layout = new QVBoxLayout;
     QVBoxLayout* row2_2_Layout = new QVBoxLayout;
     QVBoxLayout* row2_3_Layout = new QVBoxLayout;
     
-    row2_0_Layout->addWidget(addInvoiceButton);
     row2_0_Layout->addWidget(dateLabel);
     row2_0_Layout->addWidget(dateEditBox);
+    row2_0_Layout->addWidget(addDetailButton);
     
-    row2_1_Layout->addWidget(commitButton);
     row2_1_Layout->addWidget(vendorLabel);
     row2_1_Layout->addWidget(vendorBox);
+    row2_1_Layout->addWidget(saveDetailsButton);
     
-    row2_2_Layout->addWidget(recallButton);
     row2_2_Layout->addWidget(invoiceNumLabel);
     row2_2_Layout->addWidget(invoiceNumberEdit);
+    row2_2_Layout->addWidget(cancelDetailsButton);
     
-    row2_3_Layout->addWidget(cancelButton);
     row2_3_Layout->addWidget(invoiceCostLabel);
     row2_3_Layout->addWidget(invoiceCost);
+    row2_3_Layout->addWidget(deleteDetailButton);
 
-    QHBoxLayout* headerLayout = new QHBoxLayout;
-    headerLayout->addLayout(row2_0_Layout);
-    headerLayout->addLayout(row2_1_Layout);
-    headerLayout->addLayout(row2_2_Layout);
-    headerLayout->addLayout(row2_3_Layout);
+    QHBoxLayout* detailsHeaderLayout = new QHBoxLayout;
+    detailsHeaderLayout->addLayout(row2_0_Layout);
+    detailsHeaderLayout->addLayout(row2_1_Layout);
+    detailsHeaderLayout->addLayout(row2_2_Layout);
+    detailsHeaderLayout->addLayout(row2_3_Layout);
     
-    QVBoxLayout* mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(headerLayout);
-    mainLayout->addWidget(invoiceDetailsTable);
+    QVBoxLayout* detailsLayout = new QVBoxLayout;
+    detailsLayout->addLayout(detailsHeaderLayout);
+    detailsLayout->addWidget(detailsView);
+    
+    QHBoxLayout* invoiceHeaderLayout = new QHBoxLayout;
+    invoiceHeaderLayout->addWidget(addInvoiceButton);
+    invoiceHeaderLayout->addWidget(saveInvoiceButton);
+    invoiceHeaderLayout->addWidget(cancelInvoiceButton);
+    invoiceHeaderLayout->addWidget(deleteInvoiceButton);
+
+    QVBoxLayout* invoiceLayout = new QVBoxLayout;
+    invoiceLayout->addLayout(invoiceHeaderLayout);
+    invoiceLayout->addWidget(invoiceView);
+    
+    QHBoxLayout* mainLayout = new QHBoxLayout;
+    mainLayout->addLayout(invoiceLayout);
+    mainLayout->addLayout(detailsLayout);
 
     this->setLayout(mainLayout);
     
 }
 
 
-void InvoiceManager::newinvoice()
+void InvoiceManager::newInvoice()
 {
-    invoiceNumberEdit->setFocus();
-    invoiceNumberEdit->clear();
-    invoiceNumberEdit->setReadOnly(false);
+    if (!invoiceModel->insertRows(0,1))
+    {
+      QMessageBox::warning( this,"InvoiceManager::newInvoice", 
+      "insertRows operation failed." );
+      this->cancelInvoice();
+      return;
+    }
+    invoiceView->selectRow(0);
+    this->invoiceChanged();
 }
 
-void InvoiceManager::reset()
+void InvoiceManager::newDetail()
 {
-    invoiceDetailsTable->setSortingEnabled(false);
-    int r = invoiceDetailsTable->rowCount();
-    for (r--; r >= 0; r--) {
-        invoiceDetailsTable->removeRow(r);
+    if (!detailsModel->insertRows(0,1))
+    {
+      QMessageBox::warning( this,"InvoiceManager::newInvoice", 
+      "insertRows operation failed." );
+      this->cancelDetails();
+      return;
     }
-    invoiceNumberEdit->setText("---");
-    invoiceNumberEdit->setReadOnly(true);
-    itemMap.clear();
-    invoiceDetailsTable->setSortingEnabled(true);
+    detailsView->selectRow(0);
+    this->detailChanged();
 }
 
-void InvoiceManager::enterinvoice()
+void InvoiceManager::cancelInvoice()
 {
-    invoiceDetailsTable->setSortingEnabled(false);
-
-    QStringList* itemList = new QStringList;
-    QString tempStr;
-    QString tableStr;
-    QString filename;
-    QTableWidgetItem* count     = new QTableWidgetItem;
-    QTableWidgetItem* vendor    = new QTableWidgetItem;
-    QTableWidgetItem* product   = new QTableWidgetItem;
-    QTableWidgetItem* menuorder = new QTableWidgetItem;
-    QTableWidgetItem* category  = new QTableWidgetItem;
-    QTableWidgetItem* price     = new QTableWidgetItem;
-    QTableWidgetItem* upc      = new QTableWidgetItem;
-
-    // Label for file based on operation selected
-        itemList->append("Stock Received");
-        filename.append("Received_");
-	tableStr.append(" invoicedetails ");
-
-    // Date/Time stamp for file
-    QDateTime currentDateTime(QDate::currentDate(),QTime::currentTime());
-
-    // Integer value of date/time used for database record.
-    QVariant datetimeInt = currentDateTime.toTime_t();
-    
-    // Create a query used to write records to the database.
-    QSqlQuery query;
-    QString querytext;
-    // Set query command string for appropriate table
-    // Will later append lines for each record
-    querytext.append("INSERT INTO" + tableStr + "VALUES ");
-
-
-    // Format string for how date/time will be written for the file
-    QString format = "MM/dd/yyyy,hh:mm:ss";
-    itemList->append(currentDateTime.toString(format));
-
-    // Format string for how date/time will be written for the filename
-    format.clear();
-    format.append("yyyy-MM-dd_hh-mm-ss");
-    filename.append(currentDateTime.toString(format));
-    filename.append(".csv");
-
-    // Number of rows of data
-    int r = invoiceDetailsTable->rowCount();
-
-    // Add column headings
-    //itemList->append("Count,Vendor,Description,Index,Category,Price,Value");
-    itemList->append("Count,Vendor,Description,Menu Order,Price,Value");
-
-    float invTotal = 0.;
-    // Loop through table, adding data to list
-    for (int i = 0; i < r; i++) {
-        count    = invoiceDetailsTable->item(i,0);
-        vendor     = invoiceDetailsTable->item(i,1);
-        product  = invoiceDetailsTable->item(i,2);
-        menuorder   = invoiceDetailsTable->item(i,3);
-        //category = tallyTable->item(i,4);
-        price = invoiceDetailsTable->item(i,5);
-	float stockvalue = count->text().toFloat() * price->text().toFloat();
-	invTotal += stockvalue;
-	QString valuetext;
-	valuetext.setNum(stockvalue);
-	upc  = invoiceDetailsTable->item(i,6);
-	
-	// build the string that will be written to the CSV file
-        tempStr.append(count->text());
-        tempStr.append(",");
-        tempStr.append(vendor->text());
-        tempStr.append(",");
-        tempStr.append(product->text());
-        tempStr.append(",");
-        tempStr.append(menuorder->text());
-        tempStr.append(",");
-        //tempStr.append(category->text());
-        //tempStr.append(",");
-        tempStr.append(price->text());
-        tempStr.append(",");
-	tempStr.append(valuetext);
-        //tempStr.append(",");
-        //tempStr.append(upc->text());
-        itemList->append(tempStr);
-        tempStr.clear();
-	
-	// Build line of query for the current record
-	querytext.append("(" + datetimeInt.toString() + ",'" + upc->text() + "'," + count->text() + "),");
-    }
-    // The trailing comma of the querystring needs to be removed
-    int stLength = querytext.length();
-    querytext.resize(stLength - 1);
-    std::cout << "StockManager::finish - SQL String is:\n";
-    std::cout << "\t" << querytext.toStdString() << std::endl; 
-    // Execute the query
-    query.exec(querytext);
-
-    QString fivecommas(",,,,,");
-    QString valueTotal;
-    valueTotal.setNum(invTotal);
-    itemList->append(fivecommas + valueTotal);
-    QFile results(filename);
-    if (!results.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this,
-                             "File Write Error",
-                             "Could not open file to write results");
-    } else {
-        QStringList::ConstIterator constItr;
-        QByteArray aline;
-        for (constItr = itemList->constBegin();
-             constItr != itemList->constEnd();
-             constItr++)
-        {
-            aline.append(*constItr);
-            aline.append("\n");
-            results.write(aline);
-            aline.clear();
-        }
-    }
-    this->reset();
-    invoiceDetailsTable->setSortingEnabled(true);
+    invoiceModel->revertAll();
+    setInvoiceButtons();
 }
 
-void InvoiceManager::refocus()
+void InvoiceManager::cancelDetails()
 {
-    invoiceNumberEdit->setFocus();
+    detailsModel->revertAll();
+    setDetailsButtons();
+}
+
+
+void InvoiceManager::submitInvoice()
+{   
+    invoiceView->setSortingEnabled(false);
+    // Update the mapping between the database and the
+    // QDataWidgetMapper
+    if (!invoiceModel->submitAll()) {
+        showError(invoiceModel->lastError());
+        this->cancelInvoice();
+        return;
+    }
+    invoiceView->setSortingEnabled(true);
+    setInvoiceButtons();
+}
+
+void InvoiceManager::submitDetails()
+{   
+    detailsView->setSortingEnabled(false);
+    // Update the mapping between the database and the
+    // QDataWidgetMapper
+    if (!detailsModel->submitAll()) {
+        showError(detailsModel->lastError());
+        this->cancelInvoice();
+        return;
+    }
+    detailsView->setSortingEnabled(true);
+    setDetailsButtons();
+}
+
+void InvoiceManager::deleteInvoice()
+{
+    // Don't try to remove a row if none exist
+    if (invoiceModel->rowCount())
+    {
+      // Capture the current index of the record being removed
+      QModelIndex spot = invoiceView->currentIndex();
+
+      // Remove the row and check result for error.
+      if (!invoiceModel->removeRow(spot.row())) {
+	  QSqlError err = invoiceModel->lastError();
+	  QMessageBox::warning(this, "Error - Remove Row",
+                             "Reported Error: " + err.text());
+      }
+
+      // Submit the change to the database
+      this->submitInvoice();
+      setInvoiceButtons();
+    }
+}
+
+void InvoiceManager::deleteDetail()
+{
+    // Don't try to remove a row if none exist
+    if (detailsModel->rowCount())
+    {
+      // Capture the current index of the record being removed
+      QModelIndex spot = detailsView->currentIndex();
+
+      // Remove the row and check result for error.
+      if (!detailsModel->removeRow(spot.row())) {
+	  QSqlError err = detailsModel->lastError();
+	  QMessageBox::warning(this, "Error - Remove Row",
+                             "Reported Error: " + err.text());
+      }
+
+      // Submit the change to the database
+      this->submitDetails();
+      setDetailsButtons();
+    }
 }
 
 bool InvoiceManager::checkDB(QString barcode)
@@ -352,7 +408,34 @@ QStringList InvoiceManager::getVendors()
   return vendorList;
 }
 
-void InvoiceManager::recallInvoice()
+void InvoiceManager::setInvoiceButtons(const bool st)
 {
+    saveInvoiceButton->setEnabled(!st);
+    cancelInvoiceButton->setEnabled(!st);
+    addInvoiceButton->setEnabled(st);
+}
 
+void InvoiceManager::setDetailsButtons(const bool st)
+{
+    saveDetailsButton->setEnabled(!st);
+    cancelDetailsButton->setEnabled(!st);
+    addDetailButton->setEnabled(st);
+}
+
+void InvoiceManager::invoiceChanged(const bool st)
+{
+    cancelInvoiceButton->setEnabled(st);
+    saveInvoiceButton->setEnabled(st);
+}
+
+void InvoiceManager::detailChanged(const bool st)
+{
+    cancelDetailsButton->setEnabled(st);
+    saveDetailsButton->setEnabled(st);
+}
+
+void InvoiceManager::showError(const QSqlError& err)
+{
+    QMessageBox::critical(this, "Database Error",
+      "Reported Error:  " + err.text());
 }

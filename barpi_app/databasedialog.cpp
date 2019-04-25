@@ -155,13 +155,14 @@ void DatabaseDialog::initdb()
   "density real)");
   
   query.exec("create table inventory ("
+  "id integer primary key,"
   "date integer,"
   "upccode varchar(15) references products(upccode),"
   "quantity real)");
   
   query.exec("create table invoice ("
   "invoicenumber integer primary key,"
-  "vendor varchar(4) references vendors(id),"
+  "vendor varchar(40) references vendorname(id),"
   "date integer)");
   
   query.exec("create table invoicedetails ("
@@ -176,10 +177,11 @@ void DatabaseDialog::initdb()
   
   query.exec("create table sales ("
   "id integer primary key,"
-  "begindate integer,"
-  "enddate integer,"
+  "date integer,"
   "product varchar(30) references products(upccode),"
-  "quantity real)");
+  "quantity real,"
+  "netsales real,"
+  "units varchar(15) references units(id))");
   
   query.exec("insert into reps values "
   "(NULL,'None',NULL,NULL,NULL),"
@@ -206,6 +208,9 @@ void DatabaseDialog::initdb()
   "(NULL,'liters'),(NULL,'milliliters'),(NULL,'fluid ounces'),"
   "(NULL,'ounces'),(NULL,'pounds'),(NULL,'grams'),(NULL,'kilograms'),"
   "(NULL,'each')");
+  
+  //query.exec("insert into invoice values "
+  //"(1,0,
   
   query.exec("insert into products values "
   "('822059000035','Dos Fincas Cabernet Sauvignon Malbec',3,'',1,0,11.25,0.75,1,99,1),"

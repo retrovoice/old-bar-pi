@@ -31,7 +31,7 @@ Catalog::Catalog(QWidget *parent) :
     this->createLayout();
     prodTableView->resizeColumnsToContents();
     prodTableView->setSortingEnabled(true);
-    prodTableView->show();
+    //prodTableView->show();
     //updateButtons(false);
 }
 
@@ -158,7 +158,7 @@ void Catalog::addItem(const QString &barcode)
     int iRow = 0;
 
     if (!prodTableModel->insertRows(iRow, 1)) {
-        QMessageBox::warning( this,"Inventory::additem",
+        QMessageBox::warning( this,"Catalog::additem",
 			      "insertRows failed.");
         this->cancel();
 	return;

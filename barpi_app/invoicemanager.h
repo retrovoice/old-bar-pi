@@ -19,6 +19,9 @@ class QTabWidget;
 class QTableWidget;
 class QTableWidgetItem;
 class QHeaderView;
+class QSqlRelationalTableModel;
+class QSqlError;
+class QTableView;
 QT_END_NAMESPACE
 
 class InvoiceManager : public QWidget
@@ -34,27 +37,44 @@ signals:
 public slots:
 
 private slots:
-    void newinvoice();
-    void reset();
-    void enterinvoice();
-    void refocus();
+    void newInvoice();
+    void submitInvoice();
+    void cancelInvoice();
+    void deleteInvoice();
+    void newDetail();
+    void submitDetails();
+    void cancelDetails();
+    void deleteDetail();
 
 private:
 
+    void initModel();
     void createLayout();
+    QTableView* createView(const QString &title, QSqlRelationalTableModel *model);
     QStringList getVendors();
     QStringList getInvoiceList(const QString& vendor);
-    void recallInvoice();
+    void setInvoiceButtons(const bool st = true);
+    void setDetailsButtons(const bool st = true);
+    void invoiceChanged(const bool st = true);
+    void detailChanged(const bool st = true);
+    void showError(const QSqlError &err);
 
     QPushButton*   addInvoiceButton;
-    QPushButton*   commitButton;
-    QPushButton*   recallButton;
-    QPushButton*   cancelButton;
+    QPushButton*   saveInvoiceButton;
+    QPushButton*   cancelInvoiceButton;
+    QPushButton*   deleteInvoiceButton;
+    QPushButton*   addDetailButton;
+    QPushButton*   saveDetailsButton;
+    QPushButton*   cancelDetailsButton;
+    QPushButton*   deleteDetailButton;
     QDateTimeEdit* dateEditBox;
     QComboBox*     vendorBox;
     QLineEdit*     invoiceNumberEdit;
     QLineEdit*     invoiceCost;
-    QTableWidget*  invoiceDetailsTable;
+    QSqlRelationalTableModel* invoiceModel;
+    QSqlRelationalTableModel* detailsModel;
+    QTableView*               invoiceView;
+    QTableView*               detailsView;
     QHeaderView*   invoiceDetailsHeader;
     QMap<QString,QTableWidgetItem*> itemMap;
     
