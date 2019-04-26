@@ -116,6 +116,7 @@ set (Q_OBJECT_HEADERS
   mainwindow.h
   catalog.h
   databasedialog.h
+  datedelegate.h
   inventory.h
   inventorymanager.h
   invoicemanager.h

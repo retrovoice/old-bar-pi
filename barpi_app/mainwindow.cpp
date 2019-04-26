@@ -30,7 +30,7 @@ MainWindow::MainWindow(QString configFile,
     QMainWindow(parent, flags)
 {
     // Size the window so that tables are readable
-    this->resize(1024,576);
+    this->resize(1200,600);
 
     paramvalues = new paramMap();
     readconfigfile(configFile,paramvalues);

@@ -14,7 +14,7 @@ class QLayout;
 class QLineEdit;
 class QComboBox;
 class QPushButton;
-class QDateTimeEdit;
+class QDateEdit;
 class QTabWidget;
 class QTableWidget;
 class QTableWidgetItem;
@@ -45,6 +45,8 @@ private slots:
     void submitDetails();
     void cancelDetails();
     void deleteDetail();
+    void invoiceChanged(const bool st = true);
+    void detailChanged(const bool st = true);
 
 private:
 
@@ -55,8 +57,6 @@ private:
     QStringList getInvoiceList(const QString& vendor);
     void setInvoiceButtons(const bool st = true);
     void setDetailsButtons(const bool st = true);
-    void invoiceChanged(const bool st = true);
-    void detailChanged(const bool st = true);
     void showError(const QSqlError &err);
 
     QPushButton*   addInvoiceButton;
@@ -67,7 +67,7 @@ private:
     QPushButton*   saveDetailsButton;
     QPushButton*   cancelDetailsButton;
     QPushButton*   deleteDetailButton;
-    QDateTimeEdit* dateEditBox;
+    QDateEdit*     dateEditBox;
     QComboBox*     vendorBox;
     QLineEdit*     invoiceNumberEdit;
     QLineEdit*     invoiceCost;

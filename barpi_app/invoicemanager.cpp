@@ -1,5 +1,6 @@
 #include "invoicemanager.h"
 #include "catalog.h"
+#include "datedelegate.h"
 
 #include <QMessageBox>
 #include <QLabel>
@@ -24,7 +25,7 @@
 #include <QTableView>
 #include <QHeaderView>
 #include <QDate>
-#include <QDateTimeEdit>
+#include <QDateEdit>
 #include <QComboBox>
 #include <QFile>
 #include <QByteArray>
@@ -52,14 +53,13 @@ InvoiceManager::InvoiceManager(QTabWidget *tabW,
     
     this->createLayout();
     
-    
     invoiceView->resizeColumnsToContents();
     invoiceView->setSortingEnabled(true);
+    DateDelegate* dateRenderer = new DateDelegate(this);
+    invoiceView->setItemDelegateForColumn(2,dateRenderer);
     //invoiceView->show();
     detailsView->resizeColumnsToContents();
     detailsView->setSortingEnabled(true);
-    detailsView->hideColumn(0);
-    detailsView->hideColumn(1);
     //invoiceDetailsView->show();
 }
 
@@ -85,8 +85,6 @@ void InvoiceManager::initModel()
     detailsModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Product"));
     detailsModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Qty"));
     detailsModel->setHeaderData(4, Qt::Horizontal, QObject::tr("Price"));
-    detailsModel->setHeaderData(5, Qt::Horizontal, QObject::tr("Discount"));
-    detailsModel->setHeaderData(6, Qt::Horizontal, QObject::tr("Net Price"));
     
     // Synchronize model with database
     if (detailsModel->select())
@@ -135,7 +133,13 @@ void InvoiceManager::createLayout()
     connect (cancelDetailsButton, SIGNAL(clicked()),this, SLOT(cancelDetails()));
     connect (deleteDetailButton, SIGNAL(clicked(bool)), this, SLOT(deleteDetail()));
         
-    dateEditBox = new QDateTimeEdit;
+    connect (invoiceModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+	     this, SLOT(invoiceChanged()));
+    connect (detailsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+	     this, SLOT(detailChanged()));
+    
+
+    dateEditBox = new QDateEdit;
     
     // Format string for how date/time will be appear in dateEditBox
     QString format = "MM/dd/yyyy";
