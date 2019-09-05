@@ -166,12 +166,12 @@ def consolidateWine(dateString):
 
 
     whiteWineDict["Bollicini Prosecco"] = ( masterDict[517823884][7] * toBottle \
-                                            + masterDict[498591695][7] *.15 \
+                                            + masterDict[498591695][7] * toBottle \
                                             + masterDict[5279953][7] *.15 \
                                             + masterDict[517818526][7], \
                                             masterDict[517823884][12] \
-                                            + masterDict[498591695][12] * .5 \
-                                            + masterDict[5279953][12] *.5 \
+                                            + masterDict[498591695][12] \
+                                            + masterDict[5279953][12] \
                                             + masterDict[517818526][12] )
     whiteWineDict["Luccio Moscato"] = ( masterDict[5280591][7] * toBottle \
                                         + masterDict[5280642][7], \
@@ -186,8 +186,12 @@ def consolidateWine(dateString):
     whiteWineDict["Villa Sandi"] = ( masterDict[5280638][7], \
                                      masterDict[5280638][12] )
     whiteWineDict["Wycliff"] = ( masterDict[5280593][7] * toBottle \
+				 + masterDict[5298398][7] *.15 \
+				 + masterDict[1179004619][7] *.15 \
                                  + masterDict[5280640][7], \
                                  masterDict[5280593][12] \
+				 + masterDict[5298398][12]\
+				 + masterDict[1179004619][12]\
                                  + masterDict[5280640][12] )
 
 
