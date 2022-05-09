@@ -232,6 +232,102 @@ def consolidateWine(dateString):
                                         + masterDict[134708305][1], \
                                         masterDict[134743983][6] \
                                         + masterDict[134708305][6] )
+    whiteWineDict["Christina Chard"] = ( masterDict[108929178][1] * toBottle \
+                                        + masterDict[86287019][1], \
+                                        masterDict[108929178][6] \
+                                        + masterDict[86287019][6] )
+    whiteWineDict["Delecheneau Trique Ames"] = ( masterDict[249833652][1] * toBottle \
+                                        + masterDict[86292316][1], \
+                                        masterDict[249833652][6] \
+                                        + masterDict[86292316][6] )
+    whiteWineDict["Eyrie Pinot Gris"] = ( masterDict[362783919][1] * toBottle \
+                                        + masterDict[362775125][1], \
+                                        masterDict[362783919][6] \
+                                        + masterDict[362775125][6] )
+    whiteWineDict["J Vineyards PG"] = ( masterDict[126744935][1] * toBottle \
+                                        + masterDict[131394447][1], \
+                                        masterDict[126744935][6] \
+                                        + masterDict[131394447][6] )
+    whiteWineDict["Justin Girardin Chard"] = ( masterDict[108929180][1] * toBottle \
+                                        + masterDict[86287013][1], \
+                                        masterDict[108929180][6] \
+                                        + masterDict[86287013][6] )
+    whiteWineDict["Meiomi Chard"] = ( masterDict[126743091][1] * toBottle \
+                                        + masterDict[131390270][1], \
+                                        masterDict[126743091][6] \
+                                        + masterDict[131390270][6] )
+    whiteWineDict["Mohua SB"] = ( masterDict[126743091][1] * toBottle \
+                                        + masterDict[86292312][1], \
+                                        masterDict[126743091][6] \
+                                        + masterDict[86292312][6] )
+    whiteWineDict["Reisling"] = ( masterDict[134739034][1] * toBottle \
+                                        + masterDict[134737353][1], \
+                                        masterDict[134739034][6] \
+                                        + masterDict[134737353][6] )
+    whiteWineDict["Whitehaven"] = ( masterDict[108929188][1] * toBottle \
+                                        + masterDict[86292310][1], \
+                                        masterDict[108929188][6] \
+                                        + masterDict[86292310][6] )
+    whiteWineDict["Knuttell Chard"] = ( masterDict[1505688418][1] * toBottle \
+                                        + masterDict[1505673959][1], \
+                                        masterDict[1505688418][6] \
+                                        + masterDict[1505673959][6] )
+    whiteWineDict["Azimut Cava Brut"] = ( masterDict[126740112][1] * toBottle \
+                                        + masterDict[126522961][1], \
+                                        masterDict[126740112][6] \
+                                        + masterDict[126522961][6] )
+    whiteWineDict["Azimut Cava Rosado"] = ( masterDict[188886689][1] * toBottle \
+                                        + masterDict[188884171][1], \
+                                        masterDict[188886689][6] \
+                                        + masterDict[188884171][6] )
+    whiteWineDict["Lampo Prosecco"] = ( masterDict[108934364][1] * toBottle \
+                                        + masterDict[86265101][1], \
+                                        masterDict[108934364][6] \
+                                        + masterDict[86265101][6] )
+    whiteWineDict["Love Drunk Rose"] = ( masterDict[134746611][1] * toBottle \
+                                        + masterDict[134730032][1], \
+                                        masterDict[134746611][6] \
+                                        + masterDict[134730032][6] )
+    whiteWineDict["Luccio Moscato"] = ( masterDict[108934368][1] * toBottle \
+                                        + masterDict[86265105][1], \
+                                        masterDict[108934368][6] \
+                                        + masterDict[86265105][6] )
+    whiteWineDict["Bacchus Chard"] = ( masterDict[134743983][1] * toBottle \
+                                        + masterDict[134708305][1], \
+                                        masterDict[134743983][6] \
+                                        + masterDict[134708305][6] )
+    whiteWineDict["Sutter Home"] = ( masterDict[374604904][1] * toBottle \
+                                        + masterDict[273392497][1], \
+                                        masterDict[374604904][6] \
+                                        + masterDict[273392497][6] )
+    whiteWineDict["Val d Oca"] = ( masterDict[108934366][1] * toBottle \
+                                        + masterDict[86265103][1], \
+                                        masterDict[108934366][6] \
+                                        + masterDict[86265103][6] )
+    whiteWineDict["Villa Sandi Rose"] = ( masterDict[108934358][1] * toBottle \
+                                        + masterDict[86264837][1], \
+                                        masterDict[108934358][6] \
+                                        + masterDict[86264837][6] )
+    whiteWineDict["VRAC Rose"] = ( masterDict[108934360][1] * toBottle \
+                                        + masterDict[86264839][1], \
+                                        masterDict[108934360][6] \
+                                        + masterDict[86264839][6] )
+    whiteWineDict["Wycliff"] = ( masterDict[108934362][1] * toBottle \
+                                        + masterDict[86264845][1], \
+                                        masterDict[108934362][6] \
+                                        + masterDict[86264845][6] )
+    whiteWineDict["Chateau Villefrance"] = ( masterDict[134733882][1], \
+                                masterDict[134733882][6] )
+    whiteWineDict["Oudin Chard"] = ( masterDict[86287021][1], \
+                                masterDict[86287021][6] )
+    whiteWineDict["Rombauer Chard"] = ( masterDict[86287015][1], \
+                                masterDict[86287015][6] )
+    whiteWineDict["Christina Grunner"] = ( masterDict[189801181][1], \
+                                masterDict[189801181][6] )
+    whiteWineDict["Antech Reserve Brut"] = ( masterDict[126521374][1], \
+                                masterDict[126521374][6] )
+    whiteWineDict["Veuve Cliquot"] = ( masterDict[86264847][1], \
+                                masterDict[86264847][6] )
 
     # Create file for wine sales and output data.
     nameWine = dateString + '_WineSales.csv'
